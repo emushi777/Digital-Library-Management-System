@@ -1,46 +1,28 @@
-<div class="container" style="padding: 20px; font-family: sans-serif; max-width: 600px; margin: auto;">
-    <h2 style="margin-bottom: 20px; color: #111827;">Add New Book</h2>
+<div class="container" style="padding: 20px; font-family: sans-serif; max-width: 600px;">
+    <h2 style="margin-bottom: 20px;">Add New Category</h2>
 
-    <form action="{{ route('books.store') }}" method="POST" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
+    <form action="{{ route('categories.store') }}" method="POST" style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         @csrf
         
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Book Title:</label>
-            <input type="text" name="titulli" required placeholder="Enter book title"
-                   style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px; box-sizing: border-box;">
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Category Name:</label>
+            <input type="text" name="emertimi" required placeholder="e.g. Romane, Science, History" 
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
         </div>
 
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Select Author:</label>
-            <select name="autori_id" required style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px; background-color: white; cursor: pointer; box-sizing: border-box;">
-                <option value="" disabled selected>-- Choose an Author --</option>
-                @foreach($authors as $author)
-                    <option value="{{ $author->id }}">{{ $author->emri }} {{ $author->mbiemri }}</option>
-                @endforeach
-            </select>
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Description:</label>
+            <textarea name="pershkrimi" rows="4" placeholder="Short description of the category..." 
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
         </div>
 
-        <div style="margin-bottom: 25px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #374151;">Select Category:</label>
-            <select name="kategoria_id" required style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 15px; background-color: white; cursor: pointer; box-sizing: border-box;">
-                <option value="" disabled selected>-- Choose a Category --</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}">{{ $category->emertimi }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-weight: 600; margin-bottom: 8px;">ISBN:</label>
-            <input type="text" name="isbn" required 
-            style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
-        </div>
-
-        <button type="submit" style="width: 100%; background: #4F46E5; color: white; padding: 14px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: background 0.2s;">
-            Save Book
-        </button>
-        
-        <div style="text-align: center; margin-top: 15px;">
-            <a href="{{ route('books.index') }}" style="color: #6B7280; text-decoration: none; font-size: 14px;">Cancel and go back</a>
+        <div style="margin-top: 20px;">
+            <button type="submit" style="background: #4F46E5; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                Save Category
+            </button>
+            <a href="{{ route('categories.index') }}" style="margin-left: 15px; color: #666; text-decoration: none;">
+                Cancel
+            </a>
         </div>
     </form>
 </div>
