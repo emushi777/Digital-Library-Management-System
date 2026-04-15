@@ -1,75 +1,38 @@
-<style>
-    table a, 
-    table a:hover, 
-    table a:visited, 
-    table a:active {
-        text-decoration: none !important;
-        box-shadow: none !important;
-        border-bottom: none !important;
-    }
-
-    button, button:focus {
-        text-decoration: none !important;
-        outline: none !important;
-    }
-</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <div class="container" style="padding: 20px; font-family: sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: #111827; margin: 0;">Books List</h2>
-        <a href="{{ route('books.create') }}" style="background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
-            + Add New Book
-        </a>    
+        <h2 style="margin: 0;">Categories List</h2>
+        <a href="{{ route('categories.create') }}" style="background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">+ Add New Category</a>
     </div>
 
-    @if(session('success'))
-        <div style="background: #D1FAE5; color: #065F46; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
         <thead>
-            <tr style="background: #F3F4F6; text-align: left;">
-                <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Cover</th>
-                <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Title</th>
-                <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Author</th>
-                <th style="padding: 15px; border-bottom: 2px solid #E5E7EB; text-align: center;">Actions</th>
+            <tr style="background: #f3f4f6; text-align: left; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 15px;">Icon</th>
+                <th style="padding: 15px;">Category Name</th>
+                <th style="padding: 15px;">Parent Category</th>
+                <th style="padding: 15px; text-align: center;">Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($books as $book)
-            <tr style="border-bottom: 1px solid #F3F4F6;">
-                <td style="padding: 12px; vertical-align: middle;">
-                    @if($book->foto_kopertines && $book->foto_kopertines != 'default.jpg')
-                        <img src="{{ asset('uploads/books/' . $book->foto_kopertines) }}" 
-                             alt="Cover" 
-                             style="width: 50px; height: 70px; object-fit: cover; border-radius: 4px; border: 1px solid #E5E7EB;">
-                    @else
-                        <div style="width: 50px; height: 70px; background: #F9FAFB; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; font-size: 10px; border: 1px solid #E5E7EB;">
-                            No Image
-                        </div>
-                    @endif
+            @foreach($categories as $category)
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 15px; text-align: center; width: 60px;">
+                    <span style="background: #f3f4f6; padding: 8px; border-radius: 6px; color: #4F46E5;">
+                        <i class="fa {{ $category->ikona ?? 'fa-folder' }}"></i>
+                    </span>
                 </td>
-                <td style="padding: 12px; font-weight: 600; color: #1F2937; vertical-align: middle;">{{ $book->titulli }}</td>
-                <td style="padding: 12px; color: #4B5563; vertical-align: middle;">
-                    {{ $book->author->emri ?? 'N/A' }} {{ $book->author->mbiemri ?? '' }}
+                <td style="padding: 15px; font-weight: 600; color: #111827;">{{ $category->emertimi }}</td>
+                <td style="padding: 15px; color: #6b7280;">
+                    {{ $category->parent->emertimi ?? '—' }} 
                 </td>
-                
-                <td style="padding: 12px; vertical-align: middle;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                        <a href="{{ route('books.edit', $book->id) }}" 
-                           style="display: flex; align-items: center; justify-content: center; background: #4F46E5; color: white; width: 80px; height: 30px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
-                            Edit
-                        </a>
-
-                        <form action="{{ route('books.destroy', $book->id) }}" method="POST" onsubmit="return confirm('Are you sure?')" style="margin: 0;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" 
-                                    style="display: flex; align-items: center; justify-content: center; background: #EF4444; color: white; width: 80px; height: 30px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
-                                Delete
-                            </button>
+                <td style="padding: 15px;">
+                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                        <a href="{{ route('categories.edit', $category->id) }}" style="background: #4F46E5; color: white; padding: 6px 15px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">Edit</a>
+                        <form action="{{ route('categories.destroy', $category->id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure?')">
+                            @csrf @method('DELETE')
+                            <button type="submit" style="background: #EF4444; color: white; padding: 6px 15px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">Delete</button>
                         </form>
                     </div>
                 </td>
