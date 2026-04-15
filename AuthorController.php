@@ -31,13 +31,23 @@ class AuthorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'emri' => 'required',
-        'mbiemri' => 'required',
+            'emri' => 'required',
+            'mbiemri' => 'required',
+            'biografia' => 'nullable',
+            'vendi' => 'required',
+            'foto_profili' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        Author::create($request->all());
+        $data = $request->all();
 
-        return redirect()->route('authors.index')->with('success', 'Author created successfully!');
+        if ($request->hasFile('foto_profili')) {
+            $fileName = time() . '_' . $request->file('foto_profili')->getClientOriginalName();
+            $request->file('foto_profili')->move(public_path('uploads/authors'), $fileName);
+            $data['foto_profili'] = $fileName;
+        }
+
+        \App\Models\Author::create($data);
+        return redirect()->route('authors.index')->with('success', 'Author added successfully!');
     }
 
     /**
@@ -53,15 +63,36 @@ class AuthorController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $author = Author::findOrFail($id);
+        return view('authors.edit', compact('author'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $author = \App\Models\Author::findOrFail($id);
+
+        $request->validate([
+            'emri' => 'required',
+            'mbiemri' => 'required',
+            'biografia' => 'nullable',
+            'vendi' => 'required',
+            'foto_profili' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_profili')) {
+            if ($author->foto_profili && file_exists(public_path('uploads/authors/' . $author->foto_profili))) {
+                unlink(public_path('uploads/authors/' . $author->foto_profili));
+            }
+
+            $fileName = time() . '_' . $request->file('foto_profili')->getClientOriginalName();
+            $request->file('foto_profili')->move(public_path('uploads/authors'), $fileName);
+            $data['foto_profili'] = $fileName;
+        }
+
+        $author->update($data);
+        return redirect()->route('authors.index')->with('success', 'Author updated successfully!');
     }
 
     /**
