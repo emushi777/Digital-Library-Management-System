@@ -12,9 +12,8 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $books = Book::with(['author', 'category'])->get();
+    public function index() {
+        $books = \App\Models\Book::with(['author', 'category'])->get();
         return view('books.index', compact('books'));
     }
 
@@ -36,19 +35,31 @@ class BookController extends Controller
     {
         $request->validate([
             'titulli' => 'required',
+            'isbn' => 'required|unique:books,isbn',
             'autori_id' => 'required',
             'kategoria_id' => 'required',
+            'viti_botimit' => 'required|integer',
+            'gjuha' => 'required',
+            'numri_faqeve' => 'required|integer',
+            'formati' => 'required',
+            'madhesia_mb' => 'required|numeric',
+            'foto_kopertines' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        \App\Models\Book::create([
-            'titulli' => $request->titulli,
-            'autori_id' => $request->autori_id,
-            'kategoria_id' => $request->kategoria_id,
-        ]);
+        $data = $request->all();
 
-        return redirect()->route('books.index')->with('success', 'Book saved successfully!');
+        $data['shtegu_skedarit'] = 'N/A';
+
+        if ($request->hasFile('foto_kopertines')) {
+            $fileName = time() . '_' . $request->file('foto_kopertines')->getClientOriginalName();
+            $request->file('foto_kopertines')->move(public_path('uploads/books'), $fileName);
+            $data['foto_kopertines'] = $fileName;
+        }
+
+        \App\Models\Book::create($data); 
+
+        return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
     }
-
     /**
      * Display the specified resource.
      */
@@ -62,15 +73,45 @@ class BookController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $book = Book::findOrFail($id);
+        $authors = Author::all();
+        $categories = Category::all();
+
+        return view('books.edit', compact('book', 'authors', 'categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $book = \App\Models\Book::findOrFail($id);
+
+        $request->validate([
+            'titulli' => 'required',
+            'isbn' => 'required|unique:books,isbn,' . $id,
+            'autori_id' => 'required',
+            'kategoria_id' => 'required',
+            'viti_botimit' => 'required|integer',
+            'gjuha' => 'required',
+            'numri_faqeve' => 'required|integer',
+            'formati' => 'required',
+            'madhesia_mb' => 'required|numeric',
+            'foto_kopertines' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('foto_kopertines')) {
+            if ($book->foto_kopertines && file_exists(public_path('uploads/books/' . $book->foto_kopertines))) {
+                unlink(public_path('uploads/books/' . $book->foto_kopertines));
+            }
+
+            $fileName = time() . '_' . $request->file('foto_kopertines')->getClientOriginalName();
+            $request->file('foto_kopertines')->move(public_path('uploads/books'), $fileName);
+            $data['foto_kopertines'] = $fileName;
+        }
+
+        $book->update($data);
+
+        return redirect()->route('books.index')->with('success', 'Libri u përditësua me sukses!');
     }
 
     /**
@@ -78,6 +119,9 @@ class BookController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $book = Book::findOrFail($id);
+        $book->delete();
+
+        return redirect()->route('books.index')->with('success', 'Book has been deleted!');
     }
 }
