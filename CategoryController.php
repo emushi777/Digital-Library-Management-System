@@ -21,7 +21,9 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('categories.create');
+        $categories = \App\Models\Category::all();
+        
+        return view('categories.create', compact('categories'));
     }
 
     /**
@@ -30,12 +32,14 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'emertimi' => 'required|unique:categories,emertimi',
+            'emertimi' => 'required',
+            'pershkrimi' => 'nullable',
+            'ikona' => 'nullable', 
+            'kategoria_prind_id' => 'nullable|exists:categories,id',
         ]);
 
-        Category::create($request->all());
-
-        return redirect()->route('categories.index')->with('success', 'Category added successfully!');
+        \App\Models\Category::create($request->all());
+        return redirect()->route('categories.index')->with('success', 'Category created successfully!');
     }
 
     /**
@@ -49,19 +53,34 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $category = \App\Models\Category::findOrFail($id);
+        $categories = \App\Models\Category::all(); 
+        return view('categories.edit', compact('category', 'categories'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $category = \App\Models\Category::findOrFail($id);
 
+        $request->validate([
+            'emertimi' => 'required',
+            'pershkrimi' => 'nullable',
+            'ikona' => 'nullable',
+            'kategoria_prind_id' => 'nullable|exists:categories,id', 
+        ]);
+
+        $category->fill($request->all());
+        
+        if (!$request->kategoria_prind_id) {
+            $category->kategoria_prind_id = null;
+        }
+
+        $category->save();
+
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
+    }
     /**
      * Remove the specified resource from storage.
      */
