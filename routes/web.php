@@ -1,7 +1,8 @@
 <?php
 
-use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,11 +11,6 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
 Route::get('/', function () {
@@ -26,16 +22,20 @@ Route::get('/', function () {
     ]);
 });
 
-use App\Http\Controllers\DashboardController;
+// Grupi i rrugëve që kërkojnë login (auth)
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // 1. Dashboard (Era po punon këtu, shfaq planet)
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    // 2. Checkout (Faqja e pagesës që krijuam bashkë)
+    // Kjo rrugë i duhet butonit "Subscribe Now"
+    Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
 
-    Route::post('/subscribe', [SubscriptionController::class, 'store'])
-    ->name('subscribe.store');
+    // 3. Ruajtja e abonimit (Për butonin "Get Started" dhe "Confirm & Pay")
+    Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
 
-Route::middleware('auth')->group(function () {
+    // 4. Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
