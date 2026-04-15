@@ -12,7 +12,12 @@ class Category extends Model
     protected $fillable = ['emertimi', 'pershkrimi', 'ikona', 'kategoria_prind_id'];
 
     public function books()
-{
-    return $this->hasMany(Book::class);
-}
+    {
+        return $this->hasMany(Book::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'kategoria_prind_id');
+    }
 }
