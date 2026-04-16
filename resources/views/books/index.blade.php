@@ -1,4 +1,5 @@
 <style>
+    /* Stili i Erës për pastrimin e linjave të tabelës */
     table a, 
     table a:hover, 
     table a:visited, 
@@ -17,11 +18,29 @@
 <div class="container" style="padding: 20px; font-family: sans-serif;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="color: #111827; margin: 0;">Books List</h2>
-        <a href="{{ route('books.create') }}" style="background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: background 0.2s;">
-            + Add New Book
-        </a>    
+        
+        {{-- LOGJIKA E RE: Kontrolli i butonave për Adminin --}}
+        @if($isAdmin)
+            <div>
+                @if($editMode)
+                    {{-- Butonat që shihen vetëm kur Edit Mode është AKTIV --}}
+                    <a href="{{ route('books.index') }}" style="background: #10B981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-right: 10px;">
+                        Done Editing
+                    </a>
+                    <a href="{{ route('books.create') }}" style="background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                        + Add New Book
+                    </a>
+                @else
+                    {{-- Butoni që aktivizon Edit Mode --}}
+                    <a href="{{ route('books.index', ['edit_mode' => 1]) }}" style="background: #6B7280; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                        ⚙️ Edit Mode
+                    </a>
+                @endif
+            </div>
+        @endif
     </div>
 
+    {{-- Mesazhi i suksesit pas veprimeve CRUD --}}
     @if(session('success'))
         <div style="background: #D1FAE5; color: #065F46; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
             {{ session('success') }}
@@ -34,7 +53,11 @@
                 <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Cover</th>
                 <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Title</th>
                 <th style="padding: 15px; border-bottom: 2px solid #E5E7EB;">Author</th>
-                <th style="padding: 15px; border-bottom: 2px solid #E5E7EB; text-align: center;">Actions</th>
+                
+                {{-- Shfaq kolonën Actions vetëm nëse Edit Mode është AKTIV --}}
+                @if($editMode)
+                    <th style="padding: 15px; border-bottom: 2px solid #E5E7EB; text-align: center;">Actions</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -56,6 +79,8 @@
                     {{ $book->author->emri ?? 'N/A' }} {{ $book->author->mbiemri ?? '' }}
                 </td>
                 
+                {{-- Shfaq butonat Edit/Delete vetëm nëse Edit Mode është AKTIV --}}
+                @if($editMode)
                 <td style="padding: 12px; vertical-align: middle;">
                     <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                         <a href="{{ route('books.edit', $book->id) }}" 
@@ -73,6 +98,7 @@
                         </form>
                     </div>
                 </td>
+                @endif
             </tr>
             @endforeach
         </tbody>

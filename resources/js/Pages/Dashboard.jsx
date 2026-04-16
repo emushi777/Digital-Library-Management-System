@@ -5,13 +5,15 @@ export default function Dashboard({ auth, plans }) {
     const { post, processing } = useForm();
 
     const handleSubscribe = (e, plan) => {
-        // Kjo ndalon refresh-in e faqes
         e.preventDefault();
 
         if (parseFloat(plan.cmimi_mujor) === 0) {
-            // Pakoja Free: Dërgohet direkt në Controller
+            // Pakoja Free: Dërgojmë plan_id si objektin e të dhënave
             post(route('subscribe.store'), {
-                plan_id: plan.id,
+                data: { plan_id: plan.id }, // Sigurohemi që kalon si body data
+                onSuccess: () => {
+                    console.log("Success!");
+                }
             });
         } else {
             // Pakoja Premium: Dërgohet në Checkout

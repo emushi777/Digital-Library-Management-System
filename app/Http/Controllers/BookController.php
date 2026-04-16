@@ -9,30 +9,33 @@ use App\Models\Category;
 
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index() {
-        $books = \App\Models\Book::with(['author', 'category'])->get();
-        return view('books.index', compact('books'));
+   public function index(Request $request) {
+        $books = Book::with(['author', 'category'])->get();
+        $isAdmin = auth()->user()->role === 'admin';
+        
+        // Kjo shikon nëse kemi shtypur butonin "Edit Mode"
+        $editMode = $request->has('edit_mode') && $isAdmin;
+
+        return view('books.index', compact('books', 'isAdmin', 'editMode'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
         $authors = Author::all();
         $categories = Category::all();
     
         return view('books.create', compact('authors', 'categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
         $request->validate([
             'titulli' => 'required',
             'isbn' => 'required|unique:books,isbn',
@@ -47,7 +50,6 @@ class BookController extends Controller
         ]);
 
         $data = $request->all();
-
         $data['shtegu_skedarit'] = 'N/A';
 
         if ($request->hasFile('foto_kopertines')) {
@@ -56,23 +58,16 @@ class BookController extends Controller
             $data['foto_kopertines'] = $fileName;
         }
 
-        \App\Models\Book::create($data); 
+        Book::create($data); 
 
         return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
     }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
         $book = Book::findOrFail($id);
         $authors = Author::all();
         $categories = Category::all();
@@ -82,8 +77,11 @@ class BookController extends Controller
 
     public function update(Request $request, $id)
     {
-        $book = \App\Models\Book::findOrFail($id);
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
 
+        $book = Book::findOrFail($id);
         $request->validate([
             'titulli' => 'required',
             'isbn' => 'required|unique:books,isbn,' . $id,
@@ -103,25 +101,27 @@ class BookController extends Controller
             if ($book->foto_kopertines && file_exists(public_path('uploads/books/' . $book->foto_kopertines))) {
                 unlink(public_path('uploads/books/' . $book->foto_kopertines));
             }
-
             $fileName = time() . '_' . $request->file('foto_kopertines')->getClientOriginalName();
             $request->file('foto_kopertines')->move(public_path('uploads/books'), $fileName);
             $data['foto_kopertines'] = $fileName;
         }
 
         $book->update($data);
-
         return redirect()->route('books.index')->with('success', 'Libri u përditësua me sukses!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
         $book = Book::findOrFail($id);
-        $book->delete();
+        
+        if ($book->foto_kopertines && file_exists(public_path('uploads/books/' . $book->foto_kopertines))) {
+            unlink(public_path('uploads/books/' . $book->foto_kopertines));
+        }
 
+        $book->delete();
         return redirect()->route('books.index')->with('success', 'Book has been deleted!');
     }
 }
