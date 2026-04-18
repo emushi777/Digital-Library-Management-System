@@ -7,11 +7,17 @@ export default function Dashboard({ auth, plans }) {
     const handleSubscribe = (e, plan) => {
         e.preventDefault();
 
-        // Nëse çmimi është 0 (Pakoja Basic), dërgoje direkt te faqja e librave
         if (parseFloat(plan.cmimi_mujor) === 0) {
-            window.location.href = '/books';
+            // Për planin Basic, dërgojmë kërkesën në server për ta ruajtur në DB
+            post(route('subscribe.store'), {
+                data: { plan_id: plan.id },
+                onSuccess: () => {
+                    // Pas ruajtjes me sukses, dërgoje te faqja e librave
+                    window.location.href = '/books';
+                }
+            });
         } else {
-            // Pakoja Premium: Dërgohet në Checkout
+            // Plani Premium dërgon në Checkout (Stripe/Pagesë)
             window.location.href = route('checkout.index', { plan_id: plan.id });
         }
     };
