@@ -7,14 +7,9 @@ export default function Dashboard({ auth, plans }) {
     const handleSubscribe = (e, plan) => {
         e.preventDefault();
 
+        // Nëse çmimi është 0 (Pakoja Basic), dërgoje direkt te faqja e librave
         if (parseFloat(plan.cmimi_mujor) === 0) {
-            // Pakoja Free: Dërgojmë plan_id si objektin e të dhënave
-            post(route('subscribe.store'), {
-                data: { plan_id: plan.id }, // Sigurohemi që kalon si body data
-                onSuccess: () => {
-                    console.log("Success!");
-                }
-            });
+            window.location.href = '/books';
         } else {
             // Pakoja Premium: Dërgohet në Checkout
             window.location.href = route('checkout.index', { plan_id: plan.id });
@@ -31,7 +26,7 @@ export default function Dashboard({ auth, plans }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        <div className="text-gray-900 mb-6 font-medium">
+                        <div className="text-gray-900 mb-6 font-medium border-b pb-4">
                             Welcome back, {auth.user.name}! You're logged in.
                         </div>
                         
@@ -88,7 +83,6 @@ export default function Dashboard({ auth, plans }) {
                                         <button 
                                             type="button" 
                                             disabled={processing}
-                                            // Këtu i dërgojmë 'e' dhe 'plan' që të punojë logjika
                                             onClick={(e) => handleSubscribe(e, plan)}
                                             className={`w-full font-bold py-4 px-6 rounded-lg transition-all duration-200 transform active:scale-95 ${
                                                 parseFloat(plan.cmimi_mujor) === 0 

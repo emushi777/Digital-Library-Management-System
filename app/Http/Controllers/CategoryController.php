@@ -10,10 +10,17 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $categories = Category::all();
-        return view('categories.index', compact('categories'));
+        
+        // Kontrollojmë nëse përdoruesi është admin
+        $isAdmin = auth()->user() && auth()->user()->role === 'admin';
+        
+        // Aktivizojmë Edit Mode nëse kërkohet nga admini
+        $editMode = $request->has('edit_mode') && $isAdmin;
+
+        return view('categories.index', compact('categories', 'isAdmin', 'editMode'));
     }
 
     /**
@@ -21,8 +28,12 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $categories = \App\Models\Category::all();
-        
+        // Siguria: Vetëm për admin
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $categories = Category::all();
         return view('categories.create', compact('categories'));
     }
 
@@ -31,6 +42,10 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
         $request->validate([
             'emertimi' => 'required',
             'pershkrimi' => 'nullable',
@@ -38,16 +53,10 @@ class CategoryController extends Controller
             'kategoria_prind_id' => 'nullable|exists:categories,id',
         ]);
 
-        \App\Models\Category::create($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category created successfully!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        Category::create($request->all());
+        
+        // Kthehemi te index duke mbajtur Edit Mode aktiv
+        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category created successfully!');
     }
 
     /**
@@ -55,14 +64,25 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        $category = \App\Models\Category::findOrFail($id);
-        $categories = \App\Models\Category::all(); 
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $category = Category::findOrFail($id);
+        $categories = Category::all(); 
         return view('categories.edit', compact('category', 'categories'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $category = Category::findOrFail($id);
 
         $request->validate([
             'emertimi' => 'required',
@@ -79,17 +99,21 @@ class CategoryController extends Controller
 
         $category->save();
 
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
+        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category updated successfully!');
     }
+
     /**
      * Remove the specified resource from storage.
      */
     public function destroy($id)
     {
-        $category = Category::findOrFail($id);
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
 
+        $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
+        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category deleted successfully!');
     }
 }

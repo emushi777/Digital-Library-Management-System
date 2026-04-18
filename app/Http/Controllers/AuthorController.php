@@ -10,11 +10,18 @@ class AuthorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request) // 1. Duhet të ketë Request $request
     {
-        $authors = \App\Models\Author::all();
-        return view('authors.index', compact('authors'));
+        $authors = Author::all();
+        
+        // 2. Kjo vlerëson nëse je Admin
+        $isAdmin = auth()->user() && auth()->user()->role === 'admin';
+        
+        // 3. Kjo kontrollon nese duhet te jete hapur edit mode
+        $editMode = $request->has('edit_mode') && $isAdmin;
 
+        // SHIKO KETU: Sigurohu qe i ke shkruajtur te gjitha ne compact()
+        return view('authors.index', compact('authors', 'isAdmin', 'editMode'));
     }
 
     /**
@@ -22,6 +29,11 @@ class AuthorController extends Controller
      */
     public function create()
     {
+        // Siguria: Vetëm admini mund të shohë formën e krijimit
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized action.');
+        }
+
         return view('authors.create');
     }
 
@@ -30,6 +42,10 @@ class AuthorController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
         $request->validate([
             'emri' => 'required',
             'mbiemri' => 'required',
@@ -46,8 +62,8 @@ class AuthorController extends Controller
             $data['foto_profili'] = $fileName;
         }
 
-        \App\Models\Author::create($data);
-        return redirect()->route('authors.index')->with('success', 'Author added successfully!');
+        Author::create($data);
+        return redirect()->route('authors.index', ['edit_mode' => 1])->with('success', 'Author added successfully!');
     }
 
     /**
@@ -63,13 +79,24 @@ class AuthorController extends Controller
      */
     public function edit(string $id)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
         $author = Author::findOrFail($id);
         return view('authors.edit', compact('author'));
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, $id)
     {
-        $author = \App\Models\Author::findOrFail($id);
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $author = Author::findOrFail($id);
 
         $request->validate([
             'emri' => 'required',
@@ -92,7 +119,7 @@ class AuthorController extends Controller
         }
 
         $author->update($data);
-        return redirect()->route('authors.index')->with('success', 'Author updated successfully!');
+        return redirect()->route('authors.index', ['edit_mode' => 1])->with('success', 'Author updated successfully!');
     }
 
     /**
@@ -100,7 +127,16 @@ class AuthorController extends Controller
      */
     public function destroy(Author $author)
     {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
+
+        // Fshijmë foton nga serveri para se të fshijmë rekordin
+        if ($author->foto_profili && file_exists(public_path('uploads/authors/' . $author->foto_profili))) {
+            unlink(public_path('uploads/authors/' . $author->foto_profili));
+        }
+
         $author->delete();
-        return redirect()->route('authors.index')->with('success', 'Author deleted successfully!');
+        return redirect()->route('authors.index', ['edit_mode' => 1])->with('success', 'Author deleted successfully!');
     }
 }
