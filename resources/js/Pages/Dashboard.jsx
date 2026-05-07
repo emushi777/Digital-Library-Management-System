@@ -2,23 +2,23 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm } from '@inertiajs/react';
 
 export default function Dashboard({ auth, plans }) {
-    const { post, processing } = useForm();
+    // Shtojmë 'data' për të menaxhuar inputet
+    const { post, processing, data, setData, transform } = useForm({
+        plan_id: '',
+    });
 
     const handleSubscribe = (e, plan) => {
         e.preventDefault();
+        console.log("Plan clicked:", plan.emertimi); // Test për të parë nëse punon klikimi
 
         if (parseFloat(plan.cmimi_mujor) === 0) {
-            // Për planin Basic, dërgojmë kërkesën në server për ta ruajtur në DB
-            post(route('subscribe.store'), {
-                data: { plan_id: plan.id },
-                onSuccess: () => {
-                    // Pas ruajtjes me sukses, dërgoje te faqja e librave
-                    window.location.href = '/books';
-                }
-            });
+            transform((data) => ({
+                ...data,
+                plan_id: plan.id,
+            }));
+            post(route('subscribe.store'));
         } else {
-            // Plani Premium dërgon në Checkout (Stripe/Pagesë)
-            window.location.href = route('checkout.index', { plan_id: plan.id });
+            window.location.href = route('books.index', { plan_id: plan.id });
         }
     };
 
@@ -74,15 +74,6 @@ export default function Dashboard({ auth, plans }) {
                                                     </svg>
                                                     Full access to digital library
                                                 </li>
-                                                
-                                                {parseFloat(plan.cmimi_mujor) > 0 && (
-                                                    <li className="flex items-center text-gray-500 pt-2 border-t border-gray-100 mt-2">
-                                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                        </svg>
-                                                        Cancel any time
-                                                    </li>
-                                                )}
                                             </ul>
                                         </div>
                                         
