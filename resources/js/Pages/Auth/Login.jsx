@@ -1,10 +1,6 @@
 import { useEffect } from 'react';
 import Checkbox from '@/Components/Checkbox';
-import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
@@ -22,76 +18,309 @@ export default function Login({ status, canResetPassword }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         post(route('login'));
     };
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Log in" />
 
-            {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
 
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
+                .login-root {
+                    min-height: 100vh;
+                    background: #f3f4f8;
+                    font-family: 'DM Sans', sans-serif;
+                    display: flex;
+                    flex-direction: column;
+                }
 
-                    <InputError message={errors.email} className="mt-2" />
-                </div>
+                /* ── NAVBAR ── */
+                .login-nav {
+                    height: 70px;
+                    background: #fff;
+                    border-bottom: 1px solid #e8e8ee;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 40px;
+                }
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                .nav-logo {
+                    font-family: 'Playfair Display', serif;
+                    font-size: 22px;
+                    font-weight: 700;
+                    color: #1a1a2e;
+                    text-decoration: none;
+                }
 
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
+                .nav-logo span { color: #4f6ef7; }
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
+                .nav-register {
+                    padding: 9px 22px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    text-decoration: none;
+                    color: #4a4a6a;
+                    border: 1.5px solid #dde0f0;
+                    transition: all 0.2s;
+                }
 
-                <div className="block mt-4">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) => setData('remember', e.target.checked)}
-                        />
-                        <span className="ms-2 text-sm text-gray-600">Remember me</span>
-                    </label>
-                </div>
+                .nav-register:hover {
+                    border-color: #4f6ef7;
+                    color: #4f6ef7;
+                }
 
-                <div className="flex items-center justify-end mt-4">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
+                /* ── MAIN ── */
+                .login-main {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 40px 20px;
+                }
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+                .login-card {
+                    background: #fff;
+                    border-radius: 28px;
+                    padding: 56px 52px;
+                    width: 100%;
+                    max-width: 460px;
+                    box-shadow: 0 4px 40px rgba(0,0,0,0.07);
+                }
+
+                .login-eyebrow {
+                    font-size: 12px;
+                    font-weight: 500;
+                    letter-spacing: 2px;
+                    text-transform: uppercase;
+                    color: #4f6ef7;
+                    margin-bottom: 10px;
+                }
+
+                .login-title {
+                    font-family: 'Playfair Display', serif;
+                    font-size: 34px;
+                    font-weight: 700;
+                    color: #1a1a2e;
+                    margin-bottom: 8px;
+                    line-height: 1.2;
+                }
+
+                .login-subtitle {
+                    font-size: 14px;
+                    color: #9090aa;
+                    margin-bottom: 36px;
+                }
+
+                .status-msg {
+                    background: #f0fdf4;
+                    border: 1px solid #bbf7d0;
+                    color: #15803d;
+                    border-radius: 8px;
+                    padding: 10px 14px;
+                    font-size: 13px;
+                    margin-bottom: 20px;
+                }
+
+                /* ── FORM FIELDS ── */
+                .field {
+                    margin-bottom: 20px;
+                }
+
+                .field label {
+                    display: block;
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #4a4a6a;
+                    margin-bottom: 7px;
+                }
+
+                .field input {
+                    width: 100%;
+                    padding: 12px 16px;
+                    border: 1.5px solid #e0e2ef;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    font-family: 'DM Sans', sans-serif;
+                    color: #1a1a2e;
+                    background: #fafbff;
+                    outline: none;
+                    transition: border-color 0.2s, box-shadow 0.2s;
+                }
+
+                .field input:focus {
+                    border-color: #4f6ef7;
+                    box-shadow: 0 0 0 3px rgba(79,110,247,0.1);
+                    background: #fff;
+                }
+
+                .field-error {
+                    font-size: 12px;
+                    color: #ef4444;
+                    margin-top: 5px;
+                }
+
+                /* ── REMEMBER + FORGOT ── */
+                .login-meta {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 28px;
+                }
+
+                .remember-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 13px;
+                    color: #6b6b8a;
+                    cursor: pointer;
+                }
+
+                .forgot-link {
+                    font-size: 13px;
+                    color: #4f6ef7;
+                    text-decoration: none;
+                    font-weight: 500;
+                }
+
+                .forgot-link:hover { text-decoration: underline; }
+
+                /* ── SUBMIT ── */
+                .btn-login {
+                    width: 100%;
+                    padding: 14px;
+                    background: #1a1a2e;
+                    color: #fff;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    font-family: 'DM Sans', sans-serif;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    letter-spacing: 0.3px;
+                }
+
+                .btn-login:hover:not(:disabled) {
+                    background: #4f6ef7;
+                    transform: translateY(-1px);
+                }
+
+                .btn-login:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+
+                .login-register-link {
+                    text-align: center;
+                    margin-top: 24px;
+                    font-size: 13px;
+                    color: #9090aa;
+                }
+
+                .login-register-link a {
+                    color: #4f6ef7;
+                    font-weight: 500;
+                    text-decoration: none;
+                }
+
+                .login-register-link a:hover { text-decoration: underline; }
+
+                /* ── RESPONSIVE ── */
+                @media (max-width: 480px) {
+                    .login-nav { padding: 0 20px; }
+                    .login-card { padding: 36px 24px; border-radius: 20px; }
+                    .login-title { font-size: 28px; }
+                }
+            `}</style>
+
+            <div className="login-root">
+
+                {/* NAVBAR */}
+                <nav className="login-nav">
+                    <Link href="/" className="nav-logo">
+                        Books<span>Hub.</span>
+                    </Link>
+                    <Link href={route('register')} className="nav-register">
+                        Create account
+                    </Link>
+                </nav>
+
+                {/* CARD */}
+                <main className="login-main">
+                    <div className="login-card">
+
+                        <p className="login-eyebrow">Welcome back</p>
+                        <h1 className="login-title">Log in to<br />BooksHub</h1>
+                        <p className="login-subtitle">Enter your credentials to continue reading.</p>
+
+                        {status && <div className="status-msg">{status}</div>}
+
+                        <form onSubmit={submit}>
+                            <div className="field">
+                                <label htmlFor="email">Email address</label>
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    value={data.email}
+                                    autoComplete="username"
+                                    autoFocus
+                                    onChange={(e) => setData('email', e.target.value)}
+                                />
+                                {errors.email && <p className="field-error">{errors.email}</p>}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="password">Password</label>
+                                <input
+                                    id="password"
+                                    type="password"
+                                    name="password"
+                                    value={data.password}
+                                    autoComplete="current-password"
+                                    onChange={(e) => setData('password', e.target.value)}
+                                />
+                                {errors.password && <p className="field-error">{errors.password}</p>}
+                            </div>
+
+                            <div className="login-meta">
+                                <label className="remember-label">
+                                    <Checkbox
+                                        name="remember"
+                                        checked={data.remember}
+                                        onChange={(e) => setData('remember', e.target.checked)}
+                                    />
+                                    Remember me
+                                </label>
+
+                                {canResetPassword && (
+                                    <Link href={route('password.request')} className="forgot-link">
+                                        Forgot password?
+                                    </Link>
+                                )}
+                            </div>
+
+                            <button type="submit" className="btn-login" disabled={processing}>
+                                {processing ? 'Logging in...' : 'Log in'}
+                            </button>
+                        </form>
+
+                        <p className="login-register-link">
+                            Don't have an account?{' '}
+                            <Link href={route('register')}>Create one</Link>
+                        </p>
+
+                    </div>
+                </main>
+
+            </div>
+        </>
     );
 }
