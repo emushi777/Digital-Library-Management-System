@@ -9,12 +9,20 @@ class Book extends Model
 {
     use HasFactory;
     
-    protected $fillable = [
-        'titulli', 'autori_id', 'kategoria_id', 'isbn', 
-        'viti_botimit', 'gjuha', 'numri_faqeve', 'formati', 
-        'madhesia_mb', 'shtegu_skedarit', 'foto_kopertines'
-    ];
 
+    protected $fillable = [
+        'titulli', 
+        'isbn', 
+        'autori_id', 
+        'kategoria_id', 
+        'viti_botimit', 
+        'gjuha', 
+        'numri_faqeve', 
+        'formati', 
+        'madhesia_mb', 
+        'foto_kopertines',
+        'shtegu_skedarit'
+    ];
     public function author()
     {
         return $this->belongsTo(Author::class, 'autori_id');

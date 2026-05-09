@@ -8,9 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Author extends Model
 {
     use HasFactory;
-    public $incrementing = true;
-    protected $keyType = 'int';
-
+    
     protected $fillable = ['emri', 'mbiemri', 'biografia', 'vendi', 'foto_profili'];
 
     public function books()

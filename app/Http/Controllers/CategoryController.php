@@ -4,41 +4,40 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Shfaq listën e kategorive.
      */
     public function index(Request $request)
     {
         $categories = Category::all();
         
-        // Kontrollojmë nëse përdoruesi është admin
+        // Kontrollojmë rolin e përdoruesit
         $isAdmin = auth()->user() && auth()->user()->role === 'admin';
         
-        // Aktivizojmë Edit Mode nëse kërkohet nga admini
-        $editMode = $request->has('edit_mode') && $isAdmin;
-
-        return view('categories.index', compact('categories', 'isAdmin', 'editMode'));
+        return Inertia::render('Categories/Index', [
+            'categories' => $categories,
+            'isAdmin' => $isAdmin
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Shfaq formën për krijimin e një kategorie të re.
      */
     public function create()
     {
-        // Siguria: Vetëm për admin
         if (auth()->user()->role !== 'admin') {
             abort(403);
         }
 
-        $categories = Category::all();
-        return view('categories.create', compact('categories'));
+        return Inertia::render('Categories/Create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Ruan kategorinë e re në database.
      */
     public function store(Request $request)
     {
@@ -47,20 +46,21 @@ class CategoryController extends Controller
         }
 
         $request->validate([
-            'emertimi' => 'required',
-            'pershkrimi' => 'nullable',
-            'ikona' => 'nullable', 
-            'kategoria_prind_id' => 'nullable|exists:categories,id',
+            'emri' => 'required|string|max:255',
+            'pershkrimi' => 'nullable|string',
         ]);
 
-        Category::create($request->all());
+        Category::create([
+            'emertimi' => $request->emri, 
+            'pershkrimi' => $request->pershkrimi,
+        ]);
         
-        // Kthehemi te index duke mbajtur Edit Mode aktiv
-        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category created successfully!');
+        return redirect()->route('categories.index')->with('success', 'Category created successfully!');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * KJO ISHTE PJESA QË MUNGONTE:
+     * Shfaq formën për editimin e kategorisë.
      */
     public function edit($id)
     {
@@ -69,12 +69,18 @@ class CategoryController extends Controller
         }
 
         $category = Category::findOrFail($id);
-        $categories = Category::all(); 
-        return view('categories.edit', compact('category', 'categories'));
+
+        return Inertia::render('Categories/Edit', [
+            'category' => [
+                'id' => $category->id,
+                'emri' => $category->emertimi, // E kthejmë në 'emri' për React
+                'pershkrimi' => $category->pershkrimi,
+            ]
+        ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Përditëson kategorinë në database.
      */
     public function update(Request $request, $id)
     {
@@ -85,25 +91,20 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
 
         $request->validate([
-            'emertimi' => 'required',
-            'pershkrimi' => 'nullable',
-            'ikona' => 'nullable',
-            'kategoria_prind_id' => 'nullable|exists:categories,id', 
+            'emri' => 'required|string|max:255',
+            'pershkrimi' => 'nullable|string',
         ]);
 
-        $category->fill($request->all());
-        
-        if (!$request->kategoria_prind_id) {
-            $category->kategoria_prind_id = null;
-        }
+        $category->update([
+            'emertimi' => $request->emri,
+            'pershkrimi' => $request->pershkrimi,
+        ]);
 
-        $category->save();
-
-        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category updated successfully!');
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
     }
-
+    
     /**
-     * Remove the specified resource from storage.
+     * Fshin kategorinë.
      */
     public function destroy($id)
     {
@@ -114,6 +115,6 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return redirect()->route('categories.index', ['edit_mode' => 1])->with('success', 'Category deleted successfully!');
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
     }
 }
