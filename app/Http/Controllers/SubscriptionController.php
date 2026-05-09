@@ -14,7 +14,9 @@ class SubscriptionController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard', [
-            'plans' => Plan::all()
+        'plans' => \App\Models\Plan::all(),
+        'latestBooks' => \App\Models\Book::latest()->take(5)->get(), 
+        'authors' => \App\Models\Author::take(7)->get(),
         ]);
     }
 
