@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 
-export default function Dashboard({ auth, plans, latestBooks, authors }) {
+export default function Dashboard({ auth, plans, latestBooks, authors, hasActivePlan }) {
     const { post, processing, transform } = useForm({
         plan_id: '',
     });
@@ -40,7 +40,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors }) {
                                 </button>
                             </div>
                             <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center gap-4 relative">
-                                {/* Simulim i librave në foto */}
                                 <div className="w-40 h-56 bg-purple-600 rounded shadow-2xl transform -rotate-6 transition hover:rotate-0"></div>
                                 <div className="w-48 h-64 bg-blue-900 rounded shadow-2xl z-20 transition hover:scale-105"></div>
                                 <div className="w-40 h-56 bg-cyan-400 rounded shadow-2xl transform rotate-6 transition hover:rotate-0"></div>
@@ -71,32 +70,34 @@ export default function Dashboard({ auth, plans, latestBooks, authors }) {
                         </div>
                     </div>
 
-                    {/* --- SECTION: SUBSCRIPTION PLANS (Lidhja me kodin tënd) --- */}
-                    <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
-                        <div className="text-center max-w-2xl mx-auto mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">Reading Plans</h2>
-                            <p className="text-gray-500 italic">"Choose a plan to unlock full access to our digital library and start your journey today."</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                            {plans?.map((plan) => (
-                                <div key={plan.id} className="bg-[#F8F9FB] rounded-3xl p-10 border-2 border-transparent hover:border-black transition-all group">
-                                    <h4 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">{plan.emertimi}</h4>
-                                    <div className="text-4xl font-bold mb-6 text-gray-900">
-                                        {parseFloat(plan.cmimi_mujor) === 0 ? "FREE" : `€${plan.cmimi_mujor}`}
-                                        <span className="text-sm font-normal text-gray-400">/mo</span>
+                    {/* --- SECTION: SUBSCRIPTION PLANS (shfaqet vetëm nëse useri nuk ka plan) --- */}
+                    {!hasActivePlan && (
+                        <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
+                            <div className="text-center max-w-2xl mx-auto mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Reading Plans</h2>
+                                <p className="text-gray-500 italic">"Choose a plan to unlock full access to our digital library and start your journey today."</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                {plans?.map((plan) => (
+                                    <div key={plan.id} className="bg-[#F8F9FB] rounded-3xl p-10 border-2 border-transparent hover:border-black transition-all group">
+                                        <h4 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">{plan.emertimi}</h4>
+                                        <div className="text-4xl font-bold mb-6 text-gray-900">
+                                            {parseFloat(plan.cmimi_mujor) === 0 ? "FREE" : `€${plan.cmimi_mujor}`}
+                                            <span className="text-sm font-normal text-gray-400">/mo</span>
+                                        </div>
+                                        <p className="text-gray-500 mb-8 text-sm line-clamp-2">{plan.pershkrimi}</p>
+                                        <button 
+                                            onClick={(e) => handleSubscribe(e, plan)}
+                                            disabled={processing}
+                                            className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition transform active:scale-95 shadow-lg"
+                                        >
+                                            {parseFloat(plan.cmimi_mujor) === 0 ? 'Start Reading' : 'Upgrade Now'}
+                                        </button>
                                     </div>
-                                    <p className="text-gray-500 mb-8 text-sm line-clamp-2">{plan.pershkrimi}</p>
-                                    <button 
-                                        onClick={(e) => handleSubscribe(e, plan)}
-                                        disabled={processing}
-                                        className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition transform active:scale-95 shadow-lg"
-                                    >
-                                        {parseFloat(plan.cmimi_mujor) === 0 ? 'Start Reading' : 'Upgrade Now'}
-                                    </button>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* --- SECTION: FAVORITE AUTHORS --- */}
                     <div className="mb-20">
@@ -112,6 +113,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors }) {
                             )) || <p className="text-gray-300 italic">Adding authors soon...</p>}
                         </div>
                     </div>
+
                     {/* --- SECTION: QUOTE --- */}
                     <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
                         <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
@@ -122,25 +124,23 @@ export default function Dashboard({ auth, plans, latestBooks, authors }) {
                     </div>
                 </div>
             </div>
+
             {/* --- FOOTER --- */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        {/* Logo & About */}
                         <div className="col-span-1">
                             <h2 className="text-2xl font-black mb-6 italic tracking-tighter">BooksHub</h2>
                             <p className="text-gray-400 text-sm leading-relaxed mb-6">
                                 Your ultimate destination for digital reading. Explore thousands of titles from anywhere, anytime.
                             </p>
                             <div className="flex gap-4">
-                                {/* Social Icons Placeholder */}
                                 <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition cursor-pointer">f</div>
                                 <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition cursor-pointer">ig</div>
                                 <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-400 transition cursor-pointer">tw</div>
                             </div>
                         </div>
 
-                        {/* Quick Links */}
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Services</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
@@ -161,7 +161,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors }) {
                             </ul>
                         </div>
 
-                        {/* Newsletter */}
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Newsletter</h4>
                             <p className="text-gray-400 text-sm mb-4">Subscribe for newest books updates.</p>
