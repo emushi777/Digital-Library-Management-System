@@ -178,7 +178,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                     </div>
 
                     <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-xs italic">
-                        © 2024 BooksHub Library. All rights reserved. Designed with ❤️ by [Emri Yt]
+                        © {new Date().getFullYear()} BooksHub · All rights reserved · Read more, know more.
                     </div>
                 </div>
             </footer>
