@@ -25,8 +25,6 @@ export default function ConfirmPassword() {
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
                 .auth-root { min-height: 100vh; background: #f3f4f8; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
                 .auth-nav { height: 70px; background: #fff; border-bottom: 1px solid #e8e8ee; display: flex; align-items: center; padding: 0 40px; }
-                .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1a2e; text-decoration: none; }
-                .nav-logo span { color: #4f6ef7; }
                 .auth-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
                 .auth-card { background: #fff; border-radius: 28px; padding: 52px; width: 100%; max-width: 460px; box-shadow: 0 4px 40px rgba(0,0,0,0.07); }
                 .auth-eyebrow { font-size: 12px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: #4f6ef7; margin-bottom: 10px; }
@@ -45,7 +43,9 @@ export default function ConfirmPassword() {
 
             <div className="auth-root">
                 <nav className="auth-nav">
-                    <Link href="/" className="nav-logo">Books<span>Hub.</span></Link>
+                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
+                        BooksHub<span className="text-blue-600">.</span>
+                    </Link>
                 </nav>
 
                 <main className="auth-main">
@@ -53,7 +53,6 @@ export default function ConfirmPassword() {
                         <p className="auth-eyebrow">Security check</p>
                         <h1 className="auth-title">Confirm password</h1>
                         <p className="auth-subtitle">This is a secure area. Please confirm your password before continuing.</p>
-
                         <form onSubmit={submit}>
                             <div className="field">
                                 <label htmlFor="password">Password</label>

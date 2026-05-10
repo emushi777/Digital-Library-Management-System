@@ -20,8 +20,6 @@ export default function ForgotPassword({ status }) {
                 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
                 .auth-root { min-height: 100vh; background: #f3f4f8; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; }
                 .auth-nav { height: 70px; background: #fff; border-bottom: 1px solid #e8e8ee; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
-                .nav-logo { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #1a1a2e; text-decoration: none; }
-                .nav-logo span { color: #4f6ef7; }
                 .nav-link-outline { padding: 9px 22px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none; color: #4a4a6a; border: 1.5px solid #dde0f0; transition: all 0.2s; }
                 .nav-link-outline:hover { border-color: #4f6ef7; color: #4f6ef7; }
                 .auth-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
@@ -46,7 +44,9 @@ export default function ForgotPassword({ status }) {
 
             <div className="auth-root">
                 <nav className="auth-nav">
-                    <Link href="/" className="nav-logo">Books<span>Hub.</span></Link>
+                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
+                        BooksHub<span className="text-blue-600">.</span>
+                    </Link>
                     <Link href={route('login')} className="nav-link-outline">Log in</Link>
                 </nav>
 
@@ -55,9 +55,7 @@ export default function ForgotPassword({ status }) {
                         <p className="auth-eyebrow">Password reset</p>
                         <h1 className="auth-title">Forgot your<br />password?</h1>
                         <p className="auth-subtitle">No problem. Enter your email and we'll send you a reset link.</p>
-
                         {status && <div className="status-msg">{status}</div>}
-
                         <form onSubmit={submit}>
                             <div className="field">
                                 <label htmlFor="email">Email address</label>
@@ -68,7 +66,6 @@ export default function ForgotPassword({ status }) {
                                 {processing ? 'Sending...' : 'Send reset link'}
                             </button>
                         </form>
-
                         <p className="auth-bottom-link">
                             Remembered it? <Link href={route('login')}>Back to login</Link>
                         </p>

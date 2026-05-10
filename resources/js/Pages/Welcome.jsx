@@ -18,7 +18,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     flex-direction: column;
                 }
 
-                /* ── NAVBAR ── */
                 .welcome-nav {
                     position: fixed;
                     top: 0; left: 0; right: 0;
@@ -28,17 +27,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     display: flex;
                     align-items: center;
                     z-index: 100;
-                    padding: 0;
-                }
-
-                .welcome-nav-inner {
-                    max-width: 80rem;
-                    width: 100%;
-                    margin: 0 auto;
-                    padding: 0 1rem;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
                 }
 
                 .nav-links {
@@ -72,9 +60,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     background: #1a1a2e;
                 }
 
-                .nav-link-filled:hover {
-                    background: #4f6ef7;
-                }
+                .nav-link-filled:hover { background: #4f6ef7; }
 
                 .nav-link-dashboard {
                     color: #4f6ef7;
@@ -140,11 +126,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     max-width: 380px;
                 }
 
-                .hero-actions {
-                    display: flex;
-                    gap: 12px;
-                    flex-wrap: wrap;
-                }
+                .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
 
                 .btn-primary {
                     padding: 13px 30px;
@@ -175,7 +157,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 .btn-secondary:hover { border-color: #4f6ef7; color: #4f6ef7; background: #f0f3ff; }
 
-                /* ── BOOK ILLUSTRATION ── */
                 .hero-visual {
                     flex-shrink: 0;
                     position: relative;
@@ -212,7 +193,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     transform: rotate(9deg);
                 }
 
-                /* ── FEATURES ROW ── */
                 .welcome-features {
                     background: #fff;
                     border-top: 1px solid #e8e8ee;
@@ -237,9 +217,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     flex-shrink: 0;
                 }
 
-                /* ── RESPONSIVE ── */
                 @media (max-width: 768px) {
-                    .welcome-nav-inner { padding: 0 16px; }
                     .hero-card { flex-direction: column; padding: 40px 28px; gap: 40px; text-align: center; }
                     .hero-title { font-size: 34px; }
                     .hero-desc { max-width: 100%; }
@@ -260,9 +238,9 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
             <div className="welcome-root">
 
-                {/* NAVBAR */}
+                {/* NAVBAR — saktësisht si Dashboard */}
                 <nav className="welcome-nav">
-                    <div className="welcome-nav-inner">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between h-full">
                         <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
                             BooksHub<span className="text-blue-600">.</span>
                         </Link>
