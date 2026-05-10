@@ -6,7 +6,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
             <Head title="Welcome" />
 
             <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+                @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;900&display=swap');
 
                 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,27 +22,23 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 .welcome-nav {
                     position: fixed;
                     top: 0; left: 0; right: 0;
-                    height: 70px;
+                    height: 80px;
                     background: #fff;
                     border-bottom: 1px solid #e8e8ee;
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
-                    padding: 0 40px;
                     z-index: 100;
+                    padding: 0;
                 }
 
-                .nav-logo {
-                    font-family: 'Playfair Display', serif;
-                    font-size: 22px;
-                    font-weight: 700;
-                    color: #1a1a2e;
-                    text-decoration: none;
-                    letter-spacing: -0.3px;
-                }
-
-                .nav-logo span {
-                    color: #4f6ef7;
+                .welcome-nav-inner {
+                    max-width: 80rem;
+                    width: 100%;
+                    margin: 0 auto;
+                    padding: 0 1rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
                 }
 
                 .nav-links {
@@ -93,13 +89,13 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 /* ── HERO ── */
                 .welcome-hero {
-                    margin-top: 70px;
+                    margin-top: 80px;
                     flex: 1;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     padding: 60px 40px;
-                    min-height: calc(100vh - 70px);
+                    min-height: calc(100vh - 80px);
                 }
 
                 .hero-card {
@@ -114,9 +110,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     box-shadow: 0 4px 40px rgba(0,0,0,0.07);
                 }
 
-                .hero-text {
-                    flex: 1;
-                }
+                .hero-text { flex: 1; }
 
                 .hero-eyebrow {
                     font-size: 12px;
@@ -136,9 +130,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     margin-bottom: 20px;
                 }
 
-                .hero-title span {
-                    color: #4f6ef7;
-                }
+                .hero-title span { color: #4f6ef7; }
 
                 .hero-desc {
                     font-size: 16px;
@@ -166,10 +158,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     display: inline-block;
                 }
 
-                .btn-primary:hover {
-                    background: #4f6ef7;
-                    transform: translateY(-1px);
-                }
+                .btn-primary:hover { background: #4f6ef7; transform: translateY(-1px); }
 
                 .btn-secondary {
                     padding: 13px 30px;
@@ -184,11 +173,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     border: 1.5px solid #e0e2ef;
                 }
 
-                .btn-secondary:hover {
-                    border-color: #4f6ef7;
-                    color: #4f6ef7;
-                    background: #f0f3ff;
-                }
+                .btn-secondary:hover { border-color: #4f6ef7; color: #4f6ef7; background: #f0f3ff; }
 
                 /* ── BOOK ILLUSTRATION ── */
                 .hero-visual {
@@ -198,11 +183,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     height: 280px;
                 }
 
-                .book-stack {
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                }
+                .book-stack { position: relative; width: 100%; height: 100%; }
 
                 .book-item {
                     position: absolute;
@@ -247,7 +228,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     gap: 10px;
                     color: #6b6b8a;
                     font-size: 14px;
-                    font-weight: 400;
                 }
 
                 .feature-dot {
@@ -259,35 +239,20 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 /* ── RESPONSIVE ── */
                 @media (max-width: 768px) {
-                    .welcome-nav { padding: 0 20px; }
-
-                    .hero-card {
-                        flex-direction: column;
-                        padding: 40px 28px;
-                        gap: 40px;
-                        text-align: center;
-                    }
-
+                    .welcome-nav-inner { padding: 0 16px; }
+                    .hero-card { flex-direction: column; padding: 40px 28px; gap: 40px; text-align: center; }
                     .hero-title { font-size: 34px; }
                     .hero-desc { max-width: 100%; }
                     .hero-actions { justify-content: center; }
-
                     .hero-visual { width: 200px; height: 220px; }
                     .book-item:nth-child(1) { width: 95px; height: 140px; }
                     .book-item:nth-child(2) { width: 100px; height: 150px; left: 50px; }
                     .book-item:nth-child(3) { width: 90px; height: 130px; left: 95px; }
-
-                    .welcome-features {
-                        flex-direction: column;
-                        align-items: center;
-                        gap: 16px;
-                    }
-
+                    .welcome-features { flex-direction: column; align-items: center; gap: 16px; }
                     .welcome-hero { padding: 30px 16px; }
                 }
 
                 @media (max-width: 480px) {
-                    .nav-logo { font-size: 18px; }
                     .hero-title { font-size: 28px; }
                     .btn-primary, .btn-secondary { padding: 11px 22px; font-size: 14px; }
                 }
@@ -297,25 +262,27 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
 
                 {/* NAVBAR */}
                 <nav className="welcome-nav">
-                    <a href="/" className="nav-logo">
-                        Books<span>Hub.</span>
-                    </a>
+                    <div className="welcome-nav-inner">
+                        <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
+                            BooksHub<span className="text-blue-600">.</span>
+                        </Link>
 
-                    <div className="nav-links">
-                        {auth.user ? (
-                            <Link href={route('dashboard')} className="nav-link nav-link-dashboard">
-                                Dashboard →
-                            </Link>
-                        ) : (
-                            <>
-                                <Link href={route('login')} className="nav-link nav-link-outline">
-                                    Log in
+                        <div className="nav-links">
+                            {auth.user ? (
+                                <Link href={route('dashboard')} className="nav-link nav-link-dashboard">
+                                    Dashboard →
                                 </Link>
-                                <Link href={route('register')} className="nav-link nav-link-filled">
-                                    Register
-                                </Link>
-                            </>
-                        )}
+                            ) : (
+                                <>
+                                    <Link href={route('login')} className="nav-link nav-link-outline">
+                                        Log in
+                                    </Link>
+                                    <Link href={route('register')} className="nav-link nav-link-filled">
+                                        Register
+                                    </Link>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </nav>
 
@@ -352,7 +319,6 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                             </div>
                         </div>
 
-                        {/* Book stack visual */}
                         <div className="hero-visual">
                             <div className="book-stack">
                                 <div className="book-item"></div>

@@ -6,21 +6,23 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
         plan_id: '',
     });
 
-    /**
-     * Funksioni i përditësuar për gjenerimin e URL-së së imazhit.
-     * Tani lexon direkt nga folderi 'uploads' në public.
-     */
+    const handleSubscribe = (e, plan) => {
+        e.preventDefault();
+        if (parseFloat(plan.cmimi_mujor) === 0) {
+            post(route('subscribe.store'), {
+                data: { plan_id: plan.id },
+            });
+        } else {
+            window.location.href = route('checkout.index', { plan_id: plan.id });
+        }
+    };
+
     const getImageUrl = (fileName, folder) => {
         if (!fileName) return '/images/placeholder.png';
-        
-        // Përcaktojmë nënfollorin (books ose authors) bazuar në kontekstin e thirrjes
         const subFolder = folder === 'kopertina' ? 'books' : 'authors';
-        
-        // Kthejmë rrugën direkte drejt folderit public/uploads
         return `/uploads/${subFolder}/${fileName}`;
     };
 
-    // Marrim 3 librat e parë për Hero Section
     const heroBooks = latestBooks?.slice(0, 3) || [];
 
     return (
@@ -109,17 +111,43 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                         />
                                     </div>
                                     <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
-                                    
-                                    {/* SHTUAR: Emri i Autorit */}
                                     <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
                                         {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
                                     </p>
-                                    
                                     <p className="text-black font-black text-xs mt-1">€{book.cmimi || '0.00'}</p>
                                 </Link>
                             ))}
                         </div>
                     </div>
+
+                    {/* --- SECTION: PLANS (shfaqet vetëm nëse useri nuk ka plan aktiv) --- */}
+                    {!hasActivePlan && (
+                        <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
+                            <div className="text-center max-w-2xl mx-auto mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900 mb-4">Reading Plans</h2>
+                                <p className="text-gray-500 italic">"Choose a plan to unlock full access to our digital library and start your journey today."</p>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                {plans?.map((plan) => (
+                                    <div key={plan.id} className="bg-[#F8F9FB] rounded-3xl p-10 border-2 border-transparent hover:border-black transition-all group">
+                                        <h4 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">{plan.emertimi}</h4>
+                                        <div className="text-4xl font-bold mb-6 text-gray-900">
+                                            {parseFloat(plan.cmimi_mujor) === 0 ? "FREE" : `€${plan.cmimi_mujor}`}
+                                            <span className="text-sm font-normal text-gray-400">/mo</span>
+                                        </div>
+                                        <p className="text-gray-500 mb-8 text-sm line-clamp-2">{plan.pershkrimi}</p>
+                                        <button 
+                                            onClick={(e) => handleSubscribe(e, plan)}
+                                            disabled={processing}
+                                            className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition transform active:scale-95 shadow-lg"
+                                        >
+                                            {parseFloat(plan.cmimi_mujor) === 0 ? 'Start Reading' : 'Upgrade Now'}
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* --- SECTION: AUTHORS --- */}
                     <div className="mb-20">
@@ -144,6 +172,15 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                 </Link>
                             ))}
                         </div>
+                    </div>
+
+                    {/* --- SECTION: QUOTE --- */}
+                    <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
+                        <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                            "The more that you read, the more things you will know. <br className="hidden md:block" /> 
+                            The more that you learn, the more places you'll go."
+                        </p>
+                        <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
                     </div>
                 </div>
             </div>
