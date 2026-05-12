@@ -1,10 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 
-export default function Dashboard({ auth, plans, latestBooks, authors, hasActivePlan }) {
+export default function Dashboard({ auth, plans, latestBooks, authors, hasActivePlan, filters }) {
     const { post, processing } = useForm({
         plan_id: '',
     });
+
+    // Kontrollojme nese ka nje kerkim aktiv
+    const isSearching = filters?.search;
 
     const handleSubscribe = (e, plan) => {
         e.preventDefault();
@@ -35,64 +38,70 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
             <div className="bg-[#F8F9FB] min-h-screen pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     
-                    {/* --- SECTION: HERO --- */}
-                    <div className="pt-10 pb-16">
-                        <div className="bg-[#EEEFF4] rounded-[40px] p-12 flex flex-col md:flex-row items-center justify-between shadow-sm overflow-hidden relative border border-gray-200">
-                            <div className="md:w-1/2 z-10">
-                                <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">Featured</h4>
-                                <h1 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">Atomic Love</h1>
-                                <p className="text-gray-500 mb-8 max-w-sm leading-relaxed italic">
-                                    "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
-                                </p>
-                                <Link 
-                                    href={route('books.index')} 
-                                    className="bg-black text-white px-10 py-3 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg inline-block"
-                                >
-                                    Read More
-                                </Link>
-                            </div>
+                    {/* Hero Section shfaqet vetem nese nuk po kerkojme */}
+                    {!isSearching && (
+                        <div className="pt-10 pb-16">
+                            <div className="bg-[#EEEFF4] rounded-[40px] p-12 flex flex-col md:flex-row items-center justify-between shadow-sm overflow-hidden relative border border-gray-200">
+                                <div className="md:w-1/2 z-10">
+                                    <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">Featured</h4>
+                                    <h1 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">Atomic Love</h1>
+                                    <p className="text-gray-500 mb-8 max-w-sm leading-relaxed italic">
+                                        "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
+                                    </p>
+                                    <Link 
+                                        href={route('books.index')} 
+                                        className="bg-black text-white px-10 py-3 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg inline-block"
+                                    >
+                                        Read More
+                                    </Link>
+                                </div>
 
-                            <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center gap-4 relative">
-                                {heroBooks.length > 0 ? (
-                                    <>
-                                        <div className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                            <img 
-                                                src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                className="w-full h-full object-cover" 
-                                                alt="Hero 1" 
-                                                onError={(e) => e.target.src = '/images/placeholder.png'}
-                                            />
-                                        </div>
-                                        <div className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
-                                            <img 
-                                                src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                className="w-full h-full object-cover" 
-                                                alt="Hero 2" 
-                                                onError={(e) => e.target.src = '/images/placeholder.png'}
-                                            />
-                                        </div>
-                                        <div className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                            <img 
-                                                src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                className="w-full h-full object-cover" 
-                                                alt="Hero 3" 
-                                                onError={(e) => e.target.src = '/images/placeholder.png'}
-                                            />
-                                        </div>
-                                    </>
-                                ) : (
-                                    <div className="h-60 flex items-center text-gray-300 italic font-medium">No books available</div>
-                                )}
+                                <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center gap-4 relative">
+                                    {heroBooks.length > 0 ? (
+                                        <>
+                                            <div className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
+                                                <img 
+                                                    src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')} 
+                                                    className="w-full h-full object-cover" 
+                                                    alt="Hero 1" 
+                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
+                                                />
+                                            </div>
+                                            <div className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
+                                                <img 
+                                                    src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
+                                                    className="w-full h-full object-cover" 
+                                                    alt="Hero 2" 
+                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
+                                                />
+                                            </div>
+                                            <div className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
+                                                <img 
+                                                    src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
+                                                    className="w-full h-full object-cover" 
+                                                    alt="Hero 3" 
+                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="h-60 flex items-center text-gray-300 italic font-medium">No books available</div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* --- SECTION: NEW RELEASES --- */}
-                    <div className="mb-20">
+                    {/* --- SECTION: BOOKS (Titulli ndryshon nese ka search) --- */}
+                    <div className={isSearching ? "pt-20 mb-20" : "mb-20"}>
                         <div className="flex justify-between items-end mb-10">
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">New Released Books</h2>
-                                <p className="text-gray-400 text-sm mt-1">Discover the latest additions.</p>
+                                <h2 className="text-3xl font-bold text-gray-900">
+                                    {isSearching ? `Search Results for "${isSearching}"` : "New Released Books"}
+                                </h2>
+                                <p className="text-gray-400 text-sm mt-1">
+                                    {isSearching ? `Found ${latestBooks.length} items.` : "Discover the latest additions."}
+                                </p>
                             </div>
                             <Link href={route('books.index')} className="text-gray-400 font-bold hover:text-black border-b-2 border-transparent hover:border-black transition pb-1">
                                 View All
@@ -100,28 +109,33 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                         
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
-                            {latestBooks?.map((book) => (
-                                <Link key={book.id} href={route('books.index')} className="text-center group cursor-pointer">
-                                    <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
-                                        <img 
-                                            src={getImageUrl(book.foto_kopertines, 'kopertina')} 
-                                            alt={book.titulli} 
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => e.target.src = '/images/placeholder.png'}
-                                        />
-                                    </div>
-                                    <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
-                                    <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
-                                        {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
-                                    </p>
-                                    <p className="text-black font-black text-xs mt-1">€{book.cmimi || '0.00'}</p>
-                                </Link>
-                            ))}
+                            {latestBooks.length > 0 ? (
+                                latestBooks.map((book) => (
+                                    <Link key={book.id} href={route('books.index')} className="text-center group cursor-pointer">
+                                        <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
+                                            <img 
+                                                src={getImageUrl(book.foto_kopertines, 'kopertina')} 
+                                                alt={book.titulli} 
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => e.target.src = '/images/placeholder.png'}
+                                            />
+                                        </div>
+                                        <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
+                                        <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
+                                            {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
+                                        </p>
+                                        <p className="text-black font-black text-xs mt-1">€{book.cmimi || '0.00'}</p>
+                                    </Link>
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-20">
+                                    <p className="text-gray-400 italic text-lg">No books found matching your search.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* --- SECTION: PLANS (shfaqet vetëm nëse useri nuk ka plan aktiv) --- */}
-                    {!hasActivePlan && (
+                    {!hasActivePlan && !isSearching && (
                         <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
                             <div className="text-center max-w-2xl mx-auto mb-12">
                                 <h2 className="text-3xl font-bold text-gray-900 mb-4">Reading Plans</h2>
@@ -149,43 +163,44 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    {/* --- SECTION: AUTHORS --- */}
-                    <div className="mb-20">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900">Authors of the Month</h2>
-                            <div className="w-20 h-1 bg-black mx-auto mt-2 rounded-full"></div>
+                    {!isSearching && (
+                        <div className="mb-20">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl font-bold text-gray-900">Authors of the Month</h2>
+                                <div className="w-20 h-1 bg-black mx-auto mt-2 rounded-full"></div>
+                            </div>
+                            <div className="flex flex-wrap justify-center gap-14">
+                                {authors?.map((author) => (
+                                    <Link key={author.id} href={route('authors.index')} className="text-center group">
+                                        <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:scale-110 group-hover:border-black transition duration-300">
+                                            <img 
+                                                src={getImageUrl(author.foto_profili || author.foto, 'autoret')} 
+                                                alt={author.emri} 
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => e.target.src = '/images/placeholder.png'}
+                                            />
+                                        </div>
+                                        <p className="text-sm font-bold text-gray-600 group-hover:text-black transition capitalize">
+                                            {author.emri} {author.mbiemri}
+                                        </p>
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
-                        <div className="flex flex-wrap justify-center gap-14">
-                            {authors?.map((author) => (
-                                <Link key={author.id} href={route('authors.index')} className="text-center group">
-                                    <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:scale-110 group-hover:border-black transition duration-300">
-                                        <img 
-                                            src={getImageUrl(author.foto_profili || author.foto, 'autoret')} 
-                                            alt={author.emri} 
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => e.target.src = '/images/placeholder.png'}
-                                        />
-                                    </div>
-                                    <p className="text-sm font-bold text-gray-600 group-hover:text-black transition capitalize">
-                                        {author.emri} {author.mbiemri}
-                                    </p>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
+                    )}
 
-                    {/* --- SECTION: QUOTE --- */}
-                    <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
-                        <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                            "The more that you read, the more things you will know. <br className="hidden md:block" /> 
-                            The more that you learn, the more places you'll go."
-                        </p>
-                        <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
-                    </div>
+                    {!isSearching && (
+                        <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
+                            <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                                "The more that you read, the more things you will know. <br className="hidden md:block" /> 
+                                The more that you learn, the more places you'll go."
+                            </p>
+                            <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* --- FOOTER --- */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">

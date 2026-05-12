@@ -1,11 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link } from '@inertiajs/react';
+import { Link, useForm, usePage } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const { books = [] } = usePage().props;
+    
+    // Logjika e kërkimit
+    const { data, setData, get } = useForm({
+        search: '',
+    });
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        get(route('dashboard'), {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
     return (
         <div className="min-h-screen bg-[#F8F9FB]">
@@ -13,13 +27,11 @@ export default function Authenticated({ user, header, children }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
                         
-                        {/* PJESA E MAJTË: LOGO DHE NAVIGIMI */}
                         <div className="flex items-center">
                             <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
                                 BooksHub<span className="text-blue-600">.</span>
                             </Link>
 
-                            {/* LINQET KRYESORE - Të gjitha me NavLink për SPA behavior */}
                             <div className="hidden space-x-8 sm:-my-px sm:ms-12 sm:flex">
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Home
@@ -48,17 +60,24 @@ export default function Authenticated({ user, header, children }) {
                             </div>
                         </div>
 
-                        {/* PJESA E DJATHTË: SEARCH, CART, USER */}
                         <div className="hidden sm:flex sm:items-center sm:ms-6 gap-6">
                             
-                            {/* Search Icon */}
-                            <button className="text-gray-400 hover:text-gray-900 transition p-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </button>
+                            {/* Search Form me Magnifier */}
+                            <form onSubmit={handleSearch} className="relative flex items-center">
+                                <input 
+                                    type="text"
+                                    value={data.search}
+                                    onChange={e => setData('search', e.target.value)}
+                                    placeholder="Search..."
+                                    className="border-none bg-gray-100 rounded-full pl-10 pr-4 py-1 text-sm focus:ring-1 focus:ring-black w-40 lg:w-60"
+                                />
+                                <button type="submit" className="absolute left-3 text-gray-400 hover:text-gray-900 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </button>
+                            </form>
 
-                            {/* Cart Icon */}
                             <button className="text-gray-400 hover:text-gray-900 transition relative p-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -68,7 +87,6 @@ export default function Authenticated({ user, header, children }) {
                                 </span>
                             </button>
 
-                            {/* Profile Dropdown */}
                             <div className="ms-3 relative border-l pl-6 border-gray-100">
                                 <Dropdown>
                                     <Dropdown.Trigger>
@@ -96,7 +114,6 @@ export default function Authenticated({ user, header, children }) {
                             </div>
                         </div>
 
-                        {/* Burger Button (Mobile) */}
                         <div className="-me-2 flex items-center sm:hidden">
                             <button
                                 onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
@@ -111,7 +128,6 @@ export default function Authenticated({ user, header, children }) {
                     </div>
                 </div>
 
-                {/* Mobile Menu Content */}
                 <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden bg-white border-t border-gray-100'}>
                     <div className="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
