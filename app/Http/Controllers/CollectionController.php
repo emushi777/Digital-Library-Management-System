@@ -7,7 +7,11 @@ use App\Models\Collection;
 
 use Illuminate\Support\Facades\Auth;
 class CollectionController extends Controller
-{
+{ public function index()
+    {
+        $koleksionet = auth()->user()->collections;
+        return view('collections.index', compact('koleksionet'));
+    }
 public function store(Request $request)
 {
     $request->validate([
