@@ -32,4 +32,9 @@ class Book extends Model
     {
         return $this->belongsTo(Category::class, 'kategoria_id');
     }
+
+    public function collections()
+    {
+        return $this->belongsToMany(Collection::class, 'collection_books');
+    }
 }
