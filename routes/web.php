@@ -9,12 +9,8 @@ use App\Http\Controllers\BookController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\CollectionController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -25,7 +21,7 @@ Route::get('/', function () {
     ]);
 });
 
-// Grupi i rrugëve që kërkojnë login (auth)
+
 Route::middleware(['auth', 'verified'])->group(function () {
     
     // 1. Dashboard
@@ -35,7 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
-
+    Route::resource('collections', CollectionController::class);
     // 3. Abonimet & Checkout
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
