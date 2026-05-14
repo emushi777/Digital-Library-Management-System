@@ -66,3 +66,7 @@ public function removeBook(Request $request, Collection $collection)
         return redirect()->back()->with('success', 'Libri u largua nga koleksioni!');
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 36467bd9016b058fededd2bec94167a1913b9beb
