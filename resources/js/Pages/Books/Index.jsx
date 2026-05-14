@@ -1,11 +1,34 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Index({ auth, books, isAdmin }) {
+export default function Index({ auth, books, categories, authors, isAdmin, selectedCategory, selectedAuthor }) {
     
-    // Funksioni për fshirje
+    const handleFilter = (type, id) => {
+        const params = { 
+            category: selectedCategory, 
+            author: selectedAuthor      
+        };
+
+        if (type === 'category') {
+            params.category = id; 
+        } else if (type === 'author') {
+            params.author = id;
+        }
+
+        router.get(route('books.index'), params, { 
+            preserveState: true, 
+            replace: true,
+            only: ['books', 'selectedCategory', 'selectedAuthor'] 
+        });
+    };
+
+    const getImageUrl = (fileName) => {
+        if (!fileName) return 'https://via.placeholder.com/300x450?text=No+Cover';
+        return `/uploads/books/${fileName}`;
+    };
+
     const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this book?")) {
+        if (confirm('A jeni të sigurt që dëshironi ta fshini këtë libër?')) {
             router.delete(route('books.destroy', id));
         }
     };
@@ -13,110 +36,204 @@ export default function Index({ auth, books, isAdmin }) {
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Library Books</h2>}
+            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Library</h2>}
         >
-            <Head title="Books List" />
+            <Head title="Books" />
 
-            <div className="py-12 bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                        <div className="p-8 text-gray-900">
-                            
-                            <div className="flex justify-between items-center mb-8">
-                                <div>
-                                    <h1 className="text-3xl font-extrabold text-gray-900">Books Inventory</h1>
-                                    <p className="text-sm text-gray-500 mt-1">Manage and view all library resources</p>
+            <div className="bg-[#f8f9fb] min-h-screen pb-20">
+                <div className="max-w-[1400px] mx-auto pt-8 px-8">
+                    
+                    {/* --- NEW RELEASES --- */}
+                    <div className="mb-12">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold text-gray-800">New Releases</h3>
+                            <div className="flex gap-2">
+                                <button className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50">{'<'}</button>
+                                <button className="p-2 bg-white rounded-full shadow-sm hover:bg-gray-50">{'>'}</button>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
+                            {books.slice(0, 3).map((book, idx) => (
+                                <div key={book.id} 
+                                    className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg
+                                    ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' : 
+                                      idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 
+                                      'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
+                                >
+                                    <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
+                                    <div className="flex flex-col justify-center flex-1">
+                                        <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
+                                        <p className="text-sm opacity-80 mb-2">By {book.author?.emri} {book.author?.mbiemri}</p>
+                                        <div className="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                                        
+                                        <div className="max-w-md"> 
+                                            <p className="text-[11px] opacity-80 leading-relaxed italic line-clamp-2">
+                                                {book.pershkrimi || "A story of giving and receiving, of seeing and being seen..."}
+                                            </p>
+                                            <button className="text-[10px] font-bold mt-2 underline uppercase tracking-tighter hover:opacity-100 opacity-70 transition-opacity">
+                                                Read More
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                {isAdmin && (
-                                    <Link 
-                                        href={route('books.create')} 
-                                        className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-all active:scale-95"
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col lg:flex-row gap-10">
+                        
+                        {/* --- MAJTAS: GRID KRYESOR & KATEGORITE --- */}
+                        <div className="flex-1">
+                            <div className="flex flex-col mb-8">
+                                <h3 className="text-xl font-bold text-gray-800 mb-4">For You</h3>
+                                
+                                <div className="flex flex-wrap gap-6 text-sm font-bold text-gray-400 uppercase tracking-tighter border-b border-gray-100 pb-4">
+                                    <button 
+                                        onClick={() => handleFilter('category', null)} 
+                                        className={!selectedCategory ? 'text-blue-600 border-b-2 border-blue-600 pb-2' : 'pb-2 hover:text-gray-600'}
                                     >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                        Add New Book
-                                    </Link>
-                                )}
+                                        All Categories
+                                    </button>
+                                    {categories?.map(cat => (
+                                        <button 
+                                            key={cat.id} 
+                                            onClick={() => handleFilter('category', cat.id)} 
+                                            className={selectedCategory == cat.id ? 'text-blue-600 border-b-2 border-blue-600 pb-2' : 'pb-2 hover:text-gray-600'}
+                                        >
+                                            {cat.emertimi}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="overflow-x-auto rounded-xl border border-gray-100">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
-                                            <th className="px-6 py-4 border-b font-bold">Cover</th>
-                                            <th className="px-6 py-4 border-b font-bold">Title</th>
-                                            <th className="px-6 py-4 border-b font-bold">Author</th>
-                                            <th className="px-6 py-4 border-b font-bold">Category</th>
-                                            {isAdmin && <th className="px-6 py-4 border-b font-bold text-right">Actions</th>}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {books && books.length > 0 ? (
-                                            books.map((book) => (
-                                                <tr key={book.id} className="hover:bg-blue-50/30 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <div className="w-14 h-20 bg-gray-100 rounded-lg overflow-hidden shadow-sm border border-gray-200">
-                                                            <img 
-                                                                // Përdorim folderin uploads/books siç e kemi në Controller
-                                                                src={book.foto_kopertines ? `/uploads/books/${book.foto_kopertines}` : 'https://via.placeholder.com/150x200?text=No+Cover'} 
-                                                                alt={book.titulli} 
-                                                                className="w-full h-full object-cover"
-                                                                onError={(e) => {e.target.src = 'https://via.placeholder.com/150x200?text=No+Cover'}}
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-bold text-gray-800 text-base">{book.titulli}</div>
-                                                        <div className="text-xs text-gray-400 mt-1">ISBN: {book.isbn || 'N/A'}</div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-gray-600">
-                                                        {/* Kontrollojmë për .emri ose .name për të shmangur 'Unknown Author' */}
-                                                        {book.author ? `${book.author.emri || book.author.name || '' } ${book.author.mbiemri || ''}` : 'Unknown Author'}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full border border-indigo-100">
-                                                            {/* Kontrollojmë për .emertimi ose .name */}
-                                                            {book.category?.emertimi || book.category?.name || 'General'}
-                                                        </span>
-                                                    </td>
+                            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+                                {books.length > 0 ? (
+                                    books.map(book => (
+                                        <div key={book.id} className="group cursor-pointer">
+                                            <div className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl">
+                                                <img src={getImageUrl(book.foto_kopertines)} className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-500" alt={book.titulli} />
+                                                
+                                                {/* OVERLAY PER ADMININ (MODIFIKIMI I RI) */}
+                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-start justify-end p-2 gap-2">
                                                     {isAdmin && (
-                                                        <td className="px-6 py-4 text-right">
-                                                            <div className="flex justify-end gap-4">
-                                                                <Link 
-                                                                    href={route('books.edit', book.id)} 
-                                                                    className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md transition"
-                                                                >
-                                                                    Edit
-                                                                </Link>
-                                                                <button 
-                                                                    onClick={() => handleDelete(book.id)}
-                                                                    className="text-red-600 hover:text-red-900 font-bold text-sm bg-red-50 px-3 py-1 rounded-md transition"
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </td>
+                                                        <>
+                                                            {/* EDIT BUTTON */}
+                                                            <Link 
+                                                                href={route('books.edit', book.id)}
+                                                                className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all transform hover:-translate-y-1"
+                                                            >
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                                </svg>
+                                                            </Link>
+
+                                                            {/* DELETE BUTTON */}
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleDelete(book.id); }}
+                                                                className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1"
+                                                            >
+                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                            </button>
+                                                        </>
                                                     )}
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={isAdmin ? 5 : 4} className="px-6 py-16 text-center">
-                                                    <div className="flex flex-col items-center">
-                                                        <span className="text-gray-300 text-5xl mb-4">📚</span>
-                                                        <p className="text-gray-400 font-medium">No books found in the library inventory.</p>
+                                                    
+                                                    {/* PLUS BUTTON (STANDART) */}
+                                                    <div className="p-2 bg-blue-600 text-white rounded-full shadow-md">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+                                                        </svg>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                                </div>
+                                            </div>
+                                            <h5 className="font-bold text-gray-900 text-sm truncate uppercase tracking-tight">{book.titulli}</h5>
+                                            <p className="text-xs text-gray-500 font-medium">{book.author?.emri} {book.author?.mbiemri}</p>
+                                            <div className="flex text-yellow-400 text-[10px] mt-1">★★★★☆</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-20 text-center text-gray-400 italic">
+                                        Nuk u gjet asnjë libër për këtë përzgjedhje.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* --- DJATHTAS: AUTORET --- */}
+                        <div className="lg:w-80">
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="font-bold text-gray-800">Top Authors</h3>
+                                    <button onClick={() => handleFilter('author', null)} className="text-gray-400 text-xs hover:text-blue-600">Reset</button>
+                                </div>
+                                
+                                <div className="space-y-5">
+                                    {authors?.map((author, idx) => (
+                                        <button 
+                                            key={author.id}
+                                            onClick={() => handleFilter('author', author.id)}
+                                            className={`flex items-center w-full text-left group gap-4 transition-colors ${selectedAuthor == author.id ? 'text-blue-600' : 'text-gray-600 hover:text-black'}`}
+                                        >
+                                            <span className="text-xs font-black opacity-30 group-hover:opacity-100">{idx + 1}</span>
+                                            <div className="flex-1">
+                                                <p className="text-sm font-bold truncate">{author.emri} {author.mbiemri}</p>
+                                                <p className="text-[10px] text-gray-400 uppercase tracking-tighter">Registered Author</p>
+                                            </div>
+                                            <div className={`w-2 h-2 rounded-full transition-all ${selectedAuthor == author.id ? 'bg-blue-600 scale-125' : 'bg-transparent'}`}></div>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {isAdmin && (
+                                    <div className="mt-10 pt-6 border-t border-gray-50">
+                                        <Link href={route('books.create')} className="block w-full py-3 bg-gray-900 text-white text-center rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all">
+                                            Add New Book
+                                        </Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* FOOTER */}
+            <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
+                <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-center md:text-left">
+                        <div className="col-span-1">
+                            <h2 className="text-2xl font-black mb-6 italic tracking-tighter">BooksHub</h2>
+                            <p className="text-gray-400 text-sm leading-relaxed">Your ultimate destination for digital reading.</p>
+                        </div>
+                        <div>
+                            <h4 className="font-bold mb-6 text-lg">Quick Links</h4>
+                            <ul className="space-y-4 text-gray-400 text-sm">
+                                <li><Link href={route('books.index')} className="hover:text-white transition">Library</Link></li>
+                                <li><Link href="#" className="hover:text-white transition">Authors</Link></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-bold mb-6 text-lg">Support</h4>
+                            <ul className="space-y-4 text-gray-400 text-sm">
+                                <li><Link href="#" className="hover:text-white transition">Contact</Link></li>
+                                <li><Link href="#" className="hover:text-white transition">Privacy</Link></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-bold mb-6 text-lg">Newsletter</h4>
+                            <div className="flex gap-2 justify-center md:justify-start">
+                                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-lg text-sm w-full focus:ring-1 focus:ring-white" />
+                                <button className="bg-white text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition">Join</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-xs">
+                        © {new Date().getFullYear()} BooksHub · Built with Laravel & React
+                    </div>
+                </div>
+            </footer>
         </AuthenticatedLayout>
     );
 }

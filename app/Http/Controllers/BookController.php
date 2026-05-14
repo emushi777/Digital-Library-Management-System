@@ -12,16 +12,27 @@ use Illuminate\Support\Facades\File;
 
 class BookController extends Controller
 {
-    public function index(Request $request) {
-        $books = Book::with(['author', 'category'])->get();
+    public function index(Request $request)
+    {
+        $books = Book::with(['author', 'category'])
+            ->when($request->category, function ($query, $categoryId) {
+                $query->where('kategoria_id', $categoryId);
+            })
+            ->when($request->author, function ($query, $authorId) {
+                $query->where('autori_id', $authorId);
+            })
+            ->latest() // Shtohet që librat e rinj të dalin të parët
+            ->get();
+
         $isAdmin = auth()->user() && auth()->user()->role === 'admin';
-        
-        $editMode = $request->has('edit_mode') && $isAdmin;
 
         return Inertia::render('Books/Index', [
             'books' => $books,
+            'categories' => Category::all(),
+            'authors' => Author::all(),
             'isAdmin' => $isAdmin,
-            'editMode' => $editMode
+            'selectedCategory' => $request->category,
+            'selectedAuthor' => $request->author 
         ]);
     }
 
@@ -44,6 +55,7 @@ class BookController extends Controller
 
         $validated = $request->validate([
             'titulli' => 'required',
+            'pershkrimi' => 'nullable|string', 
             'isbn' => 'required|unique:books,isbn',
             'autori_id' => 'required',
             'kategoria_id' => 'required',
@@ -59,11 +71,8 @@ class BookController extends Controller
 
         if ($request->hasFile('foto_kopertines')) {
             $file = $request->file('foto_kopertines');
-            
-            // RREGULLIMI: Pastrimi i emrit të skedarit nga kllapat dhe karakteret speciale
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeName = time() . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
-            
             $file->move(public_path('uploads/books'), $safeName);
             $validated['foto_kopertines'] = $safeName;
         }
@@ -98,6 +107,7 @@ class BookController extends Controller
         
         $validated = $request->validate([
             'titulli' => 'required',
+            'pershkrimi' => 'nullable|string', // E SHTOVA KËTU (ishte harruar)
             'isbn' => 'required|unique:books,isbn,' . $id,
             'autori_id' => 'required',
             'kategoria_id' => 'required',
@@ -110,7 +120,7 @@ class BookController extends Controller
         ]);
 
         if ($request->hasFile('foto_kopertines')) {
-            // Fshij foton e vjetër
+            // Fshij foton e vjetër nëse ekziston
             if ($book->foto_kopertines && File::exists(public_path('uploads/books/' . $book->foto_kopertines))) {
                 File::delete(public_path('uploads/books/' . $book->foto_kopertines));
             }
@@ -121,8 +131,6 @@ class BookController extends Controller
             
             $file->move(public_path('uploads/books'), $safeName);
             $validated['foto_kopertines'] = $safeName;
-        } else {
-            unset($validated['foto_kopertines']);
         }
 
         $book->update($validated);

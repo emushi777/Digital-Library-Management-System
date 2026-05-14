@@ -92,7 +92,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    {/* --- SECTION: BOOKS (Titulli ndryshon nese ka search) --- */}
+                    {/* --- SECTION: BOOKS --- */}
                     <div className={isSearching ? "pt-20 mb-20" : "mb-20"}>
                         <div className="flex justify-between items-end mb-10">
                             <div>
@@ -124,7 +124,12 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                         <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
                                             {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
                                         </p>
-                                        <p className="text-black font-black text-xs mt-1">€{book.cmimi || '0.00'}</p>
+                                        
+                                        <div className="mt-2">
+                                            <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
+                                                ★★★★☆
+                                            </div>
+                                        </div>
                                     </Link>
                                 ))
                             ) : (
@@ -135,6 +140,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     </div>
 
+                    {/* --- SECTION: PLANS --- */}
                     {!hasActivePlan && !isSearching && (
                         <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
                             <div className="text-center max-w-2xl mx-auto mb-12">
@@ -163,6 +169,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
+                    {/* --- SECTION: AUTHORS --- */}
                     {!isSearching && (
                         <div className="mb-20">
                             <div className="text-center mb-12">
@@ -189,6 +196,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
+                    {/* --- QUOTE SECTION --- */}
                     {!isSearching && (
                         <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
                             <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
@@ -201,6 +209,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                 </div>
             </div>
 
+            {/* --- FOOTER --- */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
@@ -215,6 +224,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('books.index')} className="hover:text-white transition">Library</Link></li>
                                 <li><Link href="#" className="hover:text-white transition">Audiobooks</Link></li>
+                                <li><Link href="#" className="hover:text-white transition">Authors</Link></li>
                             </ul>
                         </div>
                         <div>
@@ -227,8 +237,8 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Newsletter</h4>
                             <div className="flex gap-2">
-                                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-lg text-sm w-full" />
-                                <button className="bg-white text-black px-4 py-2 rounded-lg font-bold text-sm">Join</button>
+                                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-lg text-sm w-full focus:ring-0" />
+                                <button className="bg-white text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition">Join</button>
                             </div>
                         </div>
                     </div>
