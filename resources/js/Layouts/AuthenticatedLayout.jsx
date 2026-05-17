@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
-    const { books = [] } = usePage().props;
-    
-    // Logjika e kërkimit
+
     const { data, setData, get } = useForm({
         search: '',
     });
@@ -26,7 +24,6 @@ export default function Authenticated({ user, header, children }) {
             <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-20 items-center">
-                        
                         <div className="flex items-center">
                             <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
                                 BooksHub<span className="text-blue-600">.</span>
@@ -36,35 +33,36 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Home
                                 </NavLink>
-                                
-                                <NavLink 
-                                    href={route('books.index')} 
-                                    active={route().current('books.*')}
-                                >
+
+                                <NavLink href={route('books.index')} active={route().current('books.*')}>
                                     Books
                                 </NavLink>
 
-                                <NavLink 
-                                    href={route('authors.index')} 
-                                    active={route().current('authors.*')}
-                                >
+                                <NavLink href={route('authors.index')} active={route().current('authors.*')}>
                                     Authors
                                 </NavLink>
 
-                                <NavLink 
-                                    href={route('categories.index')} 
-                                    active={route().current('categories.*')}
-                                >
+                                <NavLink href={route('categories.index')} active={route().current('categories.*')}>
                                     Categories
+                                </NavLink>
+
+                                <NavLink href={route('bookmarks.index')} active={route().current('bookmarks.*')}>
+                                    Bookmarks
+                                </NavLink>
+
+                                <NavLink href={route('reviews.index')} active={route().current('reviews.*')}>
+                                    Reviews
+                                </NavLink>
+
+                                <NavLink href={route('wishlists.index')} active={route().current('wishlists.*')}>
+                                    Wishlists
                                 </NavLink>
                             </div>
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6 gap-6">
-                            
-                            {/* Search Form me Magnifier */}
                             <form onSubmit={handleSearch} className="relative flex items-center">
-                                <input 
+                                <input
                                     type="text"
                                     value={data.search}
                                     onChange={e => setData('search', e.target.value)}
@@ -96,9 +94,9 @@ export default function Authenticated({ user, header, children }) {
                                                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Reader</p>
                                             </div>
                                             <div className="h-10 w-10 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center group-hover:border-blue-100 transition">
-                                                <img 
-                                                    src={`https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`} 
-                                                    alt={user.name} 
+                                                <img
+                                                    src={`https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`}
+                                                    alt={user.name}
                                                 />
                                             </div>
                                         </button>
@@ -133,14 +131,23 @@ export default function Authenticated({ user, header, children }) {
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Home
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('books.index')} active={route().current('books.index')}>
+                        <ResponsiveNavLink href={route('books.index')} active={route().current('books.*')}>
                             Books
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('authors.index')} active={route().current('authors.index')}>
+                        <ResponsiveNavLink href={route('authors.index')} active={route().current('authors.*')}>
                             Authors
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink href={route('categories.index')} active={route().current('categories.index')}>
+                        <ResponsiveNavLink href={route('categories.index')} active={route().current('categories.*')}>
                             Categories
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('bookmarks.index')} active={route().current('bookmarks.*')}>
+                            Bookmarks
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('reviews.index')} active={route().current('reviews.*')}>
+                            Reviews
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('wishlists.index')} active={route().current('wishlists.*')}>
+                            Wishlists
                         </ResponsiveNavLink>
                     </div>
                 </div>

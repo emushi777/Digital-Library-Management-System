@@ -12,7 +12,7 @@ class Book extends Model
 
     protected $fillable = [
         'titulli',
-        'pershkrimi', 
+        'pershkrimi',
         'isbn', 
         'autori_id', 
         'kategoria_id', 
@@ -37,5 +37,20 @@ class Book extends Model
     public function collections()
     {
         return $this->belongsToMany(Collection::class, 'collection_books');
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
     }
 }

@@ -6,6 +6,9 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +35,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
     Route::resource('collections', CollectionController::class);
+    Route::resource('bookmarks', BookmarkController::class)->except(['show']);
+    Route::resource('reviews', ReviewController::class)->except(['show']);
+    Route::resource('wishlists', WishlistController::class)->except(['show']);
+
     // 3. Abonimet & Checkout
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');

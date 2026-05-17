@@ -2,23 +2,22 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ auth, books, categories, authors, isAdmin, selectedCategory, selectedAuthor }) {
-    
     const handleFilter = (type, id) => {
-        const params = { 
-            category: selectedCategory, 
-            author: selectedAuthor      
+        const params = {
+            category: selectedCategory,
+            author: selectedAuthor,
         };
 
         if (type === 'category') {
-            params.category = id; 
+            params.category = id;
         } else if (type === 'author') {
             params.author = id;
         }
 
-        router.get(route('books.index'), params, { 
-            preserveState: true, 
+        router.get(route('books.index'), params, {
+            preserveState: true,
             replace: true,
-            only: ['books', 'selectedCategory', 'selectedAuthor'] 
+            only: ['books', 'selectedCategory', 'selectedAuthor'],
         });
     };
 
@@ -42,8 +41,6 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
-                    
-                    {/* --- NEW RELEASES --- */}
                     <div className="mb-12">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold text-gray-800">New Releases</h3>
@@ -55,10 +52,11 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
                         <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
                             {books.slice(0, 3).map((book, idx) => (
-                                <div key={book.id} 
+                                <div
+                                    key={book.id}
                                     className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg
-                                    ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' : 
-                                      idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 
+                                    ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' :
+                                      idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' :
                                       'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
                                 >
                                     <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
@@ -66,10 +64,10 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
                                         <p className="text-sm opacity-80 mb-2">By {book.author?.emri} {book.author?.mbiemri}</p>
                                         <div className="flex text-yellow-400 text-xs mb-3">★★★★★</div>
-                                        
-                                        <div className="max-w-md"> 
+
+                                        <div className="max-w-md">
                                             <p className="text-[11px] opacity-80 leading-relaxed italic line-clamp-2">
-                                                {book.pershkrimi || "A story of giving and receiving, of seeing and being seen..."}
+                                                {book.pershkrimi || 'A story of giving and receiving, of seeing and being seen...'}
                                             </p>
                                             <button className="text-[10px] font-bold mt-2 underline uppercase tracking-tighter hover:opacity-100 opacity-70 transition-opacity">
                                                 Read More
@@ -82,23 +80,21 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-10">
-                        
-                        {/* --- MAJTAS: GRID KRYESOR & KATEGORITE --- */}
                         <div className="flex-1">
                             <div className="flex flex-col mb-8">
                                 <h3 className="text-xl font-bold text-gray-800 mb-4">For You</h3>
-                                
+
                                 <div className="flex flex-wrap gap-6 text-sm font-bold text-gray-400 uppercase tracking-tighter border-b border-gray-100 pb-4">
-                                    <button 
-                                        onClick={() => handleFilter('category', null)} 
+                                    <button
+                                        onClick={() => handleFilter('category', null)}
                                         className={!selectedCategory ? 'text-blue-600 border-b-2 border-blue-600 pb-2' : 'pb-2 hover:text-gray-600'}
                                     >
                                         All Categories
                                     </button>
-                                    {categories?.map(cat => (
-                                        <button 
-                                            key={cat.id} 
-                                            onClick={() => handleFilter('category', cat.id)} 
+                                    {categories?.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => handleFilter('category', cat.id)}
                                             className={selectedCategory == cat.id ? 'text-blue-600 border-b-2 border-blue-600 pb-2' : 'pb-2 hover:text-gray-600'}
                                         >
                                             {cat.emertimi}
@@ -109,17 +105,15 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
                             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
                                 {books.length > 0 ? (
-                                    books.map(book => (
+                                    books.map((book) => (
                                         <div key={book.id} className="group cursor-pointer">
                                             <div className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl">
                                                 <img src={getImageUrl(book.foto_kopertines)} className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-500" alt={book.titulli} />
-                                                
-                                                {/* OVERLAY PER ADMININ (MODIFIKIMI I RI) */}
-                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-start justify-end p-2 gap-2">
+
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 flex flex-col justify-between">
                                                     {isAdmin && (
-                                                        <>
-                                                            {/* EDIT BUTTON */}
-                                                            <Link 
+                                                        <div className="flex items-start justify-end gap-2">
+                                                            <Link
                                                                 href={route('books.edit', book.id)}
                                                                 className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all transform hover:-translate-y-1"
                                                             >
@@ -128,8 +122,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                                                 </svg>
                                                             </Link>
 
-                                                            {/* DELETE BUTTON */}
-                                                            <button 
+                                                            <button
                                                                 onClick={(e) => { e.stopPropagation(); handleDelete(book.id); }}
                                                                 className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1"
                                                             >
@@ -137,14 +130,34 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                 </svg>
                                                             </button>
-                                                        </>
+                                                        </div>
                                                     )}
-                                                    
-                                                    {/* PLUS BUTTON (STANDART) */}
-                                                    <div className="p-2 bg-blue-600 text-white rounded-full shadow-md">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
-                                                        </svg>
+
+                                                    <div className="space-y-2">
+                                                        <div className="text-white">
+                                                            <p className="text-xs uppercase tracking-[0.2em] opacity-80">Quick Actions</p>
+                                                            <p className="text-sm font-bold truncate">{book.titulli}</p>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 gap-2">
+                                                            <Link
+                                                                href={route('bookmarks.create', { book_id: book.id })}
+                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all"
+                                                            >
+                                                                Add Bookmark
+                                                            </Link>
+                                                            <Link
+                                                                href={route('reviews.create', { book_id: book.id })}
+                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all"
+                                                            >
+                                                                Write Review
+                                                            </Link>
+                                                            <Link
+                                                                href={route('wishlists.create', { book_id: book.id })}
+                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all"
+                                                            >
+                                                                Add to Wishlist
+                                                            </Link>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -161,17 +174,16 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                             </div>
                         </div>
 
-                        {/* --- DJATHTAS: AUTORET --- */}
                         <div className="lg:w-80">
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="font-bold text-gray-800">Top Authors</h3>
                                     <button onClick={() => handleFilter('author', null)} className="text-gray-400 text-xs hover:text-blue-600">Reset</button>
                                 </div>
-                                
+
                                 <div className="space-y-5">
                                     {authors?.map((author, idx) => (
-                                        <button 
+                                        <button
                                             key={author.id}
                                             onClick={() => handleFilter('author', author.id)}
                                             className={`flex items-center w-full text-left group gap-4 transition-colors ${selectedAuthor == author.id ? 'text-blue-600' : 'text-gray-600 hover:text-black'}`}
@@ -199,7 +211,6 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                 </div>
             </div>
 
-            {/* FOOTER */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 text-center md:text-left">

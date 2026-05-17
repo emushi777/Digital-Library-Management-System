@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('titulli');
-            // Hoqëm ->after('titulli'), thjesht vendose rreshtin poshtë titullit
-            $table->text('pershkrimi')->nullable(); 
+            $table->text('pershkrimi')->nullable();
             
             $table->foreignId('autori_id')->constrained('authors')->onDelete('cascade');
             $table->foreignId('kategoria_id')->constrained('categories')->onDelete('cascade');

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Book;
 use App\Models\Author;
+use App\Models\Book;
 use App\Models\Category;
-use Inertia\Inertia;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
 
 class BookController extends Controller
 {
@@ -21,7 +21,7 @@ class BookController extends Controller
             ->when($request->author, function ($query, $authorId) {
                 $query->where('autori_id', $authorId);
             })
-            ->latest() // Shtohet që librat e rinj të dalin të parët
+            ->latest()
             ->get();
 
         $isAdmin = auth()->user() && auth()->user()->role === 'admin';
@@ -32,7 +32,7 @@ class BookController extends Controller
             'authors' => Author::all(),
             'isAdmin' => $isAdmin,
             'selectedCategory' => $request->category,
-            'selectedAuthor' => $request->author 
+            'selectedAuthor' => $request->author,
         ]);
     }
 
@@ -41,6 +41,7 @@ class BookController extends Controller
         if (auth()->user()->role !== 'admin') {
             abort(403);
         }
+
         return Inertia::render('Books/Create', [
             'authors' => Author::all(),
             'categories' => Category::all(),
@@ -55,7 +56,7 @@ class BookController extends Controller
 
         $validated = $request->validate([
             'titulli' => 'required',
-            'pershkrimi' => 'nullable|string', 
+            'pershkrimi' => 'nullable|string',
             'isbn' => 'required|unique:books,isbn',
             'autori_id' => 'required',
             'kategoria_id' => 'required',
@@ -77,7 +78,7 @@ class BookController extends Controller
             $validated['foto_kopertines'] = $safeName;
         }
 
-        Book::create($validated); 
+        Book::create($validated);
 
         return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
     }
@@ -93,7 +94,7 @@ class BookController extends Controller
         return Inertia::render('Books/Edit', [
             'book' => $book,
             'authors' => Author::all(),
-            'categories' => Category::all()
+            'categories' => Category::all(),
         ]);
     }
 
@@ -104,10 +105,10 @@ class BookController extends Controller
         }
 
         $book = Book::findOrFail($id);
-        
+
         $validated = $request->validate([
             'titulli' => 'required',
-            'pershkrimi' => 'nullable|string', // E SHTOVA KËTU (ishte harruar)
+            'pershkrimi' => 'nullable|string',
             'isbn' => 'required|unique:books,isbn,' . $id,
             'autori_id' => 'required',
             'kategoria_id' => 'required',
@@ -120,21 +121,20 @@ class BookController extends Controller
         ]);
 
         if ($request->hasFile('foto_kopertines')) {
-            // Fshij foton e vjetër nëse ekziston
             if ($book->foto_kopertines && File::exists(public_path('uploads/books/' . $book->foto_kopertines))) {
                 File::delete(public_path('uploads/books/' . $book->foto_kopertines));
             }
-            
+
             $file = $request->file('foto_kopertines');
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $safeName = time() . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
-            
+
             $file->move(public_path('uploads/books'), $safeName);
             $validated['foto_kopertines'] = $safeName;
         }
 
         $book->update($validated);
-        
+
         return redirect()->route('books.index')->with('success', 'Libri u përditësua me sukses!');
     }
 
@@ -145,12 +145,13 @@ class BookController extends Controller
         }
 
         $book = Book::findOrFail($id);
-        
+
         if ($book->foto_kopertines && File::exists(public_path('uploads/books/' . $book->foto_kopertines))) {
             File::delete(public_path('uploads/books/' . $book->foto_kopertines));
         }
 
         $book->delete();
+
         return redirect()->route('books.index')->with('success', 'Libri u fshi me sukses!');
     }
 }
