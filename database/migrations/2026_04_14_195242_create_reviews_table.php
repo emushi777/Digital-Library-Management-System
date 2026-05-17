@@ -6,23 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-  
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            
-            $table->integer('vleresimi'); 
-            
+            $table->unsignedTinyInteger('vleresimi');
             $table->text('komenti')->nullable();
-            
             $table->timestamp('data_vleresimit')->useCurrent();
-
             $table->timestamps();
+
+            $table->unique(['user_id', 'book_id']);
         });
     }
 

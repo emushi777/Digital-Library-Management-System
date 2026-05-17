@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Book;
+use App\Models\Review;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+
+class ReviewController extends Controller
+{
+    public function index()
+    {
+        $reviews = Review::with(['book.author'])
+            ->where('user_id', auth()->id())
+            ->latest('data_vleresimit')
+            ->get();
+
+        return Inertia::render('Reviews/Index', [
+            'reviews' => $reviews,
+        ]);
+    }
+
+    public function create(Request $request)
+    {
+        return Inertia::render('Reviews/Create', [
+            'books' => Book::with('author')->orderBy('titulli')->get(),
+            'selectedBookId' => $request->integer('book_id') ?: null,
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'book_id' => [
+                'required',
+                'exists:books,id',
+                Rule::unique('reviews')->where(fn ($query) => $query->where('user_id', auth()->id())),
+            ],
+            'vleresimi' => 'required|integer|min:1|max:5',
+            'komenti' => 'nullable|string|max:2000',
+        ], [
+            'book_id.unique' => 'You have already reviewed this book.',
+        ]);
+
+        Review::create([
+            'user_id' => auth()->id(),
+            'book_id' => $validated['book_id'],
+            'vleresimi' => $validated['vleresimi'],
+            'komenti' => $validated['komenti'] ?? null,
+            'data_vleresimit' => now(),
+        ]);
+
+        return redirect()->route('reviews.index')->with('success', 'Review saved successfully!');
+    }
+
+    public function edit(Review $review)
+    {
+        $this->authorizeReview($review);
+
+        return Inertia::render('Reviews/Edit', [
+            'review' => $review,
+            'books' => Book::with('author')->orderBy('titulli')->get(),
+        ]);
+    }
+
+    public function update(Request $request, Review $review)
+    {
+        $this->authorizeReview($review);
+
+        $validated = $request->validate([
+            'book_id' => [
+                'required',
+                'exists:books,id',
+                Rule::unique('reviews')->ignore($review->id)->where(fn ($query) => $query->where('user_id', auth()->id())),
+            ],
+            'vleresimi' => 'required|integer|min:1|max:5',
+            'komenti' => 'nullable|string|max:2000',
+        ], [
+            'book_id.unique' => 'You have already reviewed this book.',
+        ]);
+
+        $review->update($validated);
+
+        return redirect()->route('reviews.index')->with('success', 'Review updated successfully!');
+    }
+
+    public function destroy(Review $review)
+    {
+        $this->authorizeReview($review);
+
+        $review->delete();
+
+        return redirect()->route('reviews.index')->with('success', 'Review deleted successfully!');
+    }
+
+    private function authorizeReview(Review $review): void
+    {
+        if ($review->user_id !== auth()->id()) {
+            abort(403);
+        }
+    }
+}

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->text('shenime')->nullable();
             $table->timestamp('data_krijimit')->useCurrent();
             $table->timestamps();
+
+            $table->unique(['user_id', 'book_id', 'faqja']);
         });
     }
 
