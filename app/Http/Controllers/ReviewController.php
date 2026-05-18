@@ -12,8 +12,7 @@ class ReviewController extends Controller
 {
     public function index()
     {
-        $reviews = Review::with(['book.author'])
-            ->where('user_id', auth()->id())
+        $reviews = Review::with(['book.author', 'user'])
             ->latest('data_vleresimit')
             ->get();
 

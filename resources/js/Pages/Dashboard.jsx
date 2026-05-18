@@ -6,7 +6,20 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
         plan_id: '',
     });
 
-    // Kontrollojme nese ka nje kerkim aktiv
+    const renderStars = (rating) => {
+        const roundedRating = Math.round(Number(rating) || 0);
+
+        return '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
+    };
+
+    const getRatingLabel = (book) => {
+        if (!book.reviews_count) {
+            return 'No reviews yet';
+        }
+
+        return `${Number(book.reviews_avg_vleresimi).toFixed(1)} / 5`;
+    };
+
     const isSearching = filters?.search;
 
     const handleSubscribe = (e, plan) => {
@@ -37,8 +50,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
 
             <div className="bg-[#F8F9FB] min-h-screen pb-20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
-                    {/* Hero Section shfaqet vetem nese nuk po kerkojme */}
                     {!isSearching && (
                         <div className="pt-10 pb-16">
                             <div className="bg-[#EEEFF4] rounded-[40px] p-12 flex flex-col md:flex-row items-center justify-between shadow-sm overflow-hidden relative border border-gray-200">
@@ -48,8 +59,8 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                     <p className="text-gray-500 mb-8 max-w-sm leading-relaxed italic">
                                         "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
                                     </p>
-                                    <Link 
-                                        href={route('books.index')} 
+                                    <Link
+                                        href={route('books.index')}
                                         className="bg-black text-white px-10 py-3 rounded-lg font-bold hover:bg-gray-800 transition shadow-lg inline-block"
                                     >
                                         Read More
@@ -60,26 +71,26 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                     {heroBooks.length > 0 ? (
                                         <>
                                             <div className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                                <img 
-                                                    src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Hero 1" 
+                                                <img
+                                                    src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Hero 1"
                                                     onError={(e) => e.target.src = '/images/placeholder.png'}
                                                 />
                                             </div>
                                             <div className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
-                                                <img 
-                                                    src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Hero 2" 
+                                                <img
+                                                    src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Hero 2"
                                                     onError={(e) => e.target.src = '/images/placeholder.png'}
                                                 />
                                             </div>
                                             <div className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                                <img 
-                                                    src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Hero 3" 
+                                                <img
+                                                    src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Hero 3"
                                                     onError={(e) => e.target.src = '/images/placeholder.png'}
                                                 />
                                             </div>
@@ -92,7 +103,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    {/* --- SECTION: BOOKS --- */}
                     <div className={isSearching ? "pt-20 mb-20" : "mb-20"}>
                         <div className="flex justify-between items-end mb-10">
                             <div>
@@ -107,15 +117,15 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                 View All
                             </Link>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
                             {latestBooks.length > 0 ? (
                                 latestBooks.map((book) => (
                                     <Link key={book.id} href={route('books.index')} className="text-center group cursor-pointer">
                                         <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
-                                            <img 
-                                                src={getImageUrl(book.foto_kopertines, 'kopertina')} 
-                                                alt={book.titulli} 
+                                            <img
+                                                src={getImageUrl(book.foto_kopertines, 'kopertina')}
+                                                alt={book.titulli}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => e.target.src = '/images/placeholder.png'}
                                             />
@@ -124,11 +134,14 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                         <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
                                             {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
                                         </p>
-                                        
+
                                         <div className="mt-2">
                                             <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
-                                                ★★★★☆
+                                                {renderStars(book.reviews_avg_vleresimi)}
                                             </div>
+                                            <p className="text-[10px] text-gray-400">
+                                                {getRatingLabel(book)}
+                                            </p>
                                         </div>
                                     </Link>
                                 ))
@@ -140,7 +153,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     </div>
 
-                    {/* --- SECTION: PLANS --- */}
                     {!hasActivePlan && !isSearching && (
                         <div className="bg-white rounded-[40px] p-12 shadow-sm border border-gray-50 mb-20">
                             <div className="text-center max-w-2xl mx-auto mb-12">
@@ -156,7 +168,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                             <span className="text-sm font-normal text-gray-400">/mo</span>
                                         </div>
                                         <p className="text-gray-500 mb-8 text-sm line-clamp-2">{plan.pershkrimi}</p>
-                                        <button 
+                                        <button
                                             onClick={(e) => handleSubscribe(e, plan)}
                                             disabled={processing}
                                             className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition transform active:scale-95 shadow-lg"
@@ -169,7 +181,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    {/* --- SECTION: AUTHORS --- */}
                     {!isSearching && (
                         <div className="mb-20">
                             <div className="text-center mb-12">
@@ -180,9 +191,9 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                 {authors?.map((author) => (
                                     <Link key={author.id} href={route('authors.index')} className="text-center group">
                                         <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:scale-110 group-hover:border-black transition duration-300">
-                                            <img 
-                                                src={getImageUrl(author.foto_profili || author.foto, 'autoret')} 
-                                                alt={author.emri} 
+                                            <img
+                                                src={getImageUrl(author.foto_profili || author.foto, 'autoret')}
+                                                alt={author.emri}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => e.target.src = '/images/placeholder.png'}
                                             />
@@ -196,11 +207,10 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    {/* --- QUOTE SECTION --- */}
                     {!isSearching && (
                         <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
                             <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
-                                "The more that you read, the more things you will know. <br className="hidden md:block" /> 
+                                "The more that you read, the more things you will know. <br className="hidden md:block" />
                                 The more that you learn, the more places you'll go."
                             </p>
                             <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
@@ -209,7 +219,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                 </div>
             </div>
 
-            {/* --- FOOTER --- */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">

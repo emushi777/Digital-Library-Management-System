@@ -18,8 +18,8 @@ export default function Index({ auth, reviews }) {
                         <div className="p-8 text-gray-900">
                             <div className="flex justify-between items-center mb-8">
                                 <div>
-                                    <h1 className="text-3xl font-extrabold text-gray-900">My Reviews</h1>
-                                    <p className="text-sm text-gray-500 mt-1">Manage your ratings and comments for books you have read.</p>
+                                    <h1 className="text-3xl font-extrabold text-gray-900">Book Reviews</h1>
+                                    <p className="text-sm text-gray-500 mt-1">Browse what readers are saying about the books in your library.</p>
                                 </div>
                                 <Link href={route('reviews.create')} className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-all active:scale-95">
                                     Add Review
@@ -30,6 +30,7 @@ export default function Index({ auth, reviews }) {
                                 <table className="w-full text-left border-collapse">
                                     <thead>
                                         <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+                                            <th className="px-6 py-4 border-b font-bold">Reviewer</th>
                                             <th className="px-6 py-4 border-b font-bold">Book</th>
                                             <th className="px-6 py-4 border-b font-bold">Author</th>
                                             <th className="px-6 py-4 border-b font-bold">Rating</th>
@@ -42,6 +43,7 @@ export default function Index({ auth, reviews }) {
                                         {reviews.length > 0 ? (
                                             reviews.map((review) => (
                                                 <tr key={review.id} className="hover:bg-blue-50/30 transition-colors">
+                                                    <td className="px-6 py-4 font-semibold text-gray-700">{review.user?.name || 'Unknown reader'}</td>
                                                     <td className="px-6 py-4 font-bold text-gray-800">{review.book?.titulli}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-500">{review.book?.author ? `${review.book.author.emri} ${review.book.author.mbiemri}` : 'Unknown'}</td>
                                                     <td className="px-6 py-4">
@@ -52,20 +54,26 @@ export default function Index({ auth, reviews }) {
                                                     <td className="px-6 py-4 text-sm text-gray-500 italic">{review.komenti || 'No comment added.'}</td>
                                                     <td className="px-6 py-4 text-sm text-gray-400">{new Date(review.data_vleresimit).toLocaleDateString()}</td>
                                                     <td className="px-6 py-4 text-right">
-                                                        <div className="flex justify-end gap-4">
-                                                            <Link href={route('reviews.edit', review.id)} className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md transition">
-                                                                Edit
-                                                            </Link>
-                                                            <button onClick={() => handleDelete(review.id)} className="text-red-600 hover:text-red-900 font-bold text-sm bg-red-50 px-3 py-1 rounded-md transition">
-                                                                Delete
-                                                            </button>
-                                                        </div>
+                                                        {review.user_id === auth.user.id ? (
+                                                            <div className="flex justify-end gap-4">
+                                                                <Link href={route('reviews.edit', review.id)} className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md transition">
+                                                                    Edit
+                                                                </Link>
+                                                                <button onClick={() => handleDelete(review.id)} className="text-red-600 hover:text-red-900 font-bold text-sm bg-red-50 px-3 py-1 rounded-md transition">
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-300">
+                                                                Read only
+                                                            </span>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="6" className="px-6 py-16 text-center text-gray-400">
+                                                <td colSpan="7" className="px-6 py-16 text-center text-gray-400">
                                                     No reviews yet.
                                                 </td>
                                             </tr>

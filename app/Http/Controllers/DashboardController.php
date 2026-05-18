@@ -20,6 +20,8 @@ class DashboardController extends Controller
 
             // Filtrohet libri bazuar ne titull ose emrin e autorit nese ka search query
             'latestBooks' => Book::with('author')
+                ->withAvg('reviews', 'vleresimi')
+                ->withCount('reviews')
                 ->when($search, function ($query, $search) {
                     $query->where('titulli', 'like', "%{$search}%")
                           ->orWhereHas('author', function ($q) use ($search) {

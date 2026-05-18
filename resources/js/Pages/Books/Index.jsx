@@ -2,6 +2,20 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ auth, books, categories, authors, isAdmin, selectedCategory, selectedAuthor }) {
+    const renderStars = (rating) => {
+        const roundedRating = Math.round(Number(rating) || 0);
+
+        return '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
+    };
+
+    const getRatingLabel = (book) => {
+        if (!book.reviews_count) {
+            return 'No reviews yet';
+        }
+
+        return `${Number(book.reviews_avg_vleresimi).toFixed(1)} / 5`;
+    };
+
     const handleFilter = (type, id) => {
         const params = {
             category: selectedCategory,
@@ -27,7 +41,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
     };
 
     const handleDelete = (id) => {
-        if (confirm('A jeni të sigurt që dëshironi ta fshini këtë libër?')) {
+        if (confirm('A jeni te sigurt qe deshironi ta fshini kete liber?')) {
             router.delete(route('books.destroy', id));
         }
     };
@@ -63,7 +77,13 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                     <div className="flex flex-col justify-center flex-1">
                                         <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
                                         <p className="text-sm opacity-80 mb-2">By {book.author?.emri} {book.author?.mbiemri}</p>
-                                        <div className="flex text-yellow-400 text-xs mb-3">★★★★★</div>
+                                        <div className="mb-3">
+                                            <div className="flex text-yellow-400 text-xs">{renderStars(book.reviews_avg_vleresimi)}</div>
+                                            <p className="mt-1 text-[11px] opacity-80">
+                                                {getRatingLabel(book)}
+                                                {book.reviews_count ? ` • ${book.reviews_count} review${book.reviews_count > 1 ? 's' : ''}` : ''}
+                                            </p>
+                                        </div>
 
                                         <div className="max-w-md">
                                             <p className="text-[11px] opacity-80 leading-relaxed italic line-clamp-2">
@@ -163,12 +183,15 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                             </div>
                                             <h5 className="font-bold text-gray-900 text-sm truncate uppercase tracking-tight">{book.titulli}</h5>
                                             <p className="text-xs text-gray-500 font-medium">{book.author?.emri} {book.author?.mbiemri}</p>
-                                            <div className="flex text-yellow-400 text-[10px] mt-1">★★★★☆</div>
+                                            <div className="mt-1">
+                                                <div className="flex text-yellow-400 text-[10px]">{renderStars(book.reviews_avg_vleresimi)}</div>
+                                                <p className="text-[10px] text-gray-400 mt-1">{getRatingLabel(book)}</p>
+                                            </div>
                                         </div>
                                     ))
                                 ) : (
                                     <div className="col-span-full py-20 text-center text-gray-400 italic">
-                                        Nuk u gjet asnjë libër për këtë përzgjedhje.
+                                        Nuk u gjet asnje liber per kete perzgjedhje.
                                     </div>
                                 )}
                             </div>

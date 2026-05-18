@@ -15,6 +15,8 @@ class BookController extends Controller
     public function index(Request $request)
     {
         $books = Book::with(['author', 'category'])
+            ->withAvg('reviews', 'vleresimi')
+            ->withCount('reviews')
             ->when($request->category, function ($query, $categoryId) {
                 $query->where('kategoria_id', $categoryId);
             })
