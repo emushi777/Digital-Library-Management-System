@@ -41,7 +41,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
     };
 
     const handleDelete = (id) => {
-        if (confirm('A jeni te sigurt qe deshironi ta fshini kete liber?')) {
+        if (confirm('Are you sure you want to delete this book?')) {
             router.delete(route('books.destroy', id));
         }
     };

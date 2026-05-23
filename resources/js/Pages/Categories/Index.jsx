@@ -1,108 +1,107 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
-export default function Index({ auth, categories, isAdmin }) {
+export default function Index({ auth, categories, allBooks, isAdmin }) {
+    const [selectedCategory, setSelectedCategory] = useState({ 
+        id: 'all', 
+        emertimi: 'All Categories', 
+        books: allBooks 
+    });
+
     const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this category?")) {
+        if (confirm('A jeni të sigurt që doni ta fshini këtë kategori?')) {
             router.delete(route('categories.destroy', id));
         }
     };
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Categories Management</h2>}
-        >
-            <Head title="Categories List" />
+        <AuthenticatedLayout user={auth.user}>
+            <Head title="Categories" />
+            
+            <div className="max-w-7xl mx-auto py-12 px-6">
+                <div className="flex justify-between items-center mb-10">
+                    <h1 className="text-3xl font-bold text-gray-900">Explore by Category</h1>
+                    {isAdmin && (
+                        <Link href={route('categories.create')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold shadow-lg transition">
+                            + Add Category
+                        </Link>
+                    )}
+                </div>
 
-            <div className="py-12 bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                        <div className="p-8 text-gray-900">
-                            
-                            <div className="flex justify-between items-center mb-8">
-                                <div>
-                                    <h1 className="text-3xl font-extrabold text-gray-900">Categories Inventory</h1>
-                                    <p className="text-sm text-gray-500 mt-1">Organize and manage your library sections</p>
-                                </div>
-                                {isAdmin && (
+                {/* Kategoritë */}
+                <div className="flex flex-wrap gap-3 mb-12">
+                    <button 
+                        onClick={() => setSelectedCategory({ id: 'all', emertimi: 'All Categories', books: allBooks })}
+                        className={`px-6 py-2.5 rounded-full font-bold text-sm transition ${
+                            selectedCategory.id === 'all' ? 'bg-gray-900 text-white' : 'bg-white border border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                        All Categories
+                    </button>
+
+                    {categories.map((cat) => (
+                        <div key={cat.id} className="relative group">
+                            <button 
+                                onClick={() => setSelectedCategory(cat)}
+                                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all ${
+                                    selectedCategory?.id === cat.id 
+                                    ? 'bg-blue-600 text-white shadow-md' 
+                                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                }`}
+                            >
+                                {cat.emertimi}
+                            </button>
+
+                            {/* Admin Opsionet - Stiluar identik me librat */}
+                            {isAdmin && (
+                                <div className="absolute -top-3 -right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                     <Link 
-                                        href={route('categories.create')} 
-                                        className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-all active:scale-95"
+                                        href={route('categories.edit', cat.id)} 
+                                        className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all transform hover:-translate-y-1"
                                     >
-                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
-                                        Add New Category
                                     </Link>
-                                )}
-                            </div>
-
-                            <div className="overflow-x-auto rounded-xl border border-gray-100">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
-                                            <th className="px-6 py-4 border-b font-bold italic">ID</th>
-                                            <th className="px-6 py-4 border-b font-bold">Category Name</th>
-                                            <th className="px-6 py-4 border-b font-bold">Description</th>
-                                            {isAdmin && <th className="px-6 py-4 border-b font-bold text-right">Actions</th>}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {categories && categories.length > 0 ? (
-                                            categories.map((category) => (
-                                                <tr key={category.id} className="hover:bg-blue-50/30 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                                                            #{category.id}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="font-bold text-gray-800 text-base flex items-center">
-                                                            <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                                                            {category.emertimi}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <p className="text-gray-500 text-sm italic line-clamp-1">
-                                                            {category.pershkrimi || 'No description provided.'}
-                                                        </p>
-                                                    </td>
-                                                    {isAdmin && (
-                                                        <td className="px-6 py-4 text-right">
-                                                            <div className="flex justify-end gap-4">
-                                                                <Link 
-                                                                    href={route('categories.edit', category.id)} 
-                                                                    className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md transition"
-                                                                >
-                                                                    Edit
-                                                                </Link>
-                                                                <button 
-                                                                    onClick={() => handleDelete(category.id)}
-                                                                    className="text-red-600 hover:text-red-900 font-bold text-sm bg-red-50 px-3 py-1 rounded-md transition"
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    )}
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={isAdmin ? 4 : 3} className="px-6 py-16 text-center">
-                                                    <div className="flex flex-col items-center">
-                                                        <span className="text-gray-300 text-5xl mb-4">📂</span>
-                                                        <p className="text-gray-400 font-medium">No categories found.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleDelete(cat.id); }}
+                                        className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all transform hover:-translate-y-1"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    ))}
+                </div>
+
+                {/* Grid-i i Librave */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8">
+                    {selectedCategory.books?.length > 0 ? (
+                        selectedCategory.books.map((book) => (
+                            <Link 
+                                key={book.id} 
+                                href={`/books/${book.id}`} 
+                                className="flex flex-col group block"
+                            >
+                                <div className="aspect-[2/3] rounded-2xl overflow-hidden bg-gray-100 mb-4 shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 border border-gray-100">
+                                    <img 
+                                        src={book.foto_kopertines ? `/uploads/books/${book.foto_kopertines}` : '/images/placeholder.png'} 
+                                        alt={book.titulli} 
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                </div>
+                                <h4 className="font-bold text-gray-800 text-sm truncate transition-colors">
+                                    {book.titulli}
+                                </h4>
+                            </Link>
+                        ))
+                    ) : (
+                        <p className="col-span-full text-center text-gray-400 py-20 font-medium">No books found in this category.</p>
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

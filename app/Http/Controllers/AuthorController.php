@@ -20,6 +20,24 @@ class AuthorController extends Controller
         ]);
     }
 
+    // Metoda e re SHOW
+    public function show($id)
+    {
+        $author = Author::with('books')->findOrFail($id); 
+        
+        return Inertia::render('Authors/Show', [
+            'author' => [
+                'id' => $author->id,
+                'emri' => $author->emri,
+                'mbiemri' => $author->mbiemri,
+                'vendi' => $author->vendi,
+                'biografia' => $author->biografia,
+                'photo_url' => $author->foto_profili ? "/uploads/authors/{$author->foto_profili}" : null,
+                'books' => $author->books // Sigurohu që ke lidhjen hasMany në model
+            ]
+        ]);
+    }
+
     public function create()
     {
         if (auth()->user()->role !== 'admin') { abort(403); }
@@ -30,7 +48,6 @@ class AuthorController extends Controller
     {
         if (auth()->user()->role !== 'admin') { abort(403); }
 
-        // RREGULLIMI: Emrat e fushave duhet të jenë si në React (Create.jsx)
         $request->validate([
             'emri'      => 'required|string|max:255', 
             'mbiemri'   => 'required|string|max:255',
@@ -59,9 +76,7 @@ class AuthorController extends Controller
     public function edit($id)
     {
         if (auth()->user()->role !== 'admin') { abort(403); }
-
         $author = Author::findOrFail($id);
-
         return Inertia::render('Authors/Edit', [
             'author' => [
                 'id'        => $author->id,
@@ -77,7 +92,6 @@ class AuthorController extends Controller
     public function update(Request $request, $id)
     {
         if (auth()->user()->role !== 'admin') { abort(403); }
-
         $author = Author::findOrFail($id);
 
         $request->validate([
@@ -109,13 +123,10 @@ class AuthorController extends Controller
     public function destroy($id)
     {
         if (auth()->user()->role !== 'admin') { abort(403); }
-
         $author = Author::findOrFail($id);
-
         if ($author->foto_profili && File::exists(public_path('uploads/authors/' . $author->foto_profili))) {
             File::delete(public_path('uploads/authors/' . $author->foto_profili));
         }
-
         $author->delete();
         return redirect()->route('authors.index')->with('success', 'Author deleted!');
     }

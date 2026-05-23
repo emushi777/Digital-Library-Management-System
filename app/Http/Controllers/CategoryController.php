@@ -8,42 +8,30 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    /**
-     * Shfaq listën e kategorive.
-     */
     public function index(Request $request)
     {
-        $categories = Category::all();
+        // Këtu i marrim kategoritë bashkë me librat e tyre
+        $categories = Category::with('books')->get();
         
-        // Kontrollojmë rolin e përdoruesit
         $isAdmin = auth()->user() && auth()->user()->role === 'admin';
-        
+
         return Inertia::render('Categories/Index', [
-            'categories' => $categories,
-            'isAdmin' => $isAdmin
-        ]);
+        'categories' => Category::with('books')->get(),
+        'allBooks' => \App\Models\Book::all(), // Shto këtë për butonin "All"
+        'isAdmin' => auth()->user() && auth()->user()->role === 'admin'
+    ]);
+    
     }
 
-    /**
-     * Shfaq formën për krijimin e një kategorie të re.
-     */
     public function create()
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
+        if (auth()->user()->role !== 'admin') abort(403);
         return Inertia::render('Categories/Create');
     }
 
-    /**
-     * Ruan kategorinë e re në database.
-     */
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $request->validate([
             'emri' => 'required|string|max:255',
@@ -58,35 +46,24 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')->with('success', 'Category created successfully!');
     }
 
-    /**
-     * KJO ISHTE PJESA QË MUNGONTE:
-     * Shfaq formën për editimin e kategorisë.
-     */
     public function edit($id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $category = Category::findOrFail($id);
 
         return Inertia::render('Categories/Edit', [
             'category' => [
                 'id' => $category->id,
-                'emri' => $category->emertimi, // E kthejmë në 'emri' për React
+                'emri' => $category->emertimi,
                 'pershkrimi' => $category->pershkrimi,
             ]
         ]);
     }
 
-    /**
-     * Përditëson kategorinë në database.
-     */
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $category = Category::findOrFail($id);
 
@@ -103,14 +80,9 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
     }
     
-    /**
-     * Fshin kategorinë.
-     */
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $category = Category::findOrFail($id);
         $category->delete();

@@ -1,5 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 
 export default function Edit({ auth, category }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -41,7 +41,12 @@ export default function Edit({ auth, category }) {
                         </div>
 
                         <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
-                            <button type="button" onClick={() => window.history.back()} className="text-sm font-medium text-gray-600 hover:text-gray-900 transition">Cancel</button>
+                            <Link 
+                                href={route('categories.index')} 
+                                className="px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition flex items-center"
+                            >
+                                Cancel
+                            </Link>
                             <button type="submit" disabled={processing} className="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition">
                                 {processing ? 'Updating...' : 'Update Category'}
                             </button>

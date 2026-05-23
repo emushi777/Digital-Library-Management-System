@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 3. Abonimet & Checkout
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
+    Route::get('/authors/{author}', [AuthorController::class, 'show'])->name('authors.show');
 
     // 4. Menaxhimi i Profilit
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

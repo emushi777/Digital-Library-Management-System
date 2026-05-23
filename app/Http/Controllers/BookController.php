@@ -17,22 +17,16 @@ class BookController extends Controller
         $books = Book::with(['author', 'category'])
             ->withAvg('reviews', 'vleresimi')
             ->withCount('reviews')
-            ->when($request->category, function ($query, $categoryId) {
-                $query->where('kategoria_id', $categoryId);
-            })
-            ->when($request->author, function ($query, $authorId) {
-                $query->where('autori_id', $authorId);
-            })
+            ->when($request->category, fn($query, $id) => $query->where('kategoria_id', $id))
+            ->when($request->author, fn($query, $id) => $query->where('autori_id', $id))
             ->latest()
             ->get();
-
-        $isAdmin = auth()->user() && auth()->user()->role === 'admin';
 
         return Inertia::render('Books/Index', [
             'books' => $books,
             'categories' => Category::all(),
             'authors' => Author::all(),
-            'isAdmin' => $isAdmin,
+            'isAdmin' => auth()->user()?->role === 'admin',
             'selectedCategory' => $request->category,
             'selectedAuthor' => $request->author,
         ]);
@@ -40,9 +34,7 @@ class BookController extends Controller
 
     public function create()
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         return Inertia::render('Books/Create', [
             'authors' => Author::all(),
@@ -52,9 +44,7 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $validated = $request->validate([
             'titulli' => 'required',
@@ -74,27 +64,21 @@ class BookController extends Controller
 
         if ($request->hasFile('foto_kopertines')) {
             $file = $request->file('foto_kopertines');
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeName = time() . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
+            $safeName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/books'), $safeName);
             $validated['foto_kopertines'] = $safeName;
         }
 
         Book::create($validated);
-
         return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
     }
 
     public function edit(string $id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
-
-        $book = Book::findOrFail($id);
+        if (auth()->user()->role !== 'admin') abort(403);
 
         return Inertia::render('Books/Edit', [
-            'book' => $book,
+            'book' => Book::findOrFail($id),
             'authors' => Author::all(),
             'categories' => Category::all(),
         ]);
@@ -102,9 +86,7 @@ class BookController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $book = Book::findOrFail($id);
 
@@ -128,23 +110,18 @@ class BookController extends Controller
             }
 
             $file = $request->file('foto_kopertines');
-            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-            $safeName = time() . '_' . Str::slug($originalName) . '.' . $file->getClientOriginalExtension();
-
+            $safeName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/books'), $safeName);
             $validated['foto_kopertines'] = $safeName;
         }
 
         $book->update($validated);
-
         return redirect()->route('books.index')->with('success', 'Libri u përditësua me sukses!');
     }
 
     public function destroy(string $id)
     {
-        if (auth()->user()->role !== 'admin') {
-            abort(403);
-        }
+        if (auth()->user()->role !== 'admin') abort(403);
 
         $book = Book::findOrFail($id);
 
@@ -153,7 +130,6 @@ class BookController extends Controller
         }
 
         $book->delete();
-
         return redirect()->route('books.index')->with('success', 'Libri u fshi me sukses!');
     }
 }
