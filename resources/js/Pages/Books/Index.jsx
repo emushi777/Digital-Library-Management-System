@@ -1,10 +1,20 @@
+import { useState } from 'react'; // SHTESA E VETME NE IMPORTS
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ auth, books, categories, authors, isAdmin, selectedCategory, selectedAuthor }) {
+    const [file, setFile] = useState(null); // SHTESA E VETME NE STATE
+
+    const handleImport = (e) => {
+        e.preventDefault();
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('file', file);
+        router.post(route('books.import'), formData, { forceFormData: true });
+    };
+
     const renderStars = (rating) => {
         const roundedRating = Math.round(Number(rating) || 0);
-
         return '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
     };
 
@@ -12,7 +22,6 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
         if (!book.reviews_count) {
             return 'No reviews yet';
         }
-
         return `${Number(book.reviews_avg_vleresimi).toFixed(1)} / 5`;
     };
 
@@ -65,13 +74,13 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                         </div>
 
                         <div className="flex gap-6 overflow-x-auto pb-4 no-scrollbar">
-                            {books.slice(0, 3).map((book, idx) => (
+                            {books.data.slice(0, 3).map((book, idx) => (
                                 <div
                                     key={book.id}
                                     className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg
                                     ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' :
-                                      idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' :
-                                      'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
+                                    idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' :
+                                    'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
                                 >
                                     <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
                                     <div className="flex flex-col justify-center flex-1">
@@ -124,8 +133,8 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                             </div>
 
                             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {books.length > 0 ? (
-                                    books.map((book) => (
+                                {books.data.length > 0 ? (
+                                    books.data.map((book) => (
                                         <div key={book.id} className="group cursor-pointer">
                                             <div className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl">
                                                 <img src={getImageUrl(book.foto_kopertines)} className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-500" alt={book.titulli} />
@@ -159,24 +168,9 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                                             <p className="text-sm font-bold truncate">{book.titulli}</p>
                                                         </div>
                                                         <div className="grid grid-cols-1 gap-2">
-                                                            <Link
-                                                                href={route('bookmarks.create', { book_id: book.id })}
-                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all"
-                                                            >
-                                                                Add Bookmark
-                                                            </Link>
-                                                            <Link
-                                                                href={route('reviews.create', { book_id: book.id })}
-                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all"
-                                                            >
-                                                                Write Review
-                                                            </Link>
-                                                            <Link
-                                                                href={route('wishlists.create', { book_id: book.id })}
-                                                                className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all"
-                                                            >
-                                                                Add to Wishlist
-                                                            </Link>
+                                                            <Link href={route('bookmarks.create', { book_id: book.id })} className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all">Add Bookmark</Link>
+                                                            <Link href={route('reviews.create', { book_id: book.id })} className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all">Write Review</Link>
+                                                            <Link href={route('wishlists.create', { book_id: book.id })} className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all">Add to Wishlist</Link>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -194,6 +188,17 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         Nuk u gjet asnje liber per kete perzgjedhje.
                                     </div>
                                 )}
+                            </div>
+
+                            <div className="mt-12 flex justify-center gap-2">
+                                {books.links.map((link, index) => (
+                                    <Link
+                                        key={index}
+                                        href={link.url || '#'}
+                                        className={`px-4 py-2 rounded-lg text-sm font-bold ${link.active ? 'bg-blue-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-100'} ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                ))}
                             </div>
                         </div>
 
@@ -223,6 +228,14 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
                                 {isAdmin && (
                                     <div className="mt-10 pt-6 border-t border-gray-50">
+                                        {/* BUTONI I IMPORTIT I SHTUAR */}
+                                        <form onSubmit={handleImport} className="mb-4">
+                                            <input type="file" onChange={(e) => setFile(e.target.files[0])} className="block w-full text-xs text-gray-500 mb-2" accept=".csv" />
+                                            <button type="submit" className="w-full py-2 bg-yellow-500 text-white rounded-lg font-bold text-xs uppercase hover:bg-yellow-600 transition">
+                                                Import CSV
+                                            </button>
+                                        </form>
+                                        {/* BUTONI I ADD NEW BOOK */}
                                         <Link href={route('books.create')} className="block w-full py-3 bg-gray-900 text-white text-center rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all">
                                             Add New Book
                                         </Link>

@@ -13,6 +13,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\BookImportController;
+
 
 
 Route::get('/', function () {
@@ -43,6 +45,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
     Route::get('/authors/{author}', [AuthorController::class, 'show'])->name('authors.show');
+    Route::post('/books/import', [App\Http\Controllers\BookImportController::class, 'import'])->name('books.import');
+    Route::get('/books', [BookController::class, 'index'])->name('books.index');
+    Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
+
 
     // 4. Menaxhimi i Profilit
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
