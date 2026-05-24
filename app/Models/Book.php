@@ -22,7 +22,8 @@ class Book extends Model
         'formati', 
         'madhesia_mb', 
         'foto_kopertines',
-        'shtegu_skedarit'
+        'shtegu_skedarit',
+        'pershkrimi',
     ];
     public function author()
     {

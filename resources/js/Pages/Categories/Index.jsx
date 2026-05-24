@@ -37,7 +37,7 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
         <AuthenticatedLayout user={auth.user}>
             <Head title="Categories" />
             
-            <div className="max-w-7xl mx-auto py-12 px-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center mb-10">
                     <h1 className="text-3xl font-bold text-gray-900">Explore by Category</h1>
                     {isAdmin && (

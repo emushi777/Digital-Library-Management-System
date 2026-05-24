@@ -14,7 +14,6 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        // Ndryshimi: Zëvendësuam ->get() me ->paginate(20)
         $books = Book::with(['author', 'category'])
             ->withAvg('reviews', 'vleresimi')
             ->withCount('reviews')
@@ -22,7 +21,7 @@ class BookController extends Controller
             ->when($request->author, fn($query, $id) => $query->where('autori_id', $id))
             ->latest()
             ->paginate(20)
-            ->withQueryString(); // Kjo ruan filtrat kur ndërron faqen
+            ->withQueryString();
 
         return Inertia::render('Books/Index', [
             'books' => $books,
@@ -34,7 +33,6 @@ class BookController extends Controller
         ]);
     }
 
-    // Pjesa tjetër e metodave (store, edit, update, destroy, etj) mbetet e njëjtë
     public function create()
     {
         $this->authorizeAdmin();
@@ -47,8 +45,10 @@ class BookController extends Controller
     public function store(Request $request)
     {
         $this->authorizeAdmin();
+        
         $validated = $request->validate([
             'titulli' => 'required|string|max:255',
+            'pershkrimi' => 'required|string',
             'isbn' => 'required|unique:books,isbn',
             'autori_id' => 'required|exists:authors,id',
             'kategoria_id' => 'required|exists:categories,id',
@@ -61,6 +61,7 @@ class BookController extends Controller
         ]);
 
         $validated['shtegu_skedarit'] = 'N/A';
+        
         if ($request->hasFile('foto_kopertines')) {
             $validated['foto_kopertines'] = $this->uploadImage($request->file('foto_kopertines'));
         }
@@ -69,6 +70,22 @@ class BookController extends Controller
         return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
     }
 
+    public function show(Book $book)
+    {
+        $book->load(['author', 'category', 'reviews.user']);
+
+        $similarBooks = Book::where('kategoria_id', $book->kategoria_id)
+            ->where('id', '!=', $book->id)
+            ->limit(6)
+            ->get();
+            
+        return Inertia::render('Books/Show', [
+            'book' => $book,
+            'similarBooks' => $similarBooks,
+            'isAdmin' => auth()->user()?->role === 'admin',
+        ]);
+    }
+    
     public function edit(string $id)
     {
         $this->authorizeAdmin();
@@ -78,21 +95,15 @@ class BookController extends Controller
             'categories' => Category::all(),
         ]);
     }
-    public function show(Book $book)
-    {
-        $book->load(['author', 'reviews.user']); 
-        
-        return inertia('Books/Show', [
-            'book' => $book
-        ]);
-    }
 
     public function update(Request $request, $id)
     {
         $this->authorizeAdmin();
         $book = Book::findOrFail($id);
+        
         $validated = $request->validate([
             'titulli' => 'required|string',
+            'pershkrimi' => 'required|string',
             'isbn' => 'required|unique:books,isbn,' . $id,
             'autori_id' => 'required',
             'kategoria_id' => 'required',
@@ -103,6 +114,8 @@ class BookController extends Controller
         if ($request->hasFile('foto_kopertines')) {
             $this->deleteImage($book->foto_kopertines);
             $validated['foto_kopertines'] = $this->uploadImage($request->file('foto_kopertines'));
+        } else {
+            unset($validated['foto_kopertines']);
         }
 
         $book->update($validated);
@@ -113,6 +126,7 @@ class BookController extends Controller
     {
         $this->authorizeAdmin();
         $book = Book::findOrFail($id);
+        
         $this->deleteImage($book->foto_kopertines);
         $book->delete();
         

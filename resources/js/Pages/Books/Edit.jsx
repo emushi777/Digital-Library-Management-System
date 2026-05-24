@@ -4,7 +4,7 @@ import { Head, useForm, router, Link } from '@inertiajs/react';
 export default function Edit({ auth, book, authors, categories }) {
     const { data, setData, errors, processing } = useForm({
         titulli: book.titulli || '',
-        pershkrimi: book.pershkrimi || '',
+        pershkrimi: book.pershkrimi || '', 
         isbn: book.isbn || '',
         autori_id: book.autori_id || '',
         kategoria_id: book.kategoria_id || '',
@@ -62,6 +62,18 @@ export default function Edit({ auth, book, authors, categories }) {
                                     <input type="text" value={data.titulli} onChange={e => setData('titulli', e.target.value)} className="mt-1 block w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 transition" />
                                 </div>
 
+                                {/* Përshkrimi - Shtuar */}
+                                <div className="md:col-span-2">
+                                    <label className="block text-sm font-semibold text-gray-700">Description</label>
+                                    <textarea 
+                                        value={data.pershkrimi} 
+                                        onChange={e => setData('pershkrimi', e.target.value)} 
+                                        rows="4"
+                                        className="mt-1 block w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 transition"
+                                    />
+                                    {errors.pershkrimi && <p className="text-red-500 text-xs mt-1">{errors.pershkrimi}</p>}
+                                </div>
+
                                 {/* Autori & Kategoria */}
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700">Author</label>
@@ -106,8 +118,28 @@ export default function Edit({ auth, book, authors, categories }) {
 
                             {/* Butonat */}
                             <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
-                                <Link href={route('books.index')} className="px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition flex items-center">Cancel</Link>
-                                <button type="submit" disabled={processing} className="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition">
+                                {/* Butoni 1: Kthimi te lista e librave */}
+                                <Link 
+                                    href={route('books.index')} 
+                                    className="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition"
+                                >
+                                    Back to List
+                                </Link>
+
+                                {/* Butoni 2: Kthimi te faqja e librit (Cancel) */}
+                                <Link 
+                                    href={route('books.show', book.id)} 
+                                    className="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition border-l border-gray-200"
+                                >
+                                    Cancel
+                                </Link>
+
+                                {/* Butoni për Update */}
+                                <button 
+                                    type="submit" 
+                                    disabled={processing} 
+                                    className="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition"
+                                >
                                     {processing ? 'Saving...' : 'Update Book'}
                                 </button>
                             </div>
