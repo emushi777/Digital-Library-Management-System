@@ -78,6 +78,14 @@ class BookController extends Controller
             'categories' => Category::all(),
         ]);
     }
+    public function show(Book $book)
+    {
+        $book->load(['author', 'reviews.user']); 
+        
+        return inertia('Books/Show', [
+            'book' => $book
+        ]);
+    }
 
     public function update(Request $request, $id)
     {
