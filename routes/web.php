@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
     Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
+    Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
 
 
     // 4. Menaxhimi i Profilit

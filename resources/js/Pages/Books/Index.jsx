@@ -58,7 +58,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
             <Head title="Books" />
 
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-[1400px] mx-auto pt-8 px-8">
                     
                     {/* Slider Section */}
                     <div className="mb-12">

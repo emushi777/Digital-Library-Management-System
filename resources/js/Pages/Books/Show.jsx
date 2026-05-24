@@ -69,7 +69,13 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         </h1>
                         
                         <p className="text-xl text-[#333333] font-serif mt-3">
-                            by <span className="text-[#377458] hover:underline cursor-pointer font-bold">{book.author?.emri} {book.author?.mbiemri}</span>
+                            by 
+                            <Link 
+                                href={route('authors.show', book.author.id)} 
+                                className="text-[#377458] hover:underline cursor-pointer font-bold ml-1"
+                            >
+                                {book.author?.emri} {book.author?.mbiemri}
+                            </Link>
                         </p>
                         
                         <div className="flex items-center gap-3 mt-3">
@@ -92,26 +98,27 @@ export default function Show({ auth, book, similarBooks = [] }) {
                             </button>
                         </div>
 
-                        {/* SEKSIONI I AUTORIT */}
+                        {/* SEKSIONI I AUTORIT - I RREGULLUAR */}
                         <div className="mt-10 pt-6 border-t border-gray-200">
                             <h3 className="font-bold text-gray-800 mb-4 text-lg">About the author</h3>
                             <div className="flex gap-4 items-start">
-                                {/* KETU ESHTE NDRYSHIMI */}
                                 {book.author?.foto_profili ? (
                                     <img 
                                         src={`/uploads/authors/${book.author.foto_profili}`} 
                                         alt={book.author.emri}
-                                        className="w-16 h-16 rounded-full object-cover border border-gray-200"
+                                        className="w-16 h-16 rounded-sm object-cover border border-gray-200" 
                                     />
                                 ) : (
-                                    <div className="w-16 h-16 bg-gray-300 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white text-xl">
+                                    <div className="w-16 h-16 bg-gray-300 rounded-sm flex-shrink-0 flex items-center justify-center font-bold text-white text-xl">
                                         {book.author?.emri[0]}
                                     </div>
                                 )}
                                 
                                 <div>
                                     <h4 className="font-bold text-[#377458] hover:underline cursor-pointer text-lg">
-                                        {book.author?.emri} {book.author?.mbiemri}
+                                        <Link href={route('authors.show', book.author.id)}>
+                                            {book.author?.emri} {book.author?.mbiemri}
+                                        </Link>
                                     </h4>
                                     <p className="text-sm text-gray-600 font-serif mt-1">
                                         {book.author?.biografia || "No biography available."}
@@ -136,13 +143,14 @@ export default function Show({ auth, book, similarBooks = [] }) {
                                 <p className="text-gray-500 italic text-sm">No similar books found.</p>
                             )}
                         </div>
-                        {/* REVIEWS SECTION */}
+
                         <div className="mt-12 border-t border-gray-200 pt-8">
                             <h3 className="font-bold text-gray-800 mb-6 text-xl">Ratings & Reviews</h3>
                         </div>
                     </main>
                 </div>
             </div>
+            
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">

@@ -20,20 +20,25 @@ class AuthorController extends Controller
         ]);
     }
 
-    // Metoda e re SHOW
     public function show($id)
     {
-        $author = Author::with('books')->findOrFail($id); 
+        $author = Author::with('books')->findOrFail($id);
         
         return Inertia::render('Authors/Show', [
             'author' => [
-                'id' => $author->id,
-                'emri' => $author->emri,
-                'mbiemri' => $author->mbiemri,
-                'vendi' => $author->vendi,
+                'id'        => $author->id,
+                'emri'      => $author->emri,
+                'mbiemri'   => $author->mbiemri,
+                'vendi'     => $author->vendi,
                 'biografia' => $author->biografia,
                 'photo_url' => $author->foto_profili ? "/uploads/authors/{$author->foto_profili}" : null,
-                'books' => $author->books // Sigurohu që ke lidhjen hasMany në model
+                'books'     => $author->books->map(function ($book) {
+                    return [
+                        'id'              => $book->id,
+                        'titulli'         => $book->titulli,
+                        'foto_kopertines' => $book->foto_kopertines 
+                    ];
+                })
             ]
         ]);
     }
@@ -49,7 +54,7 @@ class AuthorController extends Controller
         if (auth()->user()->role !== 'admin') { abort(403); }
 
         $request->validate([
-            'emri'      => 'required|string|max:255', 
+            'emri'      => 'required|string|max:255',
             'mbiemri'   => 'required|string|max:255',
             'vendi'     => 'required|string|max:255',
             'biografia' => 'nullable|string',
