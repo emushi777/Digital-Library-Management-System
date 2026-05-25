@@ -1,4 +1,3 @@
-```jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { router } from '@inertiajs/react';
 
@@ -8,19 +7,24 @@ export default function SearchDropdown({ items = [], inputClassName, placeholder
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef(null);
 
+    const getBookTitle = (item) => {
+        return item.title || item.titulli || '';
+    };
+
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
 
-        if (value.length > 0) {
-            const results = items.filter(item =>
-                (item.title || item.titulli || '')
-                    .toLowerCase()
-                    .includes(value.toLowerCase())
-            );
+        const searchValue = value.toLowerCase().trim();
+
+        if (searchValue.length > 0) {
+            const results = items.filter((item) => {
+                const title = getBookTitle(item).toLowerCase();
+                return title.includes(searchValue);
+            });
 
             setFilteredItems(results);
-            setShowDropdown(true);
+            setShowDropdown(results.length > 0);
         } else {
             setFilteredItems([]);
             setShowDropdown(false);
@@ -35,7 +39,6 @@ export default function SearchDropdown({ items = [], inputClassName, placeholder
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
@@ -53,7 +56,11 @@ export default function SearchDropdown({ items = [], inputClassName, placeholder
                 type="text"
                 value={searchTerm}
                 onChange={handleSearch}
-                onFocus={() => searchTerm.length > 0 && setShowDropdown(true)}
+                onFocus={() => {
+                    if (searchTerm.length > 0 && filteredItems.length > 0) {
+                        setShowDropdown(true);
+                    }
+                }}
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && filteredItems.length > 0) {
                         router.get(route('books.show', filteredItems[0].id));
@@ -89,4 +96,3 @@ export default function SearchDropdown({ items = [], inputClassName, placeholder
         </div>
     );
 }
-```
