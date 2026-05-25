@@ -72,7 +72,11 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
                         <div ref={scrollContainer} className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
                             {books.data.slice(0, 3).map((book, idx) => (
-                                <div key={book.id} className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' : idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}>
+                                <div
+                                    key={book.id}
+                                    onClick={() => router.visit(route('books.show', book.id))}
+                                    className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' : idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
+                                >
                                     <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
                                     <div className="flex flex-col justify-center flex-1">
                                         <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
@@ -103,19 +107,22 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                 {books.data.length > 0 ? (
                                     books.data.map((book) => (
                                         <div key={book.id} className="group relative">
-                                            <div className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl">
+                                            <div
+                                                onClick={() => router.visit(route('books.show', book.id))}
+                                                className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl cursor-pointer"
+                                            >
                                                 <img src={getImageUrl(book.foto_kopertines)} className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-500" alt={book.titulli} />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 flex flex-col justify-between">
                                                     {isAdmin && (
                                                         <div className="flex items-start justify-end gap-2">
-                                                            <Link href={route('books.edit', book.id)} className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all">✎</Link>
-                                                            <button onClick={() => handleDelete(book.id)} className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all">🗑</button>
+                                                            <Link href={route('books.edit', book.id)} onClick={(e) => e.stopPropagation()} className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all">✎</Link>
+                                                            <button onClick={(e) => { e.stopPropagation(); handleDelete(book.id); }} className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all">🗑</button>
                                                         </div>
                                                     )}
                                                     <div className="grid grid-cols-1 gap-2">
-                                                        <Link href={route('bookmarks.create', { book_id: book.id })} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all">Bookmark</Link>
-                                                        <Link href={route('reviews.create', { book_id: book.id })} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all">Review</Link>
-                                                        <Link href={route('wishlists.create', { book_id: book.id })} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all">Wishlist</Link>
+                                                        <Link href={route('bookmarks.create', { book_id: book.id })} onClick={(e) => e.stopPropagation()} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all">Bookmark</Link>
+                                                        <Link href={route('reviews.create', { book_id: book.id })} onClick={(e) => e.stopPropagation()} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all">Review</Link>
+                                                        <Link href={route('wishlists.create', { book_id: book.id })} onClick={(e) => e.stopPropagation()} className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all">Wishlist</Link>
                                                     </div>
                                                 </div>
                                             </div>
