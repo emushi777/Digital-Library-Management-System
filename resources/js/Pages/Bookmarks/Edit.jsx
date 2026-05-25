@@ -1,5 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import BookPicker from '@/Components/BookPicker';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 
 export default function Edit({ auth, bookmark, books }) {
     const { data, setData, put, processing, errors } = useForm({
@@ -11,6 +12,15 @@ export default function Edit({ auth, bookmark, books }) {
     const submit = (e) => {
         e.preventDefault();
         put(route('bookmarks.update', bookmark.id));
+    };
+
+    const handleBack = () => {
+        if (window.history.length > 1) {
+            window.history.back();
+            return;
+        }
+
+        router.visit(route('bookmarks.index'));
     };
 
     return (
@@ -26,16 +36,13 @@ export default function Edit({ auth, bookmark, books }) {
                         </div>
 
                         <form onSubmit={submit} className="p-10 space-y-8">
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Book</label>
-                                <select value={data.book_id} onChange={(e) => setData('book_id', e.target.value)} className="w-full rounded-xl border-gray-100 bg-gray-50 focus:ring-black focus:border-black py-3 text-sm">
-                                    <option value="">Select Book</option>
-                                    {books.map((book) => (
-                                        <option key={book.id} value={book.id}>{book.titulli} - {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}</option>
-                                    ))}
-                                </select>
-                                {errors.book_id && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase">{errors.book_id}</p>}
-                            </div>
+                            <BookPicker
+                                books={books}
+                                value={data.book_id}
+                                onChange={(value) => setData('book_id', value)}
+                                error={errors.book_id}
+                                label="Book"
+                            />
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Page</label>
@@ -50,9 +57,13 @@ export default function Edit({ auth, bookmark, books }) {
                             </div>
 
                             <div className="flex items-center justify-between pt-6">
-                                <Link href={route('bookmarks.index')} className="text-xs font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-all">
-                                    Back to Bookmarks
-                                </Link>
+                                <button
+                                    type="button"
+                                    onClick={handleBack}
+                                    className="text-xs font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-all"
+                                >
+                                    Go Back
+                                </button>
                                 <button type="submit" disabled={processing} className="px-10 py-4 text-xs font-bold text-white rounded-xl shadow-lg transition-all uppercase tracking-[0.15em] bg-blue-600 hover:bg-blue-700">
                                     {processing ? 'Processing...' : 'Update Bookmark'}
                                 </button>
