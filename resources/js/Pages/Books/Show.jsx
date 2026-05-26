@@ -6,9 +6,11 @@ export default function Show({ auth, book, similarBooks = [] }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const reviews = book.reviews || [];
     const totalReviews = reviews.length;
+
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
         : 0;
+
     const ratingBreakdown = [5, 4, 3, 2, 1].map((rating) => {
         const count = reviews.filter((review) => Number(review.vleresimi) === rating).length;
         const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
@@ -18,7 +20,35 @@ export default function Show({ auth, book, similarBooks = [] }) {
 
     const getImageUrl = (fileName) => {
         if (!fileName) return 'https://via.placeholder.com/450x600?text=No+Cover';
+
         return `/uploads/books/${fileName}`;
+    };
+
+    const getPdfUrl = (fileName) => {
+        if (!fileName) return '#';
+
+        const pdfPath = String(fileName).trim();
+
+        if (pdfPath.startsWith('http://') || pdfPath.startsWith('https://')) {
+            return pdfPath;
+        }
+
+        if (pdfPath.startsWith('/uploads/')) {
+            return pdfPath;
+        }
+
+        if (pdfPath.startsWith('/')) {
+            return pdfPath;
+        }
+
+        if (pdfPath.startsWith('file:///')) {
+            const fileParts = pdfPath.split('/');
+            const localFileName = fileParts[fileParts.length - 1];
+
+            return `/uploads/books/pdf-files/${localFileName}`;
+        }
+
+        return `/uploads/books/pdf-files/${pdfPath}`;
     };
 
     const deleteBook = () => {
@@ -39,6 +69,8 @@ export default function Show({ auth, book, similarBooks = [] }) {
         );
     };
 
+    const pdfUrl = getPdfUrl(book.shtegu_skedarit);
+
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title={book.titulli} />
@@ -51,9 +83,14 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         </div>
                         
                         <div className="mt-4 space-y-3">
-                            <button className="w-full bg-[#377458] text-white font-semibold py-2 rounded-sm hover:bg-[#2d5d44] transition">
+                            <a
+                                href={pdfUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block w-full text-center bg-[#377458] text-white font-semibold py-2 rounded-sm hover:bg-[#2d5d44] transition"
+                            >
                                 Read Now
-                            </button>
+                            </a>
 
                             <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                                 <Link href={route('bookmarks.create', { book_id: book.id })} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
@@ -127,7 +164,6 @@ export default function Show({ auth, book, similarBooks = [] }) {
                             </button>
                         </div>
 
-                        {/* SEKSIONI I AUTORIT - I RREGULLUAR */}
                         <div className="mt-10 pt-6 border-t border-gray-200">
                             <h3 className="font-bold text-gray-800 mb-4 text-lg">About the author</h3>
                             <div className="flex gap-4 items-start">
