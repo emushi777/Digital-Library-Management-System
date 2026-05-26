@@ -44,6 +44,7 @@ class BookImportController extends Controller
                 ['isbn' => trim($row[3])],
                 [
                     'titulli'         => $row[0],
+                    'pershkrimi'      => $row[7] ?? 'N/A', 
                     'autori_id'       => $author->id,
                     'kategoria_id'    => $category->id,
                     'viti_botimit'    => $row[4] ?? null,

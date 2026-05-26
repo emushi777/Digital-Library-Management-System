@@ -71,23 +71,34 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                         </div>
 
                         <div ref={scrollContainer} className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
-                            {books.data.slice(0, 3).map((book, idx) => (
-                                <div
-                                    key={book.id}
-                                    onClick={() => router.visit(route('books.show', book.id))}
-                                    className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg ${idx === 0 ? 'bg-gradient-to-br from-slate-700 to-slate-900' : idx === 1 ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-emerald-500 to-emerald-700'}`}
-                                >
-                                    <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
-                                    <div className="flex flex-col justify-center flex-1">
-                                        <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
-                                        <p className="text-sm opacity-80 mb-2">By {book.author?.emri} {book.author?.mbiemri}</p>
-                                        <div className="mb-3">
-                                            <div className="flex text-yellow-400 text-xs">{renderStars(book.reviews_avg_vleresimi)}</div>
-                                            <p className="mt-1 text-[11px] opacity-80">{getRatingLabel(book)}</p>
+                            {books.data.slice(0, 5).map((book, idx) => {
+                                // Array me gradientët që do të përdoren për 5 elementet
+                                const gradients = [
+                                    'bg-gradient-to-br from-slate-700 to-slate-900',
+                                    'bg-gradient-to-br from-blue-500 to-blue-700',
+                                    'bg-gradient-to-br from-emerald-500 to-emerald-700',
+                                    'bg-gradient-to-br from-purple-500 to-purple-700',
+                                    'bg-gradient-to-br from-orange-500 to-orange-700'
+                                ];
+
+                                return (
+                                    <div
+                                        key={book.id}
+                                        onClick={() => router.visit(route('books.show', book.id))}
+                                        className={`min-w-[350px] p-6 rounded-2xl flex gap-5 text-white transition-transform hover:scale-[1.02] cursor-pointer shadow-lg ${gradients[idx % gradients.length]}`}
+                                    >
+                                        <img src={getImageUrl(book.foto_kopertines)} className="w-24 h-36 object-cover rounded shadow-md" alt="" />
+                                        <div className="flex flex-col justify-center flex-1">
+                                            <h4 className="font-bold text-lg leading-tight mb-1 uppercase">{book.titulli}</h4>
+                                            <p className="text-sm opacity-80 mb-2">By {book.author?.emri} {book.author?.mbiemri}</p>
+                                            <div className="mb-3">
+                                                <div className="flex text-yellow-400 text-xs">{renderStars(book.reviews_avg_vleresimi)}</div>
+                                                <p className="mt-1 text-[11px] opacity-80">{getRatingLabel(book)}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -133,7 +144,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="col-span-full py-20 text-center text-gray-400 italic">Nuk u gjet asnje liber per kete perzgjedhje.</div>
+                                    <div className="col-span-full py-20 text-center text-gray-400 italic">No books found</div>
                                 )}
                             </div>
 
@@ -151,7 +162,7 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                     <button onClick={() => handleFilter('author', null)} className="text-gray-400 text-xs hover:text-blue-600">Reset</button>
                                 </div>
                                 <div className="space-y-5">
-                                    {authors?.map((author, idx) => (
+                                    {authors?.slice(0, 10).map((author, idx) => (
                                         <button key={author.id} onClick={() => handleFilter('author', author.id)} className={`flex items-center w-full text-left group gap-4 ${selectedAuthor == author.id ? 'text-blue-600' : 'text-gray-600 hover:text-black'}`}>
                                             <span className="text-xs font-black opacity-30 group-hover:opacity-100">{idx + 1}</span>
                                             <p className="text-sm font-bold truncate">{author.emri} {author.mbiemri}</p>
