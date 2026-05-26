@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use App\Models\Book;
 use App\Models\Author;
 use Inertia\Inertia;
+use App\Models\Category;
 
 class DashboardController extends Controller
 {
@@ -17,8 +18,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'plans' => Plan::all(),
+            'categories' => Category::all(), 
 
-            // Filtrohet libri bazuar ne titull ose emrin e autorit nese ka search query
             'latestBooks' => Book::with('author')
                 ->withAvg('reviews', 'vleresimi')
                 ->withCount('reviews')
@@ -30,7 +31,7 @@ class DashboardController extends Controller
                           });
                 })
                 ->latest()
-                ->take($search ? 20 : 5) // Shfaqim me shume nese po kerkon
+                ->take($search ? 20 : 5) 
                 ->get(),
 
             'authors' => Author::take(7)->get(),

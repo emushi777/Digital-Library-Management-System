@@ -5,13 +5,11 @@ import { useState } from 'react';
 export default function Index({ auth, authors, isAdmin }) {
     const [editMode, setEditMode] = useState(false);
 
-    // Funksioni për fshirje
     const handleDelete = (id) => {
         if (confirm("Are you sure you want to delete this author? This will affect books linked to them.")) {
             router.delete(route('authors.destroy', id), {
                 preserveScroll: true,
                 onSuccess: () => {
-                    // Opcionale: mund të shtosh një njoftim këtu
                 }
             });
         }
@@ -24,11 +22,9 @@ export default function Index({ auth, authors, isAdmin }) {
         >
             <Head title="Authors List" />
 
-            {/* Ky është struktura e Modalit që pashë në foton tënde */}
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
                 <div className="relative mx-auto p-5 border w-full max-w-4xl shadow-2xl rounded-2xl bg-white">
                     
-                    {/* Header i Modalit */}
                     <div className="flex justify-between items-center mb-6 border-b pb-4">
                         <h3 className="text-2xl font-bold text-gray-900">Authors List</h3>
                         <div className="flex gap-2">
@@ -48,7 +44,6 @@ export default function Index({ auth, authors, isAdmin }) {
                         </div>
                     </div>
 
-                    {/* Tabela e Autorëve */}
                     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
                         <table className="w-full text-left">
                             <thead className="bg-gray-50 text-gray-600 text-sm uppercase">
@@ -101,7 +96,6 @@ export default function Index({ auth, authors, isAdmin }) {
                         </table>
                     </div>
 
-                    {/* Footer i Modalit */}
                     <div className="mt-8 flex justify-end">
                         <button 
                             onClick={() => window.history.back()}

@@ -1,14 +1,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 
-export default function Dashboard({ auth, plans, latestBooks, authors, hasActivePlan, filters }) {
+export default function Dashboard({ auth, plans, categories, latestBooks, authors, hasActivePlan, filters }) {
     const { post, processing } = useForm({
         plan_id: '',
     });
 
     const renderStars = (rating) => {
         const roundedRating = Math.round(Number(rating) || 0);
-
         return '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
     };
 
@@ -16,7 +15,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
         if (!book.reviews_count) {
             return 'No reviews yet';
         }
-
         return `${Number(book.reviews_avg_vleresimi).toFixed(1)} / 5`;
     };
 
@@ -48,10 +46,10 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
         >
             <Head title="Home" />
 
-            <div className="bg-[#F8F9FB] min-h-screen pb-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-[#F8F9FB] min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {!isSearching && (
-                        <div className="pt-10 pb-16">
+                        <div className="mb-20">
                             <div className="bg-[#EEEFF4] rounded-[40px] p-12 flex flex-col md:flex-row items-center justify-between shadow-sm overflow-hidden relative border border-gray-200">
                                 <div className="md:w-1/2 z-10">
                                     <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">Featured</h4>
@@ -103,7 +101,7 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                         </div>
                     )}
 
-                    <div className={isSearching ? "pt-20 mb-20" : "mb-20"}>
+                    <div className="mb-20">
                         <div className="flex justify-between items-end mb-10">
                             <div>
                                 <h2 className="text-3xl font-bold text-gray-900">
@@ -134,7 +132,6 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                                         <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
                                             {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
                                         </p>
-
                                         <div className="mt-2">
                                             <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
                                                 {renderStars(book.reviews_avg_vleresimi)}
@@ -206,9 +203,8 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                             </div>
                         </div>
                     )}
-
                     {!isSearching && (
-                        <div className="my-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
+                        <div className="mb-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
                             <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
                                 "The more that you read, the more things you will know. <br className="hidden md:block" />
                                 The more that you learn, the more places you'll go."
@@ -216,10 +212,25 @@ export default function Dashboard({ auth, plans, latestBooks, authors, hasActive
                             <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
                         </div>
                     )}
+
+                    {!isSearching && (
+                        <div className="mb-20">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-8">Explore Genres</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                                {categories?.slice(0, 6).map((cat) => (
+                                    <Link key={cat.id} href={route('books.index', { category: cat.id })} className="bg-black text-white rounded-2xl p-6 h-32 flex flex-col justify-end hover:bg-gray-800 transition">
+                                        <h3 className="font-bold">{cat.emertimi}</h3>
+                                        <p className="text-[10px] text-gray-400">View Collection</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                 </div>
             </div>
 
-            <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
+            <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px]">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                         <div className="col-span-1">
