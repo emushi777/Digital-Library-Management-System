@@ -9,11 +9,9 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
         books: allBooks 
     });
 
-    // Paginimi: Gjendja për faqen aktuale
     const [currentPage, setCurrentPage] = useState(1);
     const booksPerPage = 24;
 
-    // Resetimi i faqes sa herë ndërrohet kategoria
     const handleCategoryChange = (cat) => {
         setSelectedCategory(cat);
         setCurrentPage(1); 
@@ -25,7 +23,6 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
         }
     };
 
-    // Llogaritja e librave për faqen aktuale
     const paginatedBooks = useMemo(() => {
         const startIndex = (currentPage - 1) * booksPerPage;
         return selectedCategory.books.slice(startIndex, startIndex + booksPerPage);
@@ -40,13 +37,16 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                 <div className="flex justify-between items-center mb-10">
                     <h1 className="text-3xl font-bold text-gray-900">Explore by Category</h1>
                     {isAdmin && (
-                        <Link href={route('categories.create')} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold shadow-lg transition">
-                            + Add Category
+                        <Link 
+                            href={route('categories.create')} 
+                            className="inline-block px-8 py-3 bg-gray-900 text-white rounded-md font-bold text-[13px] uppercase tracking-widest hover:bg-black transition-all"
+                        >
+                            Add Categories
                         </Link>
                     )}
                 </div>
 
-                {/* Kategoritë */}
+                {/* Kategorite */}
                 <div className="flex flex-wrap gap-3 mb-12">
                     <button 
                         onClick={() => handleCategoryChange({ id: 'all', emertimi: 'All Categories', books: allBooks })}
@@ -90,7 +90,6 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                     )}
                 </div>
 
-                {/* Pagination Controls */}
                 {totalPages > 1 && (
                     <div className="flex justify-center gap-2 mt-12">
                         {Array.from({ length: totalPages }, (_, i) => (

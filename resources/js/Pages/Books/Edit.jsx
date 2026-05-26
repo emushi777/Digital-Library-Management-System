@@ -62,7 +62,7 @@ export default function Edit({ auth, book, authors, categories }) {
                                     <input type="text" value={data.titulli} onChange={e => setData('titulli', e.target.value)} className="mt-1 block w-full rounded-lg border-gray-300 focus:ring-2 focus:ring-indigo-500 transition" />
                                 </div>
 
-                                {/* Përshkrimi - Shtuar */}
+                                {/* Pershkrimi */}
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-semibold text-gray-700">Description</label>
                                     <textarea 
@@ -134,7 +134,7 @@ export default function Edit({ auth, book, authors, categories }) {
                                     Cancel
                                 </Link>
 
-                                {/* Butoni për Update */}
+                                {/* Butoni Update */}
                                 <button 
                                     type="submit" 
                                     disabled={processing} 
