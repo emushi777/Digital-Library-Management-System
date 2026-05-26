@@ -4,6 +4,17 @@ import { Head, Link, router } from '@inertiajs/react';
 
 export default function Show({ auth, book, similarBooks = [] }) {
     const [isExpanded, setIsExpanded] = useState(false);
+    const reviews = book.reviews || [];
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews
+        ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
+        : 0;
+    const ratingBreakdown = [5, 4, 3, 2, 1].map((rating) => {
+        const count = reviews.filter((review) => Number(review.vleresimi) === rating).length;
+        const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
+
+        return { rating, count, percentage };
+    });
 
     const getImageUrl = (fileName) => {
         if (!fileName) return 'https://via.placeholder.com/450x600?text=No+Cover';
@@ -14,6 +25,18 @@ export default function Show({ auth, book, similarBooks = [] }) {
         if (confirm('Are you sure you want to delete this book?')) {
             router.delete(route('books.destroy', book.id));
         }
+    };
+
+    const renderStars = (rating, size = 'text-lg') => {
+        const roundedRating = Math.round(Number(rating) || 0);
+
+        return (
+            <div className={`flex text-amber-400 ${size}`}>
+                {[1, 2, 3, 4, 5].map((value) => (
+                    <span key={value}>{value <= roundedRating ? '★' : '☆'}</span>
+                ))}
+            </div>
+        );
     };
 
     return (
@@ -33,15 +56,15 @@ export default function Show({ auth, book, similarBooks = [] }) {
                             </button>
 
                             <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-                                <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
+                                <Link href={route('bookmarks.create', { book_id: book.id })} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
                                     <span>🔖</span>Add to Bookmarks
-                                </button>
-                                <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
+                                </Link>
+                                <Link href={route('wishlists.create', { book_id: book.id })} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
                                     <span>♡</span>Add to Wishlist
-                                </button>
-                                <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
+                                </Link>
+                                <Link href={route('reviews.create', { book_id: book.id })} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
                                     <span>★</span>Rate this book
-                                </button>
+                                </Link>
                             </div>
 
                             {auth.user?.role === 'admin' && (
@@ -70,17 +93,23 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         
                         <p className="text-xl text-[#333333] font-serif mt-3">
                             by 
-                            <Link 
-                                href={route('authors.show', book.author.id)} 
-                                className="text-[#377458] hover:underline cursor-pointer font-bold ml-1"
-                            >
-                                {book.author?.emri} {book.author?.mbiemri}
-                            </Link>
+                            {book.author ? (
+                                <Link 
+                                    href={route('authors.show', book.author.id)} 
+                                    className="text-[#377458] hover:underline cursor-pointer font-bold ml-1"
+                                >
+                                    {book.author?.emri} {book.author?.mbiemri}
+                                </Link>
+                            ) : (
+                                <span className="font-bold ml-1 text-gray-500">Unknown author</span>
+                            )}
                         </p>
                         
                         <div className="flex items-center gap-3 mt-3">
-                            <div className="flex text-amber-400 text-lg">★★★★☆</div>
-                            <span className="text-gray-500 text-sm font-semibold">3.82 • 360,950 ratings</span>
+                            {renderStars(averageRating)}
+                            <span className="text-gray-500 text-sm font-semibold">
+                                {totalReviews ? averageRating.toFixed(1) : '0.0'} • {totalReviews} {totalReviews === 1 ? 'rating' : 'ratings'}
+                            </span>
                         </div>
 
                         <div className="mt-4 flex flex-wrap gap-2">
@@ -110,15 +139,19 @@ export default function Show({ auth, book, similarBooks = [] }) {
                                     />
                                 ) : (
                                     <div className="w-16 h-16 bg-gray-300 rounded-sm flex-shrink-0 flex items-center justify-center font-bold text-white text-xl">
-                                        {book.author?.emri[0]}
+                                        {book.author?.emri?.[0] || '?'}
                                     </div>
                                 )}
                                 
                                 <div>
                                     <h4 className="font-bold text-[#377458] hover:underline cursor-pointer text-lg">
-                                        <Link href={route('authors.show', book.author.id)}>
-                                            {book.author?.emri} {book.author?.mbiemri}
-                                        </Link>
+                                        {book.author ? (
+                                            <Link href={route('authors.show', book.author.id)}>
+                                                {book.author?.emri} {book.author?.mbiemri}
+                                            </Link>
+                                        ) : (
+                                            <span className="text-gray-500">Unknown author</span>
+                                        )}
                                     </h4>
                                     <p className="text-sm text-gray-600 font-serif mt-1">
                                         {book.author?.biografia || "No biography available."}
@@ -145,7 +178,80 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         </div>
 
                         <div className="mt-12 border-t border-gray-200 pt-8">
-                            <h3 className="font-bold text-gray-800 mb-6 text-xl">Ratings & Reviews</h3>
+                            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <h3 className="font-bold text-gray-800 text-xl">Ratings & Reviews</h3>
+                                <Link
+                                    href={route('reviews.create', { book_id: book.id })}
+                                    className="inline-flex items-center justify-center rounded-lg bg-[#377458] px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-[#2d5d44]"
+                                >
+                                    Write a review
+                                </Link>
+                            </div>
+                            <div className="grid gap-6 lg:grid-cols-[240px,1fr]">
+                                <aside className="rounded-2xl border border-gray-200 bg-[#fafafa] p-5">
+                                    <p className="text-sm font-semibold uppercase tracking-[0.15em] text-gray-400">Overview</p>
+                                    <div className="mt-4 flex items-end gap-3">
+                                        <span className="text-5xl font-bold text-gray-900">
+                                            {totalReviews ? averageRating.toFixed(1) : '0.0'}
+                                        </span>
+                                        <span className="pb-2 text-sm font-semibold text-gray-400">/ 5</span>
+                                    </div>
+                                    <div className="mt-3">
+                                        {renderStars(averageRating, 'text-xl')}
+                                    </div>
+                                    <p className="mt-2 text-sm text-gray-500">
+                                        {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
+                                    </p>
+
+                                    <div className="mt-6 space-y-3">
+                                        {ratingBreakdown.map(({ rating, count, percentage }) => (
+                                            <div key={rating} className="grid grid-cols-[18px,1fr,24px] items-center gap-3">
+                                                <span className="text-sm font-semibold text-gray-700">{rating}</span>
+                                                <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+                                                    <div className="h-full rounded-full bg-[#377458]" style={{ width: `${percentage}%` }} />
+                                                </div>
+                                                <span className="text-xs font-semibold text-gray-400">{count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </aside>
+
+                                <div className="space-y-4">
+                                    {reviews.length > 0 ? (
+                                        reviews.map((review) => (
+                                            <article key={review.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                                                <div className="flex flex-wrap items-center justify-between gap-3">
+                                                    <div>
+                                                        <h4 className="text-lg font-bold text-gray-900">
+                                                            {review.user?.name || 'Unknown reader'}
+                                                        </h4>
+                                                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.15em] text-gray-300">
+                                                            {new Date(review.data_vleresimit).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        {renderStars(review.vleresimi, 'text-base')}
+                                                        <span className="rounded-full bg-[#f4f1ea] px-3 py-1 text-xs font-semibold text-[#377458]">
+                                                            {review.vleresimi}/5
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="mt-4 text-[15px] leading-7 text-gray-600 font-serif">
+                                                    {review.komenti || 'This reader left a rating without a written review.'}
+                                                </p>
+                                            </article>
+                                        ))
+                                    ) : (
+                                        <div className="rounded-2xl border border-dashed border-gray-200 bg-[#fafafa] px-6 py-12 text-center">
+                                            <p className="text-lg font-semibold text-gray-800">No reviews for this book yet</p>
+                                            <p className="mt-2 text-sm text-gray-500">
+                                                Be the first reader to leave a rating and review for this title.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </main>
                 </div>

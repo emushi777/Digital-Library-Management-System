@@ -1,87 +1,254 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
+
+const ratingOrder = [5, 4, 3, 2, 1];
+
+function StarRow({ rating, size = 'md' }) {
+    const sizes = {
+        sm: 'h-4 w-4',
+        md: 'h-5 w-5',
+    };
+
+    return (
+        <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((value) => (
+                <svg
+                    key={value}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    className={`${sizes[size]} ${value <= Math.round(Number(rating) || 0) ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+                >
+                    <path
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        d="M12 3.75l2.53 5.13 5.66.82-4.09 3.98.97 5.63L12 16.6l-5.07 2.71.97-5.63L3.81 9.7l5.66-.82L12 3.75z"
+                    />
+                </svg>
+            ))}
+        </div>
+    );
+}
+
+function getBookImageUrl(fileName) {
+    if (!fileName) {
+        return 'https://via.placeholder.com/120x180?text=No+Cover';
+    }
+
+    return `/uploads/books/${fileName}`;
+}
 
 export default function Index({ auth, reviews }) {
+    const [reviewToDelete, setReviewToDelete] = useState(null);
+
     const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this review?')) {
-            router.delete(route('reviews.destroy', id));
-        }
+        setReviewToDelete(id);
     };
+
+    const confirmDelete = () => {
+        if (!reviewToDelete) {
+            return;
+        }
+
+        router.delete(route('reviews.destroy', reviewToDelete));
+        setReviewToDelete(null);
+    };
+
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews
+        ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
+        : 0;
+    const ratingBreakdown = ratingOrder.map((rating) => {
+        const count = reviews.filter((review) => Number(review.vleresimi) === rating).length;
+        const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
+
+        return { rating, count, percentage };
+    });
 
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Reviews" />
+            <ConfirmModal
+                open={Boolean(reviewToDelete)}
+                title="Delete this review?"
+                message="This review will be permanently removed from your reading feedback."
+                confirmLabel="Delete review"
+                onConfirm={confirmDelete}
+                onCancel={() => setReviewToDelete(null)}
+            />
 
-            <div className="py-12 bg-gray-50 min-h-screen">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-xl sm:rounded-lg border border-gray-100">
-                        <div className="p-8 text-gray-900">
-                            <div className="flex justify-between items-center mb-8">
-                                <div>
-                                    <h1 className="text-3xl font-extrabold text-gray-900">Book Reviews</h1>
-                                    <p className="text-sm text-gray-500 mt-1">Browse what readers are saying about the books in your library.</p>
-                                </div>
-                                <Link href={route('reviews.create')} className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow-md hover:bg-blue-700 transition-all active:scale-95">
-                                    Add Review
-                                </Link>
+            <div className="min-h-screen bg-[#f8f9fb] pb-20">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+                    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                        <div className="max-w-2xl">
+                            <span className="inline-flex rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-blue-600">
+                                Reviews
+                            </span>
+                            <h1 className="mt-4 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">See what readers think about the books they finished</h1>
+                            <p className="mt-3 text-sm leading-6 text-gray-500 sm:text-base">
+                                Browse recent ratings, helpful comments, and overall feedback from readers across your digital library.
+                            </p>
+                        </div>
+                        <Link
+                            href={route('reviews.create')}
+                            className="inline-flex items-center justify-center rounded-xl bg-gray-900 px-6 py-3 text-xs font-bold uppercase tracking-widest text-white shadow-lg transition-all hover:bg-black hover:shadow-xl"
+                        >
+                            Write a review
+                        </Link>
+                    </div>
+
+                    <div className="grid gap-6 lg:grid-cols-[320px,1fr] xl:gap-8">
+                        <aside className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                            <p className="text-lg font-bold text-gray-900">Average Rating</p>
+                            <div className="mt-5 flex items-end gap-3">
+                                <span className="text-5xl font-black tracking-tight text-gray-900">{totalReviews ? averageRating.toFixed(1) : '0.0'}</span>
+                                <span className="pb-2 text-sm font-medium text-gray-400">/ 5</span>
+                            </div>
+                            <div className="mt-3">
+                                <StarRow rating={averageRating} />
+                            </div>
+                            <p className="mt-2 text-sm text-gray-400">{totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}</p>
+
+                            <div className="mt-8 space-y-4">
+                                {ratingBreakdown.map(({ rating, count, percentage }) => (
+                                    <div key={rating} className="grid grid-cols-[18px,1fr,44px] items-center gap-3 text-sm text-gray-500">
+                                        <span className="font-semibold text-gray-700">{rating}</span>
+                                        <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
+                                            <div
+                                                className="h-full rounded-full bg-blue-600 transition-all"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-right text-xs font-semibold text-gray-400">{count}</span>
+                                    </div>
+                                ))}
                             </div>
 
-                            <div className="overflow-x-auto rounded-xl border border-gray-100">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
-                                            <th className="px-6 py-4 border-b font-bold">Reviewer</th>
-                                            <th className="px-6 py-4 border-b font-bold">Book</th>
-                                            <th className="px-6 py-4 border-b font-bold">Author</th>
-                                            <th className="px-6 py-4 border-b font-bold">Rating</th>
-                                            <th className="px-6 py-4 border-b font-bold">Comment</th>
-                                            <th className="px-6 py-4 border-b font-bold">Date</th>
-                                            <th className="px-6 py-4 border-b font-bold text-right">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {reviews.length > 0 ? (
-                                            reviews.map((review) => (
-                                                <tr key={review.id} className="hover:bg-blue-50/30 transition-colors">
-                                                    <td className="px-6 py-4 font-semibold text-gray-700">{review.user?.name || 'Unknown reader'}</td>
-                                                    <td className="px-6 py-4 font-bold text-gray-800">{review.book?.titulli}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500">{review.book?.author ? `${review.book.author.emri} ${review.book.author.mbiemri}` : 'Unknown'}</td>
-                                                    <td className="px-6 py-4">
-                                                        <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-100">
-                                                            {review.vleresimi}/5
+                            <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+                                <p className="text-sm font-semibold text-gray-900">Write your review</p>
+                                <p className="mt-2 text-sm leading-6 text-gray-500">
+                                    Add a clear rating and a helpful comment so other readers can decide what to open next.
+                                </p>
+                                <Link
+                                    href={route('reviews.create')}
+                                    className="mt-5 inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white transition-all hover:bg-blue-700"
+                                >
+                                    Submit review
+                                </Link>
+                            </div>
+                        </aside>
+
+                        <section className="space-y-4">
+                            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                                <p className="text-lg font-bold text-gray-900">Customer Feedback</p>
+                                <p className="mt-1 text-sm text-gray-400">Recent reviews from your digital library readers.</p>
+
+                                <div className="mt-6 space-y-4">
+                                    {reviews.length > 0 ? (
+                                        reviews.map((review) => {
+                                            const reviewerName = review.user?.name || 'Unknown reader';
+                                            const initials = reviewerName
+                                                .split(' ')
+                                                .map((part) => part[0])
+                                                .join('')
+                                                .slice(0, 2)
+                                                .toUpperCase();
+
+                                            return (
+                                                <article
+                                                    key={review.id}
+                                                    className="rounded-2xl border border-gray-100 bg-white px-5 py-5 shadow-sm transition-all hover:shadow-lg sm:px-6"
+                                                >
+                                                    <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_120px] sm:items-start">
+                                                        <div className="min-w-0">
+                                                            <div className="flex min-w-0 gap-4">
+                                                                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-black text-blue-600 shadow-sm">
+                                                                    {initials || 'R'}
+                                                                </div>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                                                                        <h2 className="text-base font-bold text-gray-900">{reviewerName}</h2>
+                                                                        <span className="max-w-full rounded bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-600">
+                                                                            {review.book?.titulli || 'Book review'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="mt-1 text-sm text-gray-400">
+                                                                        {review.book?.author ? `${review.book.author.emri} ${review.book.author.mbiemri}` : 'Unknown author'} -{' '}
+                                                                        {new Date(review.data_vleresimit).toLocaleDateString()}
+                                                                    </p>
+                                                                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                                                                        <StarRow rating={review.vleresimi} size="sm" />
+                                                                        <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                                                                            {review.vleresimi}/5
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <p className="mt-4 pr-0 text-sm leading-7 text-gray-500 sm:pr-4">
+                                                                {review.komenti || 'This reader left a rating without a written comment.'}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="flex justify-start sm:justify-end">
+                                                            {review.book ? (
+                                                                <Link
+                                                                    href={route('books.show', review.book.id)}
+                                                                    className="block transition hover:scale-[1.02]"
+                                                                >
+                                                                    <img
+                                                                        src={getBookImageUrl(review.book?.foto_kopertines)}
+                                                                        alt={review.book?.titulli || 'Book cover'}
+                                                                        className="h-36 w-24 rounded-xl border border-gray-100 object-cover shadow-sm"
+                                                                    />
+                                                                </Link>
+                                                            ) : (
+                                                                <img
+                                                                    src={getBookImageUrl(review.book?.foto_kopertines)}
+                                                                    alt={review.book?.titulli || 'Book cover'}
+                                                                    className="h-36 w-24 rounded-xl border border-gray-100 object-cover shadow-sm"
+                                                                />
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-5 flex flex-col gap-3 border-t border-gray-50 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                                                        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-300">
+                                                            {review.user_id === auth.user.id ? 'Your review' : 'Community review'}
                                                         </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-500 italic">{review.komenti || 'No comment added.'}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-400">{new Date(review.data_vleresimit).toLocaleDateString()}</td>
-                                                    <td className="px-6 py-4 text-right">
+
                                                         {review.user_id === auth.user.id ? (
-                                                            <div className="flex justify-end gap-4">
-                                                                <Link href={route('reviews.edit', review.id)} className="text-indigo-600 hover:text-indigo-900 font-bold text-sm bg-indigo-50 px-3 py-1 rounded-md transition">
+                                                            <div className="flex flex-wrap gap-3">
+                                                                <Link
+                                                                    href={route('reviews.edit', review.id)}
+                                                                    className="inline-flex items-center rounded-lg bg-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-600 transition-all hover:bg-gray-200"
+                                                                >
                                                                     Edit
                                                                 </Link>
-                                                                <button onClick={() => handleDelete(review.id)} className="text-red-600 hover:text-red-900 font-bold text-sm bg-red-50 px-3 py-1 rounded-md transition">
+                                                                <button
+                                                                    onClick={() => handleDelete(review.id)}
+                                                                    className="inline-flex items-center rounded-lg bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-red-600 transition-all hover:bg-red-600 hover:text-white"
+                                                                >
                                                                     Delete
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <span className="text-xs font-semibold uppercase tracking-wide text-gray-300">
-                                                                Read only
-                                                            </span>
+                                                            <span className="text-sm font-medium text-gray-400">Read only</span>
                                                         )}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan="7" className="px-6 py-16 text-center text-gray-400">
-                                                    No reviews yet.
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14 text-center">
+                                            <p className="text-lg font-semibold text-gray-800">No reviews yet</p>
+                                            <p className="mt-2 text-sm text-gray-400">Be the first reader to rate a book and set the tone for this section.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
                 </div>
             </div>
