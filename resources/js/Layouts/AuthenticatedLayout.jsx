@@ -46,27 +46,39 @@ export default function Authenticated({ user, header, children }) {
                                     Reviews
                                 </NavLink>
 
-                                <NavLink href={route('wishlists.index')} active={route().current('wishlists.*')}>
-                                    Wishlists
+                                <NavLink href={route('collections.index')} active={route().current('collections.*')}>
+                                    Collection
                                 </NavLink>
                             </div>
                         </div>
 
                         <div className="hidden sm:flex sm:items-center sm:ms-6 gap-6">
+                            <Link
+                                href={route('wishlists.index')}
+                                className="text-gray-400 hover:text-red-500 transition relative p-2"
+                                title="Wishlist"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"
+                                    />
+                                </svg>
+                            </Link>
+
                             <SearchDropdown
                                 items={books}
                                 placeholder="Search..."
                                 inputClassName="border-none bg-gray-100 rounded-full pl-10 pr-4 py-1 text-sm focus:ring-1 focus:ring-black w-40 lg:w-60"
                             />
-
-                            <button className="text-gray-400 hover:text-gray-900 transition relative p-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
-                                <span className="absolute top-1 right-1 bg-blue-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-white">
-                                    0
-                                </span>
-                            </button>
 
                             <div className="ms-3 relative border-l pl-6 border-gray-100">
                                 <Dropdown>
@@ -155,8 +167,8 @@ export default function Authenticated({ user, header, children }) {
                             Reviews
                         </ResponsiveNavLink>
 
-                        <ResponsiveNavLink href={route('wishlists.index')} active={route().current('wishlists.*')}>
-                            Wishlists
+                        <ResponsiveNavLink href={route('collections.index')} active={route().current('collections.*')}>
+                            Collection
                         </ResponsiveNavLink>
                     </div>
                 </div>
