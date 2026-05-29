@@ -71,30 +71,20 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                 <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center gap-4 relative">
                                     {heroBooks.length > 0 ? (
                                         <>
-                                            <div className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                                <img
-                                                    src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')}
-                                                    className="w-full h-full object-cover"
-                                                    alt="Hero 1"
-                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
-                                                />
-                                            </div>
-                                            <div className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
-                                                <img
-                                                    src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')}
-                                                    className="w-full h-full object-cover"
-                                                    alt="Hero 2"
-                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
-                                                />
-                                            </div>
-                                            <div className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
-                                                <img
-                                                    src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')}
-                                                    className="w-full h-full object-cover"
-                                                    alt="Hero 3"
-                                                    onError={(e) => e.target.src = '/images/placeholder.png'}
-                                                />
-                                            </div>
+                                            {/* Libri i parë */}
+                                            <Link href={route('books.show', heroBooks[0].id)} className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
+                                                <img src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 1" />
+                                            </Link>
+                                            
+                                            {/* Libri i dytë */}
+                                            <Link href={route('books.show', heroBooks[1]?.id || heroBooks[0].id)} className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
+                                                <img src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 2" />
+                                            </Link>
+
+                                            {/* Libri i tretë */}
+                                            <Link href={route('books.show', heroBooks[2]?.id || heroBooks[0].id)} className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
+                                                <img src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 3" />
+                                            </Link>
                                         </>
                                     ) : (
                                         <div className="h-60 flex items-center text-gray-300 italic font-medium">No books available</div>
@@ -122,7 +112,11 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
                             {latestBooks.length > 0 ? (
                                 latestBooks.map((book) => (
-                                    <Link key={book.id} href={route('books.index')} className="text-center group cursor-pointer">
+                                    <Link 
+                                        key={book.id} 
+                                        href={route('books.show', book.id)} // Ndrysho nga 'books.index' në 'books.show'
+                                        className="text-center group cursor-pointer"
+                                    >
                                         <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
                                             <img
                                                 src={getImageUrl(book.foto_kopertines, 'kopertina')}
@@ -268,8 +262,20 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
                                 <li><Link href="#" className="hover:text-white transition">Plans</Link></li>
-                                <li><Link href={route('logout')} method="post" as="button" className="hover:text-white transition">Logout</Link></li>
-
+                                <li><Link 
+                                        href={route('logout')} 
+                                        method="post" 
+                                        as="button" 
+                                        className="hover:text-white transition"
+                                        onClick={(e) => {
+                                            if (!confirm('Are you sure you want to log out?')) {
+                                                e.preventDefault(); 
+                                            }
+                                        }}
+                                    >
+                                        Logout
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                     </div>
