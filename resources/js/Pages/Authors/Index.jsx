@@ -133,8 +133,20 @@ export default function Index({ auth, authors, isAdmin }) {
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
                                 <li><Link href="#" className="hover:text-white transition">Plans</Link></li>
-                                <li><Link href={route('logout')} method="post" as="button" className="hover:text-white transition">Logout</Link></li>
-
+                                <li><Link 
+                                        href={route('logout')} 
+                                        method="post" 
+                                        as="button" 
+                                        className="hover:text-white transition"
+                                        onClick={(e) => {
+                                            if (!confirm('Are you sure you want to log out?')) {
+                                                e.preventDefault(); 
+                                            }
+                                        }}
+                                    >
+                                        Logout
+                                    </Link>
+                                </li>
                             </ul>
                         </div>
                     </div>

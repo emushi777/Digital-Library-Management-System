@@ -153,7 +153,6 @@ class BookController extends Controller
             ['finished_at' => now()]
         );
 
-        // Vendos mesazh që libri u ruajt
         return redirect()->back()->with('success', 'Book saved successfully!');
     }
 

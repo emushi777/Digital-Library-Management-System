@@ -7,6 +7,8 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     const reviews = book.reviews || [];
     const totalReviews = reviews.length;
     const [showLimitPopup, setShowLimitPopup] = useState(false);
+    const paragrafet = book.pershkrimi ? book.pershkrimi.split('\n').filter(p => p.trim() !== '') : [];
+    const eshteIGjate = paragrafet.length > 3 || (book.pershkrimi?.length > 300);
     const [isFinishing, setIsFinishing] = useState(false);
 
     const averageRating = totalReviews
@@ -142,10 +144,8 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
 
                         {showLimitPopup && (
                             <div className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-auto">
-                                {/* Hije e zbutur mbi pjesën tjetër të faqes */}
                                 <div className="absolute inset-0 bg-black/30"></div>
 
-                                {/* Popup i bardhë */}
                                 <div className="relative bg-white rounded-2xl p-6 shadow-lg max-w-md w-full z-10">
                                     <h2 className="text-xl font-bold text-gray-900">
                                         Monthly limit reached
@@ -238,12 +238,18 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                         </div>
 
                         <div className="mt-6">
-                            <div className={`text-[16px] text-[#333333] leading-[1.6] font-serif ${!isExpanded ? 'line-clamp-4' : ''}`}>
+                            <div className={`text-[16px] text-[#333333] leading-[1.6] font-serif break-all ${!isExpanded ? 'line-clamp-4' : ''}`}>
                                 {book.pershkrimi || "No description available."}
                             </div>
-                            <button onClick={() => setIsExpanded(!isExpanded)} className="text-[#377458] hover:underline text-sm font-medium mt-1">
-                                {isExpanded ? '(less)' : '...more'}
-                            </button>
+                            
+                            {eshteIGjate && (
+                                <button 
+                                    onClick={() => setIsExpanded(!isExpanded)} 
+                                    className="text-[#377458] hover:underline text-sm font-medium mt-1"
+                                >
+                                    {isExpanded ? '(less)' : '...more'}
+                                </button>
+                            )}
                         </div>
 
                         <div className="mt-10 pt-6 border-t border-gray-200">
