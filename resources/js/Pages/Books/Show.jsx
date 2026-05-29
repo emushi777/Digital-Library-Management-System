@@ -92,6 +92,54 @@ export default function Show({ auth, book, similarBooks = [] }) {
                                 Read Now
                             </a>
 
+                            <button type="button" onClick={() => {
+                                if (readingInfo?.canReadBook) {
+                                    router.post(route('books.finish', book.id));
+                                    return;
+                                }
+                                setShowLimitPopup(true);
+                            }}
+                            className="block w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 rounded-sm hover:bg-gray-200 transition border border-gray-300 mt-2"
+                        >
+                            Finish Book
+                        </button>
+
+                        {showLimitPopup && (
+                            <div className="fixed inset-0 z-[999]">
+                                {/* Hije e zbutur mbi pjesën tjetër të ekranit */}
+                                <div className="absolute inset-0 bg-black/30"></div>
+
+                                {/* Popup i vogël mbi pjesën e zbutur */}
+                                <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+                                    <div className="bg-white rounded-2xl p-6 shadow-lg pointer-events-auto max-w-md w-full text-center">
+                                        <h2 className="text-xl font-bold text-gray-900">
+                                            Monthly limit reached
+                                        </h2>
+                                        <p className="mt-3 text-sm text-gray-600">
+                                            You have reached your monthly reading limit. Upgrade to Premium to continue reading unlimited books.
+                                        </p>
+                                        <div className="mt-6 flex flex-col gap-3">
+                                            {readingInfo?.premiumPlanId && (
+                                                <Link
+                                                    href={route('checkout.index', readingInfo.premiumPlanId)}
+                                                    className="w-full rounded-lg bg-[#377458] px-4 py-2 text-sm font-bold text-white hover:bg-[#2d5d44] transition"
+                                                >
+                                                    Upgrade to Premium
+                                                </Link>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowLimitPopup(false)}
+                                                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                             <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                                 <Link href={route('bookmarks.create', { book_id: book.id })} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#377458] transition">
                                     <span>🔖</span>Add to Bookmarks
