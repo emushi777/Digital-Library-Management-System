@@ -6,6 +6,7 @@ export default function Show({ auth, book, similarBooks = [] }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const reviews = book.reviews || [];
     const totalReviews = reviews.length;
+    const [showLimitPopup, setShowLimitPopup] = useState(false);
 
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
@@ -105,36 +106,34 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         </button>
 
                         {showLimitPopup && (
-                            <div className="fixed inset-0 z-[999]">
-                                {/* Hije e zbutur mbi pjesën tjetër të ekranit */}
+                            <div className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-auto">
+                                {/* Hije e zbutur mbi pjesën tjetër të faqes */}
                                 <div className="absolute inset-0 bg-black/30"></div>
 
-                                {/* Popup i vogël mbi pjesën e zbutur */}
-                                <div className="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-                                    <div className="bg-white rounded-2xl p-6 shadow-lg pointer-events-auto max-w-md w-full text-center">
-                                        <h2 className="text-xl font-bold text-gray-900">
-                                            Monthly limit reached
-                                        </h2>
-                                        <p className="mt-3 text-sm text-gray-600">
-                                            You have reached your monthly reading limit. Upgrade to Premium to continue reading unlimited books.
-                                        </p>
-                                        <div className="mt-6 flex flex-col gap-3">
-                                            {readingInfo?.premiumPlanId && (
-                                                <Link
-                                                    href={route('checkout.index', readingInfo.premiumPlanId)}
-                                                    className="w-full rounded-lg bg-[#377458] px-4 py-2 text-sm font-bold text-white hover:bg-[#2d5d44] transition"
-                                                >
-                                                    Upgrade to Premium
-                                                </Link>
-                                            )}
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowLimitPopup(false)}
-                                                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+                                {/* Popup i bardhë */}
+                                <div className="relative bg-white rounded-2xl p-6 shadow-lg max-w-md w-full z-10">
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        Monthly limit reached
+                                    </h2>
+                                    <p className="mt-3 text-sm text-gray-600">
+                                        You have reached your monthly reading limit. Upgrade to Premium to continue reading unlimited books.
+                                    </p>
+                                    <div className="mt-6 flex flex-col gap-3">
+                                        {readingInfo?.premiumPlanId && (
+                                            <Link
+                                                href={route('checkout.index', readingInfo.premiumPlanId)}
+                                                className="w-full rounded-lg bg-[#377458] px-4 py-2 text-sm font-bold text-white hover:bg-[#2d5d44] transition"
                                             >
-                                                Cancel
-                                            </button>
-                                        </div>
+                                                Upgrade to Premium
+                                            </Link>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowLimitPopup(false)}
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+                                        >
+                                            Cancel
+                                        </button>
                                     </div>
                                 </div>
                             </div>
