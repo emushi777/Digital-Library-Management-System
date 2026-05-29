@@ -34,7 +34,7 @@ export default function VerifyEmail({ status }) {
             <div className="auth-root">
                 <nav className="auth-nav">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                        BooksHub<span className="text-blue-600">.</span>
+                        Bookly<span className="text-blue-600">.</span>
                     </Link>
                 </nav>
 

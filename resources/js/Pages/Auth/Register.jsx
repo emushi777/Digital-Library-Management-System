@@ -52,7 +52,7 @@ export default function Register() {
             <div className="auth-root">
                 <nav className="auth-nav">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                        BooksHub<span className="text-blue-600">.</span>
+                        Bookly<span className="text-blue-600">.</span>
                     </Link>
                     <Link href={route('login')} className="nav-link-outline">Log in</Link>
                 </nav>
@@ -61,7 +61,7 @@ export default function Register() {
                     <div className="auth-card">
                         <p className="auth-eyebrow">Get started</p>
                         <h1 className="auth-title">Create your<br />account</h1>
-                        <p className="auth-subtitle">Join BooksHub and start your reading journey.</p>
+                        <p className="auth-subtitle">Join Bookly and start your reading journey.</p>
                         <form onSubmit={submit}>
                             <div className="field">
                                 <label htmlFor="name">Full name</label>

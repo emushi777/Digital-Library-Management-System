@@ -242,7 +242,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <nav className="welcome-nav">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between h-full">
                         <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                            BooksHub<span className="text-blue-600">.</span>
+                            Bookly<span className="text-blue-600">.</span>
                         </Link>
 
                         <div className="nav-links">
@@ -269,7 +269,7 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                     <div className="hero-card">
 
                         <div className="hero-text">
-                            <p className="hero-eyebrow">Welcome to BooksHub</p>
+                            <p className="hero-eyebrow">Welcome to Bookly</p>
                             <h1 className="hero-title">
                                 Your next great<br />read is <span>waiting</span>
                             </h1>

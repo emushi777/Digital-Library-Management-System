@@ -18,7 +18,7 @@ export default function Authenticated({ user, header, children }) {
                     <div className="flex justify-between h-20 items-center">
                         <div className="flex items-center">
                             <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                                BooksHub<span className="text-blue-600">.</span>
+                                Bookly<span className="text-blue-600">.</span>
                             </Link>
 
                             <div className="hidden space-x-8 sm:-my-px sm:ms-12 sm:flex">
@@ -103,6 +103,12 @@ export default function Authenticated({ user, header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
+                                        {user.email === 'admin@gmail.com' && (
+                                            <Dropdown.Link href={route('admin.feedback')} className="text-blue-600 font-bold">
+                                                View Feedback
+                                            </Dropdown.Link>
+                                        )}
+
                                         <Dropdown.Link href={route('profile.edit')}>
                                             Profile Settings
                                         </Dropdown.Link>

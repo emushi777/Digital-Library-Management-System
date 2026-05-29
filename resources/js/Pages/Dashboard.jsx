@@ -230,40 +230,49 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                 </div>
             </div>
 
-            <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px]">
+            <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        <div className="col-span-1">
-                            <h2 className="text-2xl font-black mb-6 italic tracking-tighter">BooksHub</h2>
-                            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                        <div className="col-span-1 space-y-6">
+                            <h2 className="text-2xl font-black italic tracking-tighter">Bookly</h2>
+                            <p className="text-gray-400 text-sm leading-relaxed">
                                 Your ultimate destination for digital reading. Explore thousands of titles from anywhere.
                             </p>
                         </div>
+                        
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Services</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('books.index')} className="hover:text-white transition">Library</Link></li>
-                                <li><Link href="#" className="hover:text-white transition">Audiobooks</Link></li>
-                                <li><Link href="#" className="hover:text-white transition">Authors</Link></li>
+                                <li><Link href={route('authors.index')} className="hover:text-white transition">Authors</Link></li>
+                                <li><Link href={route('categories.index')} className="hover:text-white transition">Categories</Link></li>
+
                             </ul>
                         </div>
+                        
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Support</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
-                                <li><Link href="#" className="hover:text-white transition">Contact Us</Link></li>
-                                <li><Link href="#" className="hover:text-white transition">Privacy Policy</Link></li>
+                                <li><Link href={route('about.index')} className="hover:text-white transition">About Us</Link></li>
+                                <li><Link href={route('about.index') + '#contactus'} className="hover:text-white transition">Contact Us</Link></li>
+                                <li><Link href={route('about.index') + '#feedback'} className="hover:text-white transition">Feedback</Link></li>
+
                             </ul>
                         </div>
+
                         <div>
-                            <h4 className="font-bold mb-6 text-lg">Newsletter</h4>
-                            <div className="flex gap-2">
-                                <input type="email" placeholder="Email" className="bg-gray-900 border-none rounded-lg text-sm w-full focus:ring-0" />
-                                <button className="bg-white text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-200 transition">Join</button>
-                            </div>
+                            <h4 className="font-bold mb-6 text-lg">Account</h4>
+                            <ul className="space-y-4 text-gray-400 text-sm">
+                                <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
+                                <li><Link href="#" className="hover:text-white transition">Plans</Link></li>
+                                <li><Link href={route('logout')} method="post" as="button" className="hover:text-white transition">Logout</Link></li>
+
+                            </ul>
                         </div>
                     </div>
+
                     <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-xs">
-                        © {new Date().getFullYear()} BooksHub · Read more, know more.
+                        © {new Date().getFullYear()} Bookly. All rights reserved.
                     </div>
                 </div>
             </footer>

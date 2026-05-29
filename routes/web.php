@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\BookImportController;
+use App\Http\Controllers\FeedbackController;
 
 
 
@@ -50,6 +51,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
+    Route::get('/about', function () { return Inertia::render('About'); })->name('about.index');
+    Route::get('/contact', function () { return "Contact Page - To be built"; })->name('contact.index');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    Route::get('/admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');
+
 
 
     // 4. Menaxhimi i Profilit
@@ -57,5 +63,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
+        
 require __DIR__.'/auth.php';

@@ -57,7 +57,7 @@ export default function Login({ status, canResetPassword }) {
             <div className="login-root">
                 <nav className="login-nav">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                        BooksHub<span className="text-blue-600">.</span>
+                        Bookly<span className="text-blue-600">.</span>
                     </Link>
                     <Link href={route('register')} className="nav-register">Create account</Link>
                 </nav>
@@ -65,7 +65,7 @@ export default function Login({ status, canResetPassword }) {
                 <main className="login-main">
                     <div className="login-card">
                         <p className="login-eyebrow">Welcome back</p>
-                        <h1 className="login-title">Log in to<br />BooksHub</h1>
+                        <h1 className="login-title">Log in to<br />Bookly</h1>
                         <p className="login-subtitle">Enter your credentials to continue reading.</p>
                         {status && <div className="status-msg">{status}</div>}
                         <form onSubmit={submit}>
