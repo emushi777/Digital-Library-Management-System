@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\FinishedBook;
+use App\Models\Plan;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -72,18 +76,97 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
+        $user = Auth::user();
         $book->load(['author', 'category', 'reviews.user']);
 
         $similarBooks = Book::where('kategoria_id', $book->kategoria_id)
             ->where('id', '!=', $book->id)
             ->limit(6)
             ->get();
+
+        $subscription = Subscription::with('plan')
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->latest()
+            ->first();
+
+        $plan = $subscription?->plan;
+        $monthlyLimit = $this->isBasicPlan($plan) ? (int) $plan->librat_max_mujor : null;
+        $finishedThisMonthCount = $this->finishedThisMonthQuery($user->id)->count();
+        $hasFinishedThisBookThisMonth = $this->finishedThisMonthQuery($user->id)
+            ->where('book_id', $book->id)
+            ->exists();
+        $hasReachedMonthlyLimit = $this->isBasicPlan($plan)
+            && $monthlyLimit !== null
+            && $finishedThisMonthCount >= $monthlyLimit;
+        $premiumPlan = Plan::where('cmimi_mujor', '>', 0)
+            ->orderBy('cmimi_mujor')
+            ->first();
             
         return Inertia::render('Books/Show', [
             'book' => $book,
             'similarBooks' => $similarBooks,
             'isAdmin' => auth()->user()?->role === 'admin',
+            'readingInfo' => [
+                'planName' => $plan?->emertimi,
+                'isBasicPlan' => $this->isBasicPlan($plan),
+                'monthlyLimit' => $monthlyLimit,
+                'finishedThisMonthCount' => $finishedThisMonthCount,
+                'hasReachedMonthlyLimit' => $hasReachedMonthlyLimit,
+                'hasFinishedThisBookThisMonth' => $hasFinishedThisBookThisMonth,
+                'canReadBook' => !$this->isBasicPlan($plan)
+                    || !$hasReachedMonthlyLimit
+                    || $hasFinishedThisBookThisMonth,
+                'canFinishBook' => !$this->isBasicPlan($plan)
+                    || $hasFinishedThisBookThisMonth
+                    || $finishedThisMonthCount < $monthlyLimit,
+                'premiumPlanId' => $premiumPlan?->id,
+            ],
         ]);
+    }
+
+    public function finish(Request $request, $bookId)
+    {
+        $user = Auth::user();
+
+        $subscription = Subscription::with('plan')
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->latest()
+            ->first();
+
+        $plan = $subscription?->plan;
+        $monthlyLimit = $this->isBasicPlan($plan) ? (int) $plan->librat_max_mujor : null;
+        $finishedThisMonthCount = $this->finishedThisMonthQuery($user->id)->count();
+        $hasFinishedThisBookThisMonth = $this->finishedThisMonthQuery($user->id)
+            ->where('book_id', $bookId)
+            ->exists();
+
+        if ($this->isBasicPlan($plan) && !$hasFinishedThisBookThisMonth && $finishedThisMonthCount >= $monthlyLimit) {
+            return redirect()->back()->withErrors([
+                'finish' => 'monthly_limit_reached',
+            ]);
+        }
+
+        FinishedBook::updateOrCreate(
+            ['user_id' => $user->id, 'book_id' => $bookId],
+            ['finished_at' => now()]
+        );
+
+        // Vendos mesazh që libri u ruajt
+        return redirect()->back()->with('success', 'Book saved successfully!');
+    }
+
+    private function isBasicPlan($plan): bool
+    {
+        return $plan && strcasecmp($plan->emertimi, 'Basic Plan') === 0;
+    }
+
+    private function finishedThisMonthQuery($userId)
+    {
+        return FinishedBook::where('user_id', $userId)
+            ->whereMonth('finished_at', now()->month)
+            ->whereYear('finished_at', now()->year);
     }
     
     public function edit(string $id)

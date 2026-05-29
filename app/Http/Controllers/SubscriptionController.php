@@ -36,9 +36,8 @@ class SubscriptionController extends Controller
 
         $plan = Plan::findOrFail($request->plan_id);
 
-        // Kjo parandalon krijimin e shumë rreshtave për të njëjtin user
         Subscription::updateOrCreate(
-            ['user_id' => Auth::id()], 
+            ['user_id' => Auth::id()],
             [
                 'plan_id'   => $plan->id,
                 'starts_at' => now(),
@@ -47,12 +46,14 @@ class SubscriptionController extends Controller
             ]
         );
 
-        // Pasi nuk është gati books.index, të kthen te Dashboard
-        // Sapo Era ta kryejë, kodi automatikisht do ta dërgojë te librat
-        if (Route::has('books.index')) {
-            return redirect()->route('books.index');
+        if ($request->boolean('checkout') && (float) $plan->cmimi_mujor > 0) {
+            return redirect()->route('checkout.index', $plan->id);
         }
 
-        return redirect()->route('dashboard')->with('success', 'Plan activated successfully!');
+        if ((float) $plan->cmimi_mujor === 0.0) {
+            return redirect()->route('dashboard')->with('success', 'Plan activated successfully!');
+        }
+
+        return redirect()->route('books.index')->with('success', 'Plan activated successfully!');
     }
 }

@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
+    Route::post('/books/{book}/finish', [BookController::class, 'finish'])->name('books.finish');
     Route::resource('collections', CollectionController::class);
     Route::resource('bookmarks', BookmarkController::class)->except(['show']);
     Route::resource('reviews', ReviewController::class)->except(['show']);
@@ -46,8 +47,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
     Route::get('/authors/{author}', [AuthorController::class, 'show'])->name('authors.show');
-    Route::post('/books/import', [App\Http\Controllers\BookImportController::class, 'import'])->name('books.import');
+    Route::post('/books/import', [BookImportController::class, 'import'])->name('books.import');
+
+    // Route për index të librave, metoda index() është shtuar në BookController
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
+
     Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
     Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
@@ -55,8 +59,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/contact', function () { return "Contact Page - To be built"; })->name('contact.index');
     Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
     Route::get('/admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');
-
-
 
     // 4. Menaxhimi i Profilit
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

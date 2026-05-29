@@ -16,4 +16,9 @@ class Subscription extends Model
         'ends_at', 
         'is_active'
     ];
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
 }

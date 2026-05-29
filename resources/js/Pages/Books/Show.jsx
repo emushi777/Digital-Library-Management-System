@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Show({ auth, book, similarBooks = [] }) {
+export default function Show({ auth, book, similarBooks = [], readingInfo = {} }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const reviews = book.reviews || [];
     const totalReviews = reviews.length;
     const [showLimitPopup, setShowLimitPopup] = useState(false);
+    const [isFinishing, setIsFinishing] = useState(false);
 
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
@@ -58,6 +59,44 @@ export default function Show({ auth, book, similarBooks = [] }) {
         }
     };
 
+    const readBook = () => {
+        if (!readingInfo?.canReadBook) {
+            setShowLimitPopup(true);
+            return;
+        }
+
+        window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+    };
+
+    const finishBook = () => {
+        if (!readingInfo?.canFinishBook) {
+            setShowLimitPopup(true);
+            return;
+        }
+
+        const isFinishingNewBook = !readingInfo?.hasFinishedThisBookThisMonth;
+
+        setIsFinishing(true);
+        router.post(
+            route('books.finish', book.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: (page) => {
+                    if (isFinishingNewBook && page.props.readingInfo?.hasReachedMonthlyLimit) {
+                        setShowLimitPopup(true);
+                    }
+                },
+                onError: (errors) => {
+                    if (errors.finish) {
+                        setShowLimitPopup(true);
+                    }
+                },
+                onFinish: () => setIsFinishing(false),
+            }
+        );
+    };
+
     const renderStars = (rating, size = 'text-lg') => {
         const roundedRating = Math.round(Number(rating) || 0);
 
@@ -84,26 +123,22 @@ export default function Show({ auth, book, similarBooks = [] }) {
                         </div>
                         
                         <div className="mt-4 space-y-3">
-                            <a
-                                href={pdfUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                type="button"
+                                onClick={readBook}
                                 className="block w-full text-center bg-[#377458] text-white font-semibold py-2 rounded-sm hover:bg-[#2d5d44] transition"
                             >
                                 Read Now
-                            </a>
+                            </button>
 
-                            <button type="button" onClick={() => {
-                                if (readingInfo?.canReadBook) {
-                                    router.post(route('books.finish', book.id));
-                                    return;
-                                }
-                                setShowLimitPopup(true);
-                            }}
-                            className="block w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 rounded-sm hover:bg-gray-200 transition border border-gray-300 mt-2"
-                        >
-                            Finish Book
-                        </button>
+                            <button
+                                type="button"
+                                onClick={finishBook}
+                                disabled={isFinishing}
+                                className="block w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 rounded-sm hover:bg-gray-200 transition border border-gray-300 mt-2"
+                            >
+                                {isFinishing ? 'Saving...' : 'Finish Book'}
+                            </button>
 
                         {showLimitPopup && (
                             <div className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-auto">
@@ -116,7 +151,7 @@ export default function Show({ auth, book, similarBooks = [] }) {
                                         Monthly limit reached
                                     </h2>
                                     <p className="mt-3 text-sm text-gray-600">
-                                        You have reached your monthly reading limit. Upgrade to Premium to continue reading unlimited books.
+                                        You have reached your monthly reading limit{readingInfo?.monthlyLimit ? ` of ${readingInfo.monthlyLimit} books` : ''}. Upgrade to Premium to continue reading unlimited books.
                                     </p>
                                     <div className="mt-6 flex flex-col gap-3">
                                         {readingInfo?.premiumPlanId && (

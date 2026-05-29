@@ -1,10 +1,9 @@
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 export default function Dashboard({ auth, plans, categories, latestBooks, authors, hasActivePlan, filters }) {
-    const { post, processing } = useForm({
-        plan_id: '',
-    });
+    const [isSubscribing, setIsSubscribing] = useState(false);
 
     const renderStars = (rating) => {
         const roundedRating = Math.round(Number(rating) || 0);
@@ -20,15 +19,19 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
 
     const isSearching = filters?.search;
 
-    const handleSubscribe = (e, plan) => {
-        e.preventDefault();
-        if (parseFloat(plan.cmimi_mujor) === 0) {
-            post(route('subscribe.store'), {
-                data: { plan_id: plan.id },
-            });
-        } else {
-            window.location.href = route('checkout.index', { plan_id: plan.id });
-        }
+    const handleSubscribe = (plan) => {
+        if (!plan || !plan.id) return;
+        setIsSubscribing(true);
+        router.post(
+            route('subscribe.store'),
+            {
+                plan_id: plan.id,
+                checkout: parseFloat(plan.cmimi_mujor) > 0,
+            },
+            {
+                onFinish: () => setIsSubscribing(false),
+            }
+        );
     };
 
     const getImageUrl = (fileName, folder) => {
@@ -166,8 +169,8 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                         </div>
                                         <p className="text-gray-500 mb-8 text-sm line-clamp-2">{plan.pershkrimi}</p>
                                         <button
-                                            onClick={(e) => handleSubscribe(e, plan)}
-                                            disabled={processing}
+                                            onClick={() => handleSubscribe(plan)}
+                                            disabled={isSubscribing}
                                             className="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-gray-800 transition transform active:scale-95 shadow-lg"
                                         >
                                             {parseFloat(plan.cmimi_mujor) === 0 ? 'Start Reading' : 'Upgrade Now'}
