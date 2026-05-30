@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function Show({ auth, book, similarBooks = [], readingInfo = {} }) {
@@ -10,6 +11,7 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     const paragrafet = book.pershkrimi ? book.pershkrimi.split('\n').filter(p => p.trim() !== '') : [];
     const eshteIGjate = paragrafet.length > 3 || (book.pershkrimi?.length > 300);
     const [isFinishing, setIsFinishing] = useState(false);
+    const [reviewToDelete, setReviewToDelete] = useState(null);
 
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
@@ -59,6 +61,17 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
         if (confirm('Are you sure you want to delete this book?')) {
             router.delete(route('books.destroy', book.id));
         }
+    };
+
+    const confirmDeleteReview = () => {
+        if (!reviewToDelete) {
+            return;
+        }
+
+        router.delete(route('reviews.destroy', reviewToDelete), {
+            data: { book_id: book.id },
+        });
+        setReviewToDelete(null);
     };
 
     const readBook = () => {
@@ -116,6 +129,14 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title={book.titulli} />
+            <ConfirmModal
+                open={Boolean(reviewToDelete)}
+                title="Delete this review?"
+                message="This review will be permanently removed from the book page and your reviews."
+                confirmLabel="Delete review"
+                onConfirm={confirmDeleteReview}
+                onCancel={() => setReviewToDelete(null)}
+            />
             
             <div className="bg-white min-h-screen py-8 text-[#333333]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-[250px,1fr] gap-10">
@@ -364,6 +385,23 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                                                 <p className="mt-4 text-[15px] leading-7 text-gray-600 font-serif">
                                                     {review.komenti || 'This reader left a rating without a written review.'}
                                                 </p>
+
+                                                {review.user_id === auth.user?.id && (
+                                                    <div className="mt-4 flex gap-3 border-t border-gray-100 pt-4">
+                                                        <Link
+                                                            href={route('reviews.edit', review.id, { return_to_book: 1 })}
+                                                            className="rounded-lg bg-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-600 transition hover:bg-gray-200"
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => setReviewToDelete(review.id)}
+                                                            className="rounded-lg bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-red-600 transition hover:bg-red-600 hover:text-white"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </article>
                                         ))
                                     ) : (

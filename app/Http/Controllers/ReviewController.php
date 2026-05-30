@@ -54,13 +54,14 @@ class ReviewController extends Controller
         return redirect()->route('reviews.index')->with('success', 'Review saved successfully!');
     }
 
-    public function edit(Review $review)
+    public function edit(Request $request, Review $review)
     {
         $this->authorizeReview($review);
 
         return Inertia::render('Reviews/Edit', [
             'review' => $review,
             'books' => Book::with('author')->orderBy('titulli')->get(),
+            'returnToBook' => $request->boolean('return_to_book'),
         ]);
     }
 
@@ -76,20 +77,30 @@ class ReviewController extends Controller
             ],
             'vleresimi' => 'required|integer|min:1|max:5',
             'komenti' => 'nullable|string|max:2000',
+            'return_to_book' => 'nullable|boolean',
         ], [
             'book_id.unique' => 'You have already reviewed this book.',
         ]);
 
         $review->update($validated);
 
+        if ($request->boolean('return_to_book')) {
+            return redirect()->route('books.show', $review->book_id)->with('success', 'Review updated successfully!');
+        }
+
         return redirect()->route('reviews.index')->with('success', 'Review updated successfully!');
     }
 
-    public function destroy(Review $review)
+    public function destroy(Request $request, Review $review)
     {
         $this->authorizeReview($review);
 
+        $bookId = $request->integer('book_id') ?: $review->book_id;
         $review->delete();
+
+        if ($request->filled('book_id')) {
+            return redirect()->route('books.show', $bookId)->with('success', 'Review deleted successfully!');
+        }
 
         return redirect()->route('reviews.index')->with('success', 'Review deleted successfully!');
     }
