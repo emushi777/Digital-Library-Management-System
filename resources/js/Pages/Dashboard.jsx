@@ -56,7 +56,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             <div className="bg-[#EEEFF4] rounded-[40px] p-12 flex flex-col md:flex-row items-center justify-between shadow-sm overflow-hidden relative border border-gray-200">
                                 <div className="md:w-1/2 z-10">
                                     <h4 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-2">Featured</h4>
-                                    <h1 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">Atomic Love</h1>
+                                    <h1 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">Discover Bookly</h1>
                                     <p className="text-gray-500 mb-8 max-w-sm leading-relaxed italic">
                                         "The more that you read, the more things you will know. The more that you learn, the more places you'll go."
                                     </p>
@@ -114,7 +114,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                 latestBooks.map((book) => (
                                     <Link 
                                         key={book.id} 
-                                        href={route('books.show', book.id)} // Ndrysho nga 'books.index' në 'books.show'
+                                        href={route('books.show', book.id)} 
                                         className="text-center group cursor-pointer"
                                     >
                                         <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">

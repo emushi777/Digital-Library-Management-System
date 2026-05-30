@@ -105,7 +105,6 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                 )}
             </div>
 
-            {/* Footer */}
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">

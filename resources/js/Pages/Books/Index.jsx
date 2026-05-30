@@ -72,7 +72,6 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
 
                         <div ref={scrollContainer} className="flex gap-6 overflow-x-auto pb-4 no-scrollbar scroll-smooth">
                             {books.data.slice(0, 5).map((book, idx) => {
-                                // Array me gradientët që do të përdoren për 5 elementet
                                 const gradients = [
                                     'bg-gradient-to-br from-slate-700 to-slate-900',
                                     'bg-gradient-to-br from-blue-500 to-blue-700',

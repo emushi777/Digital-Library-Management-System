@@ -8,8 +8,7 @@ import { Link, usePage } from '@inertiajs/react';
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
-    // Merr books nga backend
-    const { books = [] } = usePage().props;
+    const { allBooks = [] } = usePage().props;
 
     return (
         <div className="min-h-screen bg-[#F8F9FB]">
@@ -75,7 +74,7 @@ export default function Authenticated({ user, header, children }) {
                             </Link>
 
                             <SearchDropdown
-                                items={books}
+                                items={allBooks}
                                 placeholder="Search..."
                                 inputClassName="border-none bg-gray-100 rounded-full pl-10 pr-4 py-1 text-sm focus:ring-1 focus:ring-black w-40 lg:w-60"
                             />
@@ -182,5 +181,7 @@ export default function Authenticated({ user, header, children }) {
 
             <main>{children}</main>
         </div>
+        
     );
+    
 }

@@ -37,7 +37,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
 
-            'books' => Book::select('id', 'titulli')->get(),
+            'allBooks' => Book::select('id', 'titulli')->get(),
         ];
     }
 }
