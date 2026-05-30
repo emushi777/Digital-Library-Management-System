@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\BookImportController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\FaqController;
 
 
 
@@ -42,6 +43,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('bookmarks', BookmarkController::class)->except(['show']);
     Route::resource('reviews', ReviewController::class)->except(['show']);
     Route::resource('wishlists', WishlistController::class)->except(['show']);
+    Route::resource('faqs', FaqController::class)->except(['show']);
 
     // 3. Abonimet & Checkout
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');

@@ -103,9 +103,15 @@ export default function Authenticated({ user, header, children }) {
 
                                     <Dropdown.Content>
                                         {user.email === 'admin@gmail.com' && (
-                                            <Dropdown.Link href={route('admin.feedback')} className="text-blue-600 font-bold">
-                                                View Feedback
-                                            </Dropdown.Link>
+                                            <>
+                                                <Dropdown.Link href={route('admin.feedback')} className="text-blue-600 font-bold">
+                                                    View Feedback
+                                                </Dropdown.Link>
+
+                                                <Dropdown.Link href={route('faqs.index')} className="text-blue-600 font-bold">
+                                                    Manage FAQ
+                                                </Dropdown.Link>
+                                            </>
                                         )}
 
                                         <Dropdown.Link href={route('profile.edit')}>
