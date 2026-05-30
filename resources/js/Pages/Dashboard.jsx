@@ -112,32 +112,58 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
                             {latestBooks.length > 0 ? (
                                 latestBooks.map((book) => (
-                                    <Link 
-                                        key={book.id} 
-                                        href={route('books.show', book.id)} 
-                                        className="text-center group cursor-pointer"
-                                    >
-                                        <div className="aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2">
+                                    <div key={book.id} className="text-center group cursor-pointer">
+                                        <div
+                                            onClick={() => router.visit(route('books.show', book.id))}
+                                            className="relative aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2"
+                                        >
                                             <img
                                                 src={getImageUrl(book.foto_kopertines, 'kopertina')}
                                                 alt={book.titulli}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                                                 onError={(e) => e.target.src = '/images/placeholder.png'}
                                             />
-                                        </div>
-                                        <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
-                                        <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
-                                            {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
-                                        </p>
-                                        <div className="mt-2">
-                                            <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
-                                                {renderStars(book.reviews_avg_vleresimi)}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 flex flex-col justify-end">
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    <Link
+                                                        href={route('bookmarks.create', { book_id: book.id })}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all"
+                                                    >
+                                                        Bookmark
+                                                    </Link>
+                                                    <Link
+                                                        href={route('reviews.create', { book_id: book.id })}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all"
+                                                    >
+                                                        Review
+                                                    </Link>
+                                                    <Link
+                                                        href={route('wishlists.create', { book_id: book.id })}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all"
+                                                    >
+                                                        Wishlist
+                                                    </Link>
+                                                </div>
                                             </div>
-                                            <p className="text-[10px] text-gray-400">
-                                                {getRatingLabel(book)}
-                                            </p>
                                         </div>
-                                    </Link>
+                                        <Link href={route('books.show', book.id)}>
+                                            <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
+                                            <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
+                                                {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
+                                            </p>
+                                            <div className="mt-2">
+                                                <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
+                                                    {renderStars(book.reviews_avg_vleresimi)}
+                                                </div>
+                                                <p className="text-[10px] text-gray-400">
+                                                    {getRatingLabel(book)}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    </div>
                                 ))
                             ) : (
                                 <div className="col-span-full text-center py-20">
