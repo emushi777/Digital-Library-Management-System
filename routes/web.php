@@ -6,18 +6,15 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\BookmarkController;
-use App\Http\Controllers\ReviewController;
-use App\Http\Controllers\WishlistController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CollectionController;
-use App\Http\Controllers\BookImportController;
-use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\FaqController;
-
-
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -28,9 +25,9 @@ Route::get('/', function () {
     ]);
 });
 
-
+// Grupi i rrugëve që kërkojnë login (auth)
 Route::middleware(['auth', 'verified'])->group(function () {
-    
+
     // 1. Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -38,34 +35,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
-    Route::post('/books/{book}/finish', [BookController::class, 'finish'])->name('books.finish');
+    
+    // Menaxhimi i Koleksioneve (Kjo i krijon automatikisht index, create, store, show, edit, update, destroy)
     Route::resource('collections', CollectionController::class);
-    Route::resource('bookmarks', BookmarkController::class)->except(['show']);
-    Route::resource('reviews', ReviewController::class)->except(['show']);
-    Route::resource('wishlists', WishlistController::class)->except(['show']);
-    Route::resource('faqs', FaqController::class)->except(['show']);
+    // Kjo është rruga e re që na duhet për të shtuar libra brenda koleksionit
+    Route::post('/collections/add-book', [CollectionController::class, 'addBook'])->name('collections.addBook');
+    Route::post('/collections/remove-book', [CollectionController::class, 'removeBook'])->name('collections.removeBook');
 
     // 3. Abonimet & Checkout
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
-    Route::get('/authors/{author}', [AuthorController::class, 'show'])->name('authors.show');
-    Route::post('/books/import', [BookImportController::class, 'import'])->name('books.import');
 
-    // Route për index të librave, metoda index() është shtuar në BookController
-    Route::get('/books', [BookController::class, 'index'])->name('books.index');
-
-    Route::get('/books/{id}/edit', [BookController::class, 'edit'])->name('books.edit');
-    Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
-    Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
-    Route::get('/about', function () { return Inertia::render('About'); })->name('about.index');
-    Route::get('/contact', function () { return "Contact Page - To be built"; })->name('contact.index');
-    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
-    Route::get('/admin/feedback', [FeedbackController::class, 'index'])->name('admin.feedback');
-
-    // 4. Menaxhimi i Profilit
+    // 4. Menaxhimi i Profilat
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-        
+
 require __DIR__.'/auth.php';
