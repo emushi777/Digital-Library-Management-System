@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 export default function Index({ auth, plan }) {
     const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -61,7 +62,7 @@ export default function Index({ auth, plan }) {
             <div className="checkout-root">
                 <nav className="checkout-nav">
                     <Link href={route('dashboard')} className="text-2xl font-black italic tracking-tighter text-gray-900 flex items-center">
-                        BooksHub<span className="text-blue-600">.</span>
+                        Bookly<span className="text-blue-600">.</span>
                     </Link>
                     <Link href={route('dashboard')} className="nav-back">← Back to dashboard</Link>
                 </nav>
