@@ -1,22 +1,54 @@
+import { useEffect, useState } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 import TextInput from '@/Components/TextInput';
+import Modal from '@/Components/Modal';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 
 export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
     const user = usePage().props.auth.user;
+    const [photoPreview, setPhotoPreview] = useState(user.profile_photo_path || null);
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+    const { data, setData, patch, reset, errors, processing, recentlySuccessful } = useForm({
         name: user.name,
         email: user.email,
+        photo: null,
     });
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
     const submit = (e) => {
         e.preventDefault();
 
         patch(route('profile.update'));
+    };
+
+    useEffect(() => {
+        return () => {
+            if (photoPreview && photoPreview.startsWith && photoPreview.startsWith('blob:')) {
+                URL.revokeObjectURL(photoPreview);
+            }
+        };
+    }, [photoPreview]);
+
+    const handlePhotoChange = (event) => {
+        const file = event.target.files[0];
+
+        setData('photo', file);
+
+        if (file) {
+            setPhotoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleCancel = () => setShowCancelConfirm(true);
+
+    const confirmCancel = () => {
+        reset();
+        setPhotoPreview(user.profile_photo_path || null);
+        setShowCancelConfirm(false);
     };
 
     return (
@@ -30,6 +62,33 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
+                <div>
+                    <InputLabel htmlFor="photo" value="Profile photo" />
+                    <div className="mt-3 flex items-center gap-4">
+                        <div className="h-20 w-20 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                            {photoPreview ? (
+                                <img src={photoPreview} alt="Profile preview" className="h-full w-full object-cover" />
+                            ) : (
+                                <div className="flex h-full w-full items-center justify-center text-2xl font-black text-slate-500">
+                                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                            )}
+                        </div>
+                        <label className="inline-flex cursor-pointer items-center rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                            Select photo
+                            <input
+                                id="photo"
+                                name="photo"
+                                type="file"
+                                accept="image/*"
+                                className="sr-only"
+                                onChange={handlePhotoChange}
+                            />
+                        </label>
+                    </div>
+                    <InputError className="mt-2" message={errors.photo} />
+                </div>
+
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
@@ -52,7 +111,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     <TextInput
                         id="email"
                         type="email"
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full text-sm"
                         value={data.email}
                         onChange={(e) => setData('email', e.target.value)}
                         required
@@ -84,8 +143,9 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3">
                     <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                    <SecondaryButton type="button" onClick={handleCancel}>Cancel</SecondaryButton>
 
                     <Transition
                         show={recentlySuccessful}
@@ -98,6 +158,29 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
                     </Transition>
                 </div>
             </form>
+            <Modal show={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} maxWidth="sm">
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold">Discard changes?</h3>
+                    <p className="mt-2 text-sm text-gray-600">Are you sure you don't want to save these changes?</p>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowCancelConfirm(false)}
+                            className="rounded-2xl border px-4 py-2 text-sm font-semibold"
+                        >
+                            Keep editing
+                        </button>
+                        <button
+                            type="button"
+                            onClick={confirmCancel}
+                            className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+                        >
+                            Discard
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </section>
     );
 }

@@ -8,7 +8,8 @@ import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 
 export default function DeleteUserForm({ className = '' }) {
-    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeletionModal, setShowDeletionModal] = useState(false);
     const passwordInput = useRef();
 
     const {
@@ -23,7 +24,7 @@ export default function DeleteUserForm({ className = '' }) {
     });
 
     const confirmUserDeletion = () => {
-        setConfirmingUserDeletion(true);
+        setShowDeleteConfirm(true);
     };
 
     const deleteUser = (e) => {
@@ -38,7 +39,7 @@ export default function DeleteUserForm({ className = '' }) {
     };
 
     const closeModal = () => {
-        setConfirmingUserDeletion(false);
+        setShowDeletionModal(false);
 
         reset();
     };
@@ -56,15 +57,38 @@ export default function DeleteUserForm({ className = '' }) {
 
             <DangerButton onClick={confirmUserDeletion}>Delete Account</DangerButton>
 
-            <Modal show={confirmingUserDeletion} onClose={closeModal}>
+            <Modal show={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} maxWidth="sm">
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold">Delete account?</h3>
+                    <p className="mt-2 text-sm text-gray-600">Are you sure you want to delete your account? This action is irreversible.</p>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className="rounded-2xl border px-4 py-2 text-sm font-semibold"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { setShowDeleteConfirm(false); setShowDeletionModal(true); }}
+                            className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal show={showDeletionModal} onClose={closeModal}>
                 <form onSubmit={deleteUser} className="p-6">
                     <h2 className="text-lg font-medium text-gray-900">
-                        Are you sure you want to delete your account?
+                        Confirm account deletion
                     </h2>
 
                     <p className="mt-1 text-sm text-gray-600">
-                        Once your account is deleted, all of its resources and data will be permanently deleted. Please
-                        enter your password to confirm you would like to permanently delete your account.
+                        Enter your password to confirm you would like to permanently delete your account.
                     </p>
 
                     <div className="mt-6">

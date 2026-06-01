@@ -93,10 +93,14 @@ export default function Authenticated({ user, header, children }) {
                                             </div>
 
                                             <div className="h-10 w-10 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center group-hover:border-blue-100 transition">
-                                                <img
-                                                    src={`https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`}
-                                                    alt={user.name}
-                                                />
+                                                {user.profile_photo_path ? (
+                                                    <img src={user.profile_photo_path} alt={user.name} className="h-full w-full object-cover" />
+                                                ) : (
+                                                    <img
+                                                        src={`https://ui-avatars.com/api/?name=${user.name}&background=0D8ABC&color=fff`}
+                                                        alt={user.name}
+                                                    />
+                                                )}
                                             </div>
                                         </button>
                                     </Dropdown.Trigger>
