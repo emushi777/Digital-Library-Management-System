@@ -112,6 +112,10 @@ export default function Authenticated({ user, header, children }) {
                                                     View Feedback
                                                 </Dropdown.Link>
 
+                                                <Dropdown.Link href={route('book-requests.index')} className="text-blue-600 font-bold">
+                                                    Book Requests
+                                                </Dropdown.Link>
+
                                                 <Dropdown.Link href={route('faqs.index')} className="text-blue-600 font-bold">
                                                     Manage FAQ
                                                 </Dropdown.Link>

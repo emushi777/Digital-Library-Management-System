@@ -18,6 +18,12 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->has('search') && !empty($request->search)) {
+        \App\Models\SearchHistory::create([
+            'user_id' => auth()->id(),
+            'query' => $request->search
+        ]);
+    }
         $books = Book::with(['author', 'category'])
             ->withAvg('reviews', 'vleresimi')
             ->withCount('reviews')

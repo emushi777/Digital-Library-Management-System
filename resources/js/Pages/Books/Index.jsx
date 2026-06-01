@@ -168,6 +168,15 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         </button>
                                     ))}
                                 </div>
+                                <div className="mt-8 pt-6 border-t border-gray-100">
+                                    <h4 className="text-sm font-bold text-gray-800 mb-3">Can't find a book?</h4>
+                                    <Link 
+                                        href={route('book-requests.create')} // Sigurohu që e ke këtë route
+                                        className="block w-full py-3 bg-blue-600 text-white text-center rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all"
+                                    >
+                                        Request a Book
+                                    </Link>
+                                </div>
                                 {isAdmin && (
                                     <div className="mt-10 pt-6 border-t border-gray-50">
                                         <form onSubmit={handleImport} className="mb-4">

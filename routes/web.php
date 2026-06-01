@@ -15,6 +15,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FaqController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookRequestController;
 use Inertia\Inertia;
 
 // Rrugët publike
@@ -54,6 +55,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/collections/add-book', [CollectionController::class, 'addBook'])->name('collections.addBook');
     Route::post('/collections/remove-book', [CollectionController::class, 'removeBook'])->name('collections.removeBook');
 
+
+    Route::post('/book-requests', [BookRequestController::class, 'store'])->name('book-requests.store');
+    Route::get('/book-requests', [BookRequestController::class, 'index'])->name('book-requests.index');
+    Route::get('/book-requests/create', [BookRequestController::class, 'create'])->name('book-requests.create');
+    
     // 4. Abonimet
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');
     Route::post('/subscribe', [SubscriptionController::class, 'store'])->name('subscribe.store');
