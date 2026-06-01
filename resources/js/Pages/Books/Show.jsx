@@ -11,6 +11,7 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     const paragrafet = book.pershkrimi ? book.pershkrimi.split('\n').filter(p => p.trim() !== '') : [];
     const eshteIGjate = paragrafet.length > 3 || (book.pershkrimi?.length > 300);
     const [isFinishing, setIsFinishing] = useState(false);
+    const [hasFinished, setHasFinished] = useState(Boolean(readingInfo?.hasFinishedThisBookThisMonth));
     const [reviewToDelete, setReviewToDelete] = useState(null);
 
     const averageRating = totalReviews
@@ -88,7 +89,6 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
             setShowLimitPopup(true);
             return;
         }
-
         const isFinishingNewBook = !readingInfo?.hasFinishedThisBookThisMonth;
 
         setIsFinishing(true);
@@ -98,6 +98,8 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
             {
                 preserveScroll: true,
                 onSuccess: (page) => {
+                    setHasFinished(true);
+
                     if (isFinishingNewBook && page.props.readingInfo?.hasReachedMonthlyLimit) {
                         setShowLimitPopup(true);
                     }
@@ -157,10 +159,10 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                             <button
                                 type="button"
                                 onClick={finishBook}
-                                disabled={isFinishing}
-                                className="block w-full text-center bg-gray-100 text-gray-700 font-semibold py-2 rounded-sm hover:bg-gray-200 transition border border-gray-300 mt-2"
+                                disabled={isFinishing || hasFinished}
+                                className={`block w-full text-center font-semibold py-2 rounded-sm mt-2 transition border ${hasFinished ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'}`}
                             >
-                                {isFinishing ? 'Saving...' : 'Finish Book'}
+                                {hasFinished ? 'Finished' : (isFinishing ? 'Saving...' : 'Finish Book')}
                             </button>
 
                         {showLimitPopup && (

@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
+    Route::post('/books/{book}/finish', [BookController::class, 'finish'])->name('books.finish');
     Route::resource('bookmarks', BookmarkController::class);
     Route::resource('wishlists', WishlistController::class);
     Route::resource('reviews', ReviewController::class);
