@@ -9,14 +9,13 @@ use Illuminate\Support\Facades\File;
 
 class AuthorController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $authors = Author::all();
-        $isAdmin = auth()->user() && auth()->user()->role === 'admin';
-        
+        $authors = Author::latest()->paginate(16);
+
         return Inertia::render('Authors/Index', [
             'authors' => $authors,
-            'isAdmin' => $isAdmin
+            'isAdmin' => auth()->user()?->role === 'admin',
         ]);
     }
 

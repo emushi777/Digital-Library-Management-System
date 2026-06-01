@@ -40,8 +40,8 @@ export default function Index({ auth, authors, isAdmin }) {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {authors.length > 0 ? (
-                            authors.map((author) => (
+                        {authors.data.length > 0 ? (
+                            authors.data.map((author) => (
                                 <div key={author.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
                                     <div className="flex items-center gap-4 mb-4">
                                         <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-black text-xl border-2 border-white shadow-md overflow-hidden">
@@ -95,6 +95,20 @@ export default function Index({ auth, authors, isAdmin }) {
                             </div>
                         )}
                     </div>
+                    <div className="mt-10 flex justify-center gap-2">
+                        {authors.links.map((link, index) => (
+                            <Link
+                                key={index}
+                                href={link.url || '#'}
+                                className={`px-4 py-2 rounded-lg text-sm font-bold ${
+                                    link.active 
+                                    ? 'bg-blue-600 text-white' 
+                                    : 'bg-white text-gray-600 hover:bg-gray-100'
+                                } ${!link.url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        ))}
+                    </div>
                 </div>
                 </div>
                 <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
@@ -131,7 +145,7 @@ export default function Index({ auth, authors, isAdmin }) {
                             <h4 className="font-bold mb-6 text-lg">Account</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
-                                <li><Link href="#" className="hover:text-white transition">Plans</Link></li>
+                                <li><Link href={route('profile.edit') + '#plans'} className="hover:text-white transition">Plans</Link></li>
                                 <li><Link 
                                         href={route('logout')} 
                                         method="post" 
