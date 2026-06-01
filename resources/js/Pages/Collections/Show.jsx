@@ -16,7 +16,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
     };
 
     const handleRemoveBook = (bookId) => {
-        if (confirm('A jeni i sigurt që dëshironi ta hiqni këtë libër nga koleksioni?')) {
+        if (confirm('Are you sure you want to remove this book from the collection?')) {
             router.post(route('collections.removeBook'), {
                 collection_id: collection.id,
                 book_id: bookId
@@ -25,7 +25,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
     };
 
     const handleDeleteCollection = () => {
-        if (confirm('A jeni i sigurt që dëshironi ta fshini krejt këtë koleksion?')) {
+        if (confirm('Are you sure you want to completely delete this collection?')) {
             router.delete(route('collections.destroy', collection.id));
         }
     };
@@ -36,20 +36,20 @@ export default function Show({ auth, collection, books, all_books = [] }) {
             header={
                 <div className="flex justify-between items-center w-full">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
-                        Koleksioni: <span className="text-blue-600">{collection.emertimi}</span>
+                        Collection: <span className="text-blue-600">{collection.emertimi}</span>
                     </h2>
                     <div className="flex items-center space-x-2">
                         <Link
                             href={route('collections.edit', collection.id)}
                             className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
                         >
-                            Ndrysho (Rename)
+                            Rename / Edit
                         </Link>
                         <button
                             onClick={handleDeleteCollection}
                             className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
                         >
-                            Fshij Koleksionin
+                            Delete Collection
                         </button>
                     </div>
                 </div>
@@ -60,11 +60,10 @@ export default function Show({ auth, collection, books, all_books = [] }) {
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                     
-                    {/* Paneli i shtimit të librit */}
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900">Shto një Libër në këtë Koleksion</h3>
-                            <p className="text-gray-500 text-xs mt-0.5">Zgjidhni një nga librat e bibliotekës për ta futur këtu.</p>
+                            <h3 className="text-lg font-bold text-gray-900">Add a Book to this Collection</h3>
+                            <p className="text-gray-500 text-xs mt-0.5">Select a book from the library catalog to add it here.</p>
                         </div>
                         <form onSubmit={handleAddBook} className="flex items-center space-x-3 w-full md:w-auto">
                             <select
@@ -73,7 +72,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                 className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm w-full md:w-64"
                                 required
                             >
-                                <option value="">-- Zgjidh Librin --</option>
+                                <option value="">-- Select Book --</option>
                                 {all_books.map((book) => (
                                     <option key={book.id} value={book.id}>
                                         {book.titulli || book.title}
@@ -85,30 +84,28 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                 disabled={processing}
                                 className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition shadow-sm whitespace-nowrap"
                             >
-                                {processing ? 'Duke u shtuar...' : 'Shto Libër'}
+                                {processing ? 'Adding...' : 'Add Book'}
                             </button>
                         </form>
                     </div>
 
-                    {/* Lista e Librave me butonin për heqje */}
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                        <h3 className="text-xl font-bold text-gray-900 mb-4">Librat në këtë Koleksion ({books.length})</h3>
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Books in this Collection ({books.length})</h3>
                         
                         {books.length === 0 ? (
                             <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
                                 <span className="text-3xl">📚</span>
-                                <p className="text-gray-500 text-sm mt-2">Nuk ka asnjë libër në këtë koleksion aktualisht.</p>
+                                <p className="text-gray-500 text-sm mt-2">There are no books in this collection right now.</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                 {books.map((book) => (
                                     <div key={book.id} className="p-4 bg-gray-50 border border-gray-200 rounded-xl relative group hover:border-red-200 transition">
                                         
-                                        {/* Butoni i vogël X te cepi i librit për ta hequr */}
                                         <button
                                             onClick={() => handleRemoveBook(book.id)}
                                             className="absolute top-2 right-2 bg-white text-red-500 hover:bg-red-50 p-1 rounded-full shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition duration-150 text-xs font-bold"
-                                            title="Hiqe nga ky koleksion"
+                                            title="Remove from collection"
                                         >
                                             ✕
                                         </button>
@@ -120,7 +117,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                             {book.titulli || book.title}
                                         </h4>
                                         <p className="text-xs text-gray-500 truncate mt-0.5">
-                                            {book.autori || 'Autor i Panjohur'}
+                                            {book.autori || 'Unknown Author'}
                                         </p>
                                     </div>
                                 ))}
@@ -129,7 +126,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                     </div>
                     
                     <Link href={route('collections.index')} className="text-sm text-gray-600 hover:text-blue-600 transition inline-block">
-                        ← Kthehu te të gjitha koleksionet
+                        ← Back to all collections
                     </Link>
                 </div>
             </div>
