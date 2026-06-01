@@ -6,6 +6,9 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -25,6 +28,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/about', function () {
+    return Inertia::render('About');
+})->name('about.index');
+
 // Grupi i rrugëve që kërkojnë login (auth)
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -35,6 +42,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('authors', AuthorController::class);
     Route::resource('categories', CategoryController::class);
     Route::resource('books', BookController::class);
+    Route::resource('bookmarks', BookmarkController::class);
+    Route::resource('wishlists', WishlistController::class);
+    Route::resource('reviews', ReviewController::class);
     
     // Menaxhimi i Koleksioneve (Kjo i krijon automatikisht index, create, store, show, edit, update, destroy)
     Route::resource('collections', CollectionController::class);
