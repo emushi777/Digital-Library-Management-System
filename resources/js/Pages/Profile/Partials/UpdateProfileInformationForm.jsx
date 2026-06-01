@@ -8,7 +8,7 @@ import Modal from '@/Components/Modal';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 
-export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '' }) {
+export default function UpdateProfileInformation({ mustVerifyEmail, status, className = '', onCancel = () => {} }) {
     const user = usePage().props.auth.user;
     const [photoPreview, setPhotoPreview] = useState(user.profile_photo_path || null);
 
@@ -49,6 +49,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
         reset();
         setPhotoPreview(user.profile_photo_path || null);
         setShowCancelConfirm(false);
+        onCancel();
     };
 
     return (

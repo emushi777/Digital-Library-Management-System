@@ -145,7 +145,7 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                 <>
                                     <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-lg">
                                         <div className="px-8 py-8">
-                                            <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-3xl" />
+                                            <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} className="max-w-3xl" onCancel={() => setShowEditProfile(false)} />
                                         </div>
                                     </div>
                                     <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-lg">
