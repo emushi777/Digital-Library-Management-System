@@ -97,12 +97,13 @@ class BookController extends Controller
             ->first();
 
         $plan = $subscription?->plan;
+        $isAdmin = $user->role === 'admin';
         $monthlyLimit = $this->isBasicPlan($plan) ? (int) $plan->librat_max_mujor : null;
         $finishedThisMonthCount = $this->finishedThisMonthQuery($user->id)->count();
         $hasFinishedThisBookThisMonth = $this->finishedThisMonthQuery($user->id)
             ->where('book_id', $book->id)
             ->exists();
-        $hasReachedMonthlyLimit = $this->isBasicPlan($plan)
+        $hasReachedMonthlyLimit = !$isAdmin && $this->isBasicPlan($plan)
             && $monthlyLimit !== null
             && $finishedThisMonthCount >= $monthlyLimit;
         $premiumPlan = Plan::where('cmimi_mujor', '>', 0)
@@ -112,7 +113,7 @@ class BookController extends Controller
         return Inertia::render('Books/Show', [
             'book' => $book,
             'similarBooks' => $similarBooks,
-            'isAdmin' => auth()->user()?->role === 'admin',
+            'isAdmin' => $isAdmin,
             'readingInfo' => [
                 'planName' => $plan?->emertimi,
                 'isBasicPlan' => $this->isBasicPlan($plan),
@@ -120,10 +121,10 @@ class BookController extends Controller
                 'finishedThisMonthCount' => $finishedThisMonthCount,
                 'hasReachedMonthlyLimit' => $hasReachedMonthlyLimit,
                 'hasFinishedThisBookThisMonth' => $hasFinishedThisBookThisMonth,
-                'canReadBook' => !$this->isBasicPlan($plan)
+                'canReadBook' => $isAdmin || !$this->isBasicPlan($plan)
                     || !$hasReachedMonthlyLimit
                     || $hasFinishedThisBookThisMonth,
-                'canFinishBook' => !$this->isBasicPlan($plan)
+                'canFinishBook' => $isAdmin || !$this->isBasicPlan($plan)
                     || $hasFinishedThisBookThisMonth
                     || $finishedThisMonthCount < $monthlyLimit,
                 'premiumPlanId' => $premiumPlan?->id,
@@ -142,13 +143,14 @@ class BookController extends Controller
             ->first();
 
         $plan = $subscription?->plan;
+        $isAdmin = $user->role === 'admin';
         $monthlyLimit = $this->isBasicPlan($plan) ? (int) $plan->librat_max_mujor : null;
         $finishedThisMonthCount = $this->finishedThisMonthQuery($user->id)->count();
         $hasFinishedThisBookThisMonth = $this->finishedThisMonthQuery($user->id)
             ->where('book_id', $bookId)
             ->exists();
 
-        if ($this->isBasicPlan($plan) && !$hasFinishedThisBookThisMonth && $finishedThisMonthCount >= $monthlyLimit) {
+        if (!$isAdmin && $this->isBasicPlan($plan) && !$hasFinishedThisBookThisMonth && $finishedThisMonthCount >= $monthlyLimit) {
             return redirect()->back()->withErrors([
                 'finish' => 'monthly_limit_reached',
             ]);
