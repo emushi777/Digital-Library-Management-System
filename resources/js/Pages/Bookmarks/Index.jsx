@@ -17,12 +17,12 @@ export default function Index({ auth, bookmarks }) {
     const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
 
     const totals = useMemo(() => {
-        const pages = bookmarks.reduce((sum, bookmark) => sum + Number(bookmark.faqja || 0), 0);
+        const pagesSaved = bookmarks.length;
         const noted = bookmarks.filter((bookmark) => bookmark.shenime && bookmark.shenime.trim().length > 0).length;
 
         return {
             total: bookmarks.length,
-            pages,
+            pagesSaved,
             noted,
         };
     }, [bookmarks]);
@@ -97,7 +97,7 @@ export default function Index({ auth, bookmarks }) {
                                             {totals.noted} with notes
                                         </span>
                                         <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs font-semibold text-gray-600">
-                                            {totals.pages} total pages saved
+                                            {totals.pagesSaved} {totals.pagesSaved === 1 ? 'page saved' : 'pages saved'}
                                         </span>
                                     </div>
                                 </div>
@@ -219,7 +219,7 @@ export default function Index({ auth, bookmarks }) {
 
                                 <div className="mt-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
                                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400">Reading focus</p>
-                                    <p className="mt-2 text-3xl font-black tracking-tight text-gray-900">{totals.pages}</p>
+                                    <p className="mt-2 text-3xl font-black tracking-tight text-gray-900">{totals.pagesSaved}</p>
                                     <p className="mt-1 text-xs text-gray-500">Combined bookmarked pages</p>
                                 </div>
                             </div>

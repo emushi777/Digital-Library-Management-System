@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import BookPicker from '@/Components/BookPicker';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
 
 export default function Create({ auth, books, selectedBookId }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -9,14 +9,16 @@ export default function Create({ auth, books, selectedBookId }) {
         shenime: '',
     });
 
+    const selectedBook = books.find((book) => String(book.id) === String(data.book_id));
+
     const submit = (e) => {
         e.preventDefault();
         post(route('bookmarks.store'));
     };
 
     const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
+        if (globalThis.history.length > 1) {
+            globalThis.history.back();
             return;
         }
 
@@ -45,14 +47,33 @@ export default function Create({ auth, books, selectedBookId }) {
                             />
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Page</label>
-                                <input type="number" min="1" value={data.faqja} onChange={(e) => setData('faqja', e.target.value)} className="w-full rounded-xl border-gray-100 bg-gray-50 focus:ring-black focus:border-black py-3" />
+                                <label htmlFor="bookmark-page" className="block text-xs font-bold text-gray-500 uppercase mb-2">Page</label>
+                                <input
+                                    id="bookmark-page"
+                                    type="number"
+                                    min="1"
+                                    max={selectedBook?.numri_faqeve || undefined}
+                                    value={data.faqja}
+                                    onChange={(e) => setData('faqja', e.target.value)}
+                                    className="w-full rounded-xl border-gray-100 bg-gray-50 focus:ring-black focus:border-black py-3"
+                                />
+                                {selectedBook && (
+                                    <p className="mt-2 text-[11px] text-gray-500">
+                                        This book has {selectedBook.numri_faqeve} page{selectedBook.numri_faqeve === 1 ? '' : 's'}.
+                                    </p>
+                                )}
                                 {errors.faqja && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase">{errors.faqja}</p>}
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Notes</label>
-                                <textarea value={data.shenime} onChange={(e) => setData('shenime', e.target.value)} rows="5" className="w-full border-gray-100 bg-gray-50 rounded-xl focus:bg-white focus:ring-black focus:border-black transition-all py-3" />
+                                <label htmlFor="bookmark-notes" className="block text-xs font-bold text-gray-500 uppercase mb-2">Notes</label>
+                                <textarea
+                                    id="bookmark-notes"
+                                    value={data.shenime}
+                                    onChange={(e) => setData('shenime', e.target.value)}
+                                    rows="5"
+                                    className="w-full border-gray-100 bg-gray-50 rounded-xl focus:bg-white focus:ring-black focus:border-black transition-all py-3"
+                                />
                                 {errors.shenime && <p className="text-red-500 text-[10px] mt-1 font-bold uppercase">{errors.shenime}</p>}
                             </div>
 

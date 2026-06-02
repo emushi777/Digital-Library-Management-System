@@ -39,10 +39,22 @@ class BookmarkController extends Controller
                 Rule::unique('bookmarks')->where(function ($query) use ($request) {
                     return $query
                         ->where('user_id', auth()->id())
+                        ->where('book_id', $request->book_id)
                         ->where('faqja', $request->faqja);
                 }),
             ],
-            'faqja' => 'required|integer|min:1',
+            'faqja' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request) {
+                    $book = Book::find($request->book_id);
+
+                    if ($book && $value > $book->numri_faqeve) {
+                        $fail("The {$attribute} must be between 1 and {$book->numri_faqeve} for the selected book.");
+                    }
+                },
+            ],
             'shenime' => 'nullable|string|max:1000',
         ], [
             'book_id.unique' => 'A bookmark for this book and page already exists.',
@@ -80,10 +92,22 @@ class BookmarkController extends Controller
                 Rule::unique('bookmarks')->ignore($bookmark->id)->where(function ($query) use ($request) {
                     return $query
                         ->where('user_id', auth()->id())
+                        ->where('book_id', $request->book_id)
                         ->where('faqja', $request->faqja);
                 }),
             ],
-            'faqja' => 'required|integer|min:1',
+            'faqja' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request) {
+                    $book = Book::find($request->book_id);
+
+                    if ($book && $value > $book->numri_faqeve) {
+                        $fail("The {$attribute} must be between 1 and {$book->numri_faqeve} for the selected book.");
+                    }
+                },
+            ],
             'shenime' => 'nullable|string|max:1000',
         ], [
             'book_id.unique' => 'A bookmark for this book and page already exists.',
