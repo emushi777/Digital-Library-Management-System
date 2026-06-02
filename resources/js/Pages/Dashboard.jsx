@@ -2,12 +2,18 @@ import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function Dashboard({ auth, plans, categories, latestBooks, authors, hasActivePlan, filters }) {
+export default function Dashboard({ auth, plans, categories, latestBooks, authors, hasActivePlan, filters, recommendations }) {
     const [isSubscribing, setIsSubscribing] = useState(false);
 
     const renderStars = (rating) => {
         const roundedRating = Math.round(Number(rating) || 0);
         return '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
+    };
+    const handleSearch = (query) => {
+        router.get(route('dashboard'), { search: query }, {
+            preserveState: true,
+            replace: true,
+        });
     };
 
     const getRatingLabel = (book) => {
@@ -18,8 +24,8 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
     };
 
     const isSearching = filters?.search;
-
     const handleSubscribe = (plan) => {
+
         if (!plan || !plan.id) return;
         setIsSubscribing(true);
         router.post(
@@ -41,14 +47,13 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
     };
 
     const heroBooks = latestBooks?.slice(0, 3) || [];
-
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Home Page</h2>}
         >
+            
             <Head title="Home" />
-
             <div className="bg-[#F8F9FB] min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {!isSearching && (
@@ -68,6 +73,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                     </Link>
                                 </div>
 
+                            
                                 <div className="md:w-1/2 mt-10 md:mt-0 flex justify-center gap-4 relative">
                                     {heroBooks.length > 0 ? (
                                         <>
@@ -75,17 +81,18 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                             <Link href={route('books.show', heroBooks[0].id)} className="w-36 h-52 bg-white rounded shadow-2xl transform -rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
                                                 <img src={getImageUrl(heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 1" />
                                             </Link>
-                                            
+                                           
                                             {/* Libri i dytë */}
                                             <Link href={route('books.show', heroBooks[1]?.id || heroBooks[0].id)} className="w-44 h-60 bg-white rounded shadow-2xl z-20 transition hover:scale-105 overflow-hidden border-4 border-white">
                                                 <img src={getImageUrl(heroBooks[1]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 2" />
                                             </Link>
 
                                             {/* Libri i tretë */}
-                                            <Link href={route('books.show', heroBooks[2]?.id || heroBooks[0].id)} className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
+                                        <Link href={route('books.show', heroBooks[2]?.id || heroBooks[0].id)} className="w-36 h-52 bg-white rounded shadow-2xl transform rotate-12 transition hover:rotate-0 overflow-hidden border-2 border-white">
                                                 <img src={getImageUrl(heroBooks[2]?.foto_kopertines || heroBooks[0]?.foto_kopertines, 'kopertina')} className="w-full h-full object-cover" alt="Hero 3" />
                                             </Link>
                                         </>
+
                                     ) : (
                                         <div className="h-60 flex items-center text-gray-300 italic font-medium">No books available</div>
                                     )}
@@ -93,7 +100,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             </div>
                         </div>
                     )}
-
+                    
                     <div className="mb-20">
                         <div className="flex justify-between items-end mb-10">
                             <div>
@@ -108,7 +115,6 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                 View All
                             </Link>
                         </div>
-
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-10">
                             {latestBooks.length > 0 ? (
                                 latestBooks.map((book) => (
@@ -117,6 +123,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                             onClick={() => router.visit(route('books.show', book.id))}
                                             className="relative aspect-[2/3] bg-white rounded-xl shadow-sm mb-4 overflow-hidden border border-gray-100 group-hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-2"
                                         >
+
                                             <img
                                                 src={getImageUrl(book.foto_kopertines, 'kopertina')}
                                                 alt={book.titulli}
@@ -139,6 +146,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                                     >
                                                         Review
                                                     </Link>
+
                                                     <Link
                                                         href={route('wishlists.create', { book_id: book.id })}
                                                         onClick={(e) => e.stopPropagation()}
@@ -152,7 +160,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                         <Link href={route('books.show', book.id)}>
                                             <h3 className="font-bold text-gray-700 text-sm truncate px-2 capitalize group-hover:text-black transition">{book.titulli}</h3>
                                             <p className="text-gray-400 text-[10px] uppercase tracking-widest mt-1">
-                                                {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
+                                                {book.author?.emri} {book.author?.mbiemri}
                                             </p>
                                             <div className="mt-2">
                                                 <div className="flex justify-center text-yellow-400 text-[10px] mb-1">
@@ -166,6 +174,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                     </div>
                                 ))
                             ) : (
+
                                 <div className="col-span-full text-center py-20">
                                     <p className="text-gray-400 italic text-lg">No books found matching your search.</p>
                                 </div>
@@ -207,6 +216,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                 <h2 className="text-3xl font-bold text-gray-900">Authors of the Month</h2>
                                 <div className="w-20 h-1 bg-black mx-auto mt-2 rounded-full"></div>
                             </div>
+
                             <div className="flex flex-wrap justify-center gap-14">
                                 {authors?.map((author) => (
                                     <Link key={author.id} href={route('authors.index')} className="text-center group">
@@ -226,6 +236,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             </div>
                         </div>
                     )}
+
                     {!isSearching && (
                         <div className="mb-20 text-center py-16 bg-white rounded-[40px] shadow-sm border border-gray-50 px-6">
                             <p className="text-2xl md:text-3xl font-serif italic text-gray-700 max-w-4xl mx-auto leading-relaxed">
@@ -235,6 +246,31 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             <div className="mt-6 w-12 h-1 bg-blue-600 mx-auto rounded-full"></div>
                         </div>
                     )}
+
+                    <div className="mb-20">
+                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-8 border border-gray-100">
+                            <h3 className="text-2xl font-bold mb-6 text-gray-900">Recommended for You</h3>
+
+                            {recommendations && recommendations.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {recommendations.map((book) => (
+                                        <div key={book.id} className="border border-gray-200 p-5 rounded-2xl hover:shadow-md transition">
+                                            <h4 className="font-bold text-gray-800 text-lg">{book.titulli}</h4>
+                                            <p className="text-sm text-gray-500 mb-3">
+                                                {book.author ? `${book.author.emri} ${book.author.mbiemri}` : 'Unknown Author'}
+                                            </p>
+                                            <Link href={route('books.show', book.id)} className="text-blue-600 text-sm font-bold mt-4 block">
+
+                                                View Book →
+                                            </Link>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 italic">No recommendations yet.</p>
+                            )}
+                        </div>
+                    </div>
 
                     {!isSearching && (
                         <div className="mb-20">
@@ -249,7 +285,6 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
 
@@ -262,20 +297,20 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                 Your ultimate destination for digital reading. Explore thousands of titles from anywhere.
                             </p>
                         </div>
-                        
+
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Services</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('books.index')} className="hover:text-white transition">Library</Link></li>
                                 <li><Link href={route('authors.index')} className="hover:text-white transition">Authors</Link></li>
                                 <li><Link href={route('categories.index')} className="hover:text-white transition">Categories</Link></li>
-
                             </ul>
                         </div>
-                        
+
                         <div>
                             <h4 className="font-bold mb-6 text-lg">Support</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
+
                                 <li><Link href={route('about.index')} className="hover:text-white transition">About Us</Link></li>
                                 <li><Link href={route('about.index') + '#contactus'} className="hover:text-white transition">Contact Us</Link></li>
                                 <li><Link href={route('about.index') + '#feedback'} className="hover:text-white transition">Feedback</Link></li>
@@ -288,14 +323,14 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
                                 <li><Link href={route('profile.edit') + '#plans'} className="hover:text-white transition">Plans</Link></li>
-                                <li><Link 
-                                        href={route('logout')} 
-                                        method="post" 
-                                        as="button" 
+                                <li><Link
+                                        href={route('logout')}
+                                        method="post"
+                                        as="button"
                                         className="hover:text-white transition"
                                         onClick={(e) => {
                                             if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
+                                                e.preventDefault();
                                             }
                                         }}
                                     >
@@ -305,7 +340,6 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             </ul>
                         </div>
                     </div>
-
                     <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-xs">
                         © {new Date().getFullYear()} Bookly. All rights reserved.
                     </div>
@@ -313,4 +347,5 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
             </footer>
         </AuthenticatedLayout>
     );
-}
+} 
+

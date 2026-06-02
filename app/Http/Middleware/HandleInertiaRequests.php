@@ -38,6 +38,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             'allBooks' => Book::select('id', 'titulli')->get(),
+            
         ];
     }
 }
