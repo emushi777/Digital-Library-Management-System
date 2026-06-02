@@ -267,7 +267,9 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                     <div className="mx-auto grid max-w-6xl justify-center gap-6 p-6 sm:grid-cols-1 lg:grid-cols-2">
                         {plans.length > 0 ? (
                             plans.map((plan) => {
-                                const isActive = activePlanId === plan.id;
+                                // Treat a plan as active only when the user's subscription is currently active (not expired)
+                                const isActive = isSubscribed && activePlanId === plan.id;
+                                const isPreviouslySubscribed = subscription && isExpired && subscription.plan?.id === plan.id;
                                 const isFreePlan = Number(plan.cmimi_mujor) === 0;
 
                                 return (
@@ -309,7 +311,7 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                                         }
                                                     }}
                                                 >
-                                                    {isActive ? 'Current Plan' : 'Select plan'}
+                                                    {isActive ? 'Current Plan' : isPreviouslySubscribed ? 'Renew' : 'Select plan'}
                                                 </Link>
                                             )}
                                         </div>
