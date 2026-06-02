@@ -3,22 +3,28 @@ import { Link, router } from '@inertiajs/react';
 
 const RATING_LABELS = {
     1: 'Needs work',
+    1.5: 'Needs work',
     2: 'Fair read',
+    2.5: 'Fair read',
     3: 'Good',
+    3.5: 'Good',
     4: 'Very good',
+    4.5: 'Very good',
     5: 'Excellent',
 };
 
-function StarIcon({ filled }) {
+function StarIcon({ full, half }) {
     return (
         <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
-            className={`h-7 w-7 transition ${filled ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
+            className={`h-7 w-7 transition ${full || half ? 'text-amber-400' : 'text-slate-300'}`}
         >
             <path
                 stroke="currentColor"
                 strokeWidth="1.7"
+                fill={full || half ? 'currentColor' : 'transparent'}
+                style={half ? { clipPath: 'inset(0 50% 0 0)' } : undefined}
                 d="M12 3.75l2.53 5.13 5.66.82-4.09 3.98.97 5.63L12 16.6l-5.07 2.71.97-5.63L3.81 9.7l5.66-.82L12 3.75z"
             />
         </svg>
@@ -38,6 +44,7 @@ export default function ReviewForm({
 }) {
     const selectedRating = Number(data.vleresimi || 0);
     const commentLength = data.komenti?.length || 0;
+    const starValues = [1, 2, 3, 4, 5];
     const handleBack = () => {
         if (window.history.length > 1) {
             window.history.back();
@@ -92,24 +99,37 @@ export default function ReviewForm({
                                     </div>
 
                                     <div className="mt-5 grid grid-cols-5 gap-3">
-                                        {[1, 2, 3, 4, 5].map((value) => {
-                                            const isActive = Number(data.vleresimi) === value;
+                                        {starValues.map((starValue) => {
+                                            const isSameStar = selectedRating === starValue;
+                                            const isHalfStar = selectedRating === starValue - 0.5;
+                                            const full = selectedRating >= starValue;
+                                            const half = selectedRating >= starValue - 0.5 && selectedRating < starValue;
 
                                             return (
                                                 <button
-                                                    key={value}
+                                                    key={starValue}
                                                     type="button"
-                                                    onClick={() => setData('vleresimi', String(value))}
+                                                    onClick={() => {
+                                                        if (isSameStar) {
+                                                            setData('vleresimi', String(starValue - 0.5));
+                                                        } else if (isHalfStar) {
+                                                            setData('vleresimi', String(starValue));
+                                                        } else {
+                                                            setData('vleresimi', String(starValue));
+                                                        }
+                                                    }}
                                                     className={`rounded-2xl border px-2 py-4 transition ${
-                                                        isActive
+                                                        isSameStar || isHalfStar
                                                             ? 'border-blue-200 bg-blue-50 shadow-sm'
                                                             : 'border-gray-200 bg-white hover:border-blue-100 hover:bg-blue-50/50'
                                                     }`}
                                                 >
                                                     <div className="flex justify-center">
-                                                        <StarIcon filled={value <= selectedRating} />
+                                                        <StarIcon full={full} half={half} />
                                                     </div>
-                                                    <p className={`mt-2 text-center text-xs font-semibold ${isActive ? 'text-blue-700' : 'text-gray-500'}`}>{value} star</p>
+                                                    <p className={`mt-2 text-center text-xs font-semibold ${isSameStar || isHalfStar ? 'text-blue-700' : 'text-gray-500'}`}>
+                                                        {starValue} star
+                                                    </p>
                                                 </button>
                                             );
                                         })}

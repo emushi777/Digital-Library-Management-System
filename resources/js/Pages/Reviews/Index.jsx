@@ -1,9 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-const ratingOrder = [5, 4, 3, 2, 1];
+const ratingOrder = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1];
 
 function StarRow({ rating, size = 'md' }) {
     const sizes = {
@@ -11,22 +11,31 @@ function StarRow({ rating, size = 'md' }) {
         md: 'h-5 w-5',
     };
 
+    const normalizedRating = Number(rating) || 0;
+
     return (
         <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((value) => (
-                <svg
-                    key={value}
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                    className={`${sizes[size]} ${value <= Math.round(Number(rating) || 0) ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-slate-300'}`}
-                >
-                    <path
-                        stroke="currentColor"
-                        strokeWidth="1.7"
-                        d="M12 3.75l2.53 5.13 5.66.82-4.09 3.98.97 5.63L12 16.6l-5.07 2.71.97-5.63L3.81 9.7l5.66-.82L12 3.75z"
-                    />
-                </svg>
-            ))}
+            {[1, 2, 3, 4, 5].map((value) => {
+                const full = normalizedRating >= value;
+                const half = !full && normalizedRating >= value - 0.5;
+
+                return (
+                    <svg
+                        key={value}
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className={`${sizes[size]} ${full || half ? 'text-amber-400' : 'text-slate-300'}`}
+                    >
+                        <path
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                            fill={full || half ? 'currentColor' : 'transparent'}
+                            style={half ? { clipPath: 'inset(0 50% 0 0)' } : undefined}
+                            d="M12 3.75l2.53 5.13 5.66.82-4.09 3.98.97 5.63L12 16.6l-5.07 2.71.97-5.63L3.81 9.7l5.66-.82L12 3.75z"
+                        />
+                    </svg>
+                );
+            })}
         </div>
     );
 }
@@ -41,9 +50,68 @@ function getBookImageUrl(fileName) {
 
 export default function Index({ auth, reviews }) {
     const [reviewToDelete, setReviewToDelete] = useState(null);
+    const [selectedBookId, setSelectedBookId] = useState('');
+    const [bookSearch, setBookSearch] = useState('');
+    const [isBookSearchOpen, setIsBookSearchOpen] = useState(false);
 
-    const handleDelete = (id) => {
-        setReviewToDelete(id);
+    const books = useMemo(() => {
+        const map = new Map();
+        reviews.forEach((review) => {
+            if (review.book) {
+                map.set(review.book.id, review.book);
+            }
+        });
+        return Array.from(map.values());
+    }, [reviews]);
+
+    const normalizedBookSearch = bookSearch.trim().toLowerCase();
+    const matchingBookIds = normalizedBookSearch
+        ? books
+            .filter((book) => book.titulli?.toLowerCase().includes(normalizedBookSearch))
+            .map((book) => String(book.id))
+        : [];
+    const filteredBooks = normalizedBookSearch
+        ? books.filter((book) => book.titulli?.toLowerCase().includes(normalizedBookSearch))
+        : books;
+    const selectedBookReviews = selectedBookId
+        ? reviews.filter((review) => String(review.book_id) === selectedBookId)
+        : normalizedBookSearch
+            ? reviews.filter((review) => matchingBookIds.includes(String(review.book_id)))
+            : reviews;
+    const selectedBook = books.find((book) => String(book.id) === selectedBookId) || null;
+
+    const totalReviews = selectedBookReviews.length;
+    const averageRating = totalReviews
+        ? selectedBookReviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
+        : 0;
+    const ratingBreakdown = ratingOrder.map((rating) => {
+        const count = selectedBookReviews.filter((review) => Number(review.vleresimi) === rating).length;
+        const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
+
+        return { rating, count, percentage };
+    });
+
+    const handleDelete = (reviewId) => {
+        setReviewToDelete(reviewId);
+    };
+
+    const handleBookSearch = (value) => {
+        const exactBook = books.find((book) => book.titulli?.toLowerCase() === value.trim().toLowerCase());
+
+        setBookSearch(value);
+        setSelectedBookId(exactBook ? String(exactBook.id) : '');
+    };
+
+    const selectBook = (book) => {
+        setBookSearch(book.titulli);
+        setSelectedBookId(String(book.id));
+        setIsBookSearchOpen(false);
+    };
+
+    const showAllBooks = () => {
+        setBookSearch('');
+        setSelectedBookId('');
+        setIsBookSearchOpen(false);
     };
 
     const confirmDelete = () => {
@@ -51,20 +119,10 @@ export default function Index({ auth, reviews }) {
             return;
         }
 
-        router.delete(route('reviews.destroy', reviewToDelete));
-        setReviewToDelete(null);
+        router.delete(route('reviews.destroy', reviewToDelete), {
+            onFinish: () => setReviewToDelete(null),
+        });
     };
-
-    const totalReviews = reviews.length;
-    const averageRating = totalReviews
-        ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
-        : 0;
-    const ratingBreakdown = ratingOrder.map((rating) => {
-        const count = reviews.filter((review) => Number(review.vleresimi) === rating).length;
-        const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
-
-        return { rating, count, percentage };
-    });
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -108,11 +166,75 @@ export default function Index({ auth, reviews }) {
                             <div className="mt-3">
                                 <StarRow rating={averageRating} />
                             </div>
-                            <p className="mt-2 text-sm text-gray-400">{totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}</p>
+                            <p className="mt-2 text-sm text-gray-400">
+                                {selectedBook ? `${selectedBook.titulli} • ` : ''}
+                                {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
+                            </p>
+
+                            <div className="relative mt-6">
+                                <label htmlFor="book-search" className="text-sm font-medium text-gray-600">
+                                    View rating for
+                                </label>
+                                <div className="relative mt-2">
+                                    <input
+                                        id="book-search"
+                                        type="search"
+                                        value={bookSearch}
+                                        placeholder="Search books"
+                                        onChange={(event) => handleBookSearch(event.target.value)}
+                                        onFocus={() => setIsBookSearchOpen(true)}
+                                        onBlur={() => setTimeout(() => setIsBookSearchOpen(false), 120)}
+                                        className="block w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm text-gray-700 shadow-sm placeholder:text-gray-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                                    />
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                        className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
+                                    >
+                                        <path
+                                            d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                        />
+                                    </svg>
+                                </div>
+
+                                {isBookSearchOpen ? (
+                                    <div className="absolute z-20 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-gray-100 bg-white py-2 shadow-xl">
+                                        <button
+                                            type="button"
+                                            onMouseDown={(event) => event.preventDefault()}
+                                            onClick={showAllBooks}
+                                            className="block w-full px-4 py-2 text-left text-sm font-semibold text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
+                                        >
+                                            All books
+                                        </button>
+
+                                        {filteredBooks.length > 0 ? (
+                                            filteredBooks.map((book) => (
+                                                <button
+                                                    key={book.id}
+                                                    type="button"
+                                                    onMouseDown={(event) => event.preventDefault()}
+                                                    onClick={() => selectBook(book)}
+                                                    className="block w-full px-4 py-2 text-left text-sm text-gray-600 transition hover:bg-blue-50 hover:text-blue-700"
+                                                >
+                                                    {book.titulli}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <p className="px-4 py-3 text-sm text-gray-400">No matching books</p>
+                                        )}
+                                    </div>
+                                ) : null}
+                            </div>
 
                             <div className="mt-8 space-y-4">
                                 {ratingBreakdown.map(({ rating, count, percentage }) => (
-                                    <div key={rating} className="grid grid-cols-[18px,1fr,44px] items-center gap-3 text-sm text-gray-500">
+                                    <div key={rating} className="grid grid-cols-[36px,1fr,44px] items-center gap-3 text-sm text-gray-500">
                                         <span className="font-semibold text-gray-700">{rating}</span>
                                         <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
                                             <div
@@ -145,8 +267,8 @@ export default function Index({ auth, reviews }) {
                                 <p className="mt-1 text-sm text-gray-400">Recent reviews from your digital library readers.</p>
 
                                 <div className="mt-6 space-y-4">
-                                    {reviews.length > 0 ? (
-                                        reviews.map((review) => {
+                                    {selectedBookReviews.length > 0 ? (
+                                        selectedBookReviews.map((review) => {
                                             const reviewerName = review.user?.name || 'Unknown reader';
                                             const initials = reviewerName
                                                 .split(' ')
@@ -233,9 +355,7 @@ export default function Index({ auth, reviews }) {
                                                                     Delete
                                                                 </button>
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-sm font-medium text-gray-400">Read only</span>
-                                                        )}
+                                                        ) : null}
                                                     </div>
                                                 </article>
                                             );
@@ -312,3 +432,4 @@ export default function Index({ auth, reviews }) {
         </AuthenticatedLayout>
     );
 }
+

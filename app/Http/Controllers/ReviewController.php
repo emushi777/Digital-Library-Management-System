@@ -37,10 +37,11 @@ class ReviewController extends Controller
                 'exists:books,id',
                 Rule::unique('reviews')->where(fn ($query) => $query->where('user_id', auth()->id())),
             ],
-            'vleresimi' => 'required|integer|min:1|max:5',
+            'vleresimi' => ['required', 'numeric', 'regex:/^(?:[1-4](?:\\.5)?|5(?:\\.0)?)$/'],
             'komenti' => 'nullable|string|max:2000',
         ], [
             'book_id.unique' => 'You have already reviewed this book.',
+            'vleresimi.regex' => 'The rating must be a number from 1 to 5 in half-star steps.',
         ]);
 
         Review::create([
@@ -75,11 +76,12 @@ class ReviewController extends Controller
                 'exists:books,id',
                 Rule::unique('reviews')->ignore($review->id)->where(fn ($query) => $query->where('user_id', auth()->id())),
             ],
-            'vleresimi' => 'required|integer|min:1|max:5',
+            'vleresimi' => ['required', 'numeric', 'regex:/^(?:[1-4](?:\\.5)?|5(?:\\.0)?)$/'],
             'komenti' => 'nullable|string|max:2000',
             'return_to_book' => 'nullable|boolean',
         ], [
             'book_id.unique' => 'You have already reviewed this book.',
+            'vleresimi.regex' => 'The rating must be a number from 1 to 5 in half-star steps.',
         ]);
 
         $review->update($validated);

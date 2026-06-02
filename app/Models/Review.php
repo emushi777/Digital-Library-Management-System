@@ -17,6 +17,10 @@ class Review extends Model
         'data_vleresimit',
     ];
 
+    protected $casts = [
+        'vleresimi' => 'float',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
