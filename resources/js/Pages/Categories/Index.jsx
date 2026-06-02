@@ -23,6 +23,12 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
         }
     };
 
+    const handleBookDelete = (id) => {
+        if (confirm('Are you sure you want to delete this book?')) {
+            router.delete(route('books.destroy', id));
+        }
+    };
+
     const paginatedBooks = useMemo(() => {
         const startIndex = (currentPage - 1) * booksPerPage;
         return selectedCategory.books.slice(startIndex, startIndex + booksPerPage);
@@ -78,12 +84,67 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8 min-h-[400px]">
                     {paginatedBooks.length > 0 ? (
                         paginatedBooks.map((book) => (
-                            <Link key={book.id} href={`/books/${book.id}`} className="flex flex-col group block">
-                                <div className="aspect-[2/3] rounded-2xl overflow-hidden bg-gray-100 mb-4 shadow-md group-hover:shadow-xl transition-all duration-300">
-                                    <img src={book.foto_kopertines ? `/uploads/books/${book.foto_kopertines}` : '/images/placeholder.png'} alt={book.titulli} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                            <div key={book.id} className="group relative">
+                                <div
+                                    onClick={() => router.visit(route('books.show', book.id))}
+                                    className="relative mb-3 overflow-hidden rounded-xl shadow-sm transition-all group-hover:shadow-xl cursor-pointer"
+                                >
+                                    <img
+                                        src={book.foto_kopertines ? `/uploads/books/${book.foto_kopertines}` : '/images/placeholder.png'}
+                                        alt={book.titulli}
+                                        className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition duration-500"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 flex flex-col justify-between">
+                                        {isAdmin && (
+                                            <div className="flex items-start justify-end gap-2">
+                                                <Link
+                                                    href={route('books.edit', book.id)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-yellow-500 hover:text-white transition-all"
+                                                >
+                                                    ✎
+                                                </Link>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleBookDelete(book.id);
+                                                    }}
+                                                    className="p-2 bg-white/95 backdrop-blur rounded-lg shadow-md hover:bg-red-600 hover:text-white transition-all"
+                                                >
+                                                    🗑
+                                                </button>
+                                            </div>
+                                        )}
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <Link
+                                                href={route('bookmarks.create', { book_id: book.id })}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-blue-500 hover:text-white transition-all"
+                                            >
+                                                Bookmark
+                                            </Link>
+                                            <Link
+                                                href={route('reviews.create', { book_id: book.id })}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-amber-500 hover:text-white transition-all"
+                                            >
+                                                Review
+                                            </Link>
+                                            <Link
+                                                href={route('wishlists.create', { book_id: book.id })}
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="px-3 py-2 text-[10px] font-bold uppercase rounded-lg bg-white/95 text-slate-900 text-center hover:bg-emerald-500 hover:text-white transition-all"
+                                            >
+                                                Wishlist
+                                            </Link>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h4 className="font-bold text-gray-800 text-sm truncate">{book.titulli}</h4>
-                            </Link>
+                                <Link href={route('books.show', book.id)}>
+                                    <h4 className="font-bold text-gray-900 text-sm truncate uppercase tracking-tight">{book.titulli}</h4>
+                                    <p className="text-xs text-gray-500 font-medium">{book.author?.emri} {book.author?.mbiemri}</p>
+                                </Link>
+                            </div>
                         ))
                     ) : (
                         <p className="col-span-full text-center text-gray-400 py-20">No books found in this category.</p>
