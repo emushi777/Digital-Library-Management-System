@@ -174,7 +174,13 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                                         Monthly limit reached
                                     </h2>
                                     <p className="mt-3 text-sm text-gray-600">
-                                        You have reached your monthly reading limit{readingInfo?.monthlyLimit ? ` of ${readingInfo.monthlyLimit} books` : ''}. Upgrade to Premium to continue reading unlimited books.
+                                        {readingInfo?.isBasicPlan ? (
+                                            <>You have reached your monthly reading limit of {readingInfo.monthlyLimit} books. Upgrade to Premium to continue reading unlimited books.</>
+                                        ) : readingInfo?.isPremiumLimitApplicable ? (
+                                            <>You have reached your premium monthly limit of {readingInfo.monthlyLimit} books. Renew your Premium plan to continue reading.</>
+                                        ) : (
+                                            <>You have reached your monthly reading limit. Please check your plan or contact support.</>
+                                        )}
                                     </p>
                                     <div className="mt-6 flex flex-col gap-3">
                                         {readingInfo?.premiumPlanId && (
@@ -182,7 +188,7 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                                                 href={route('checkout.index', readingInfo.premiumPlanId)}
                                                 className="w-full rounded-lg bg-[#377458] px-4 py-2 text-sm font-bold text-white hover:bg-[#2d5d44] transition"
                                             >
-                                                Upgrade to Premium
+                                                {readingInfo?.isBasicPlan ? 'Upgrade to Premium' : 'Renew Premium'}
                                             </Link>
                                         )}
                                         <button

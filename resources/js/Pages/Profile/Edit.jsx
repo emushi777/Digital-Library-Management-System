@@ -14,13 +14,23 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
     const subscription = auth.user?.subscription;
     const plan = subscription?.plan;
     const planName = plan?.emertimi ?? 'Free plan';
-    const isSubscribed = Boolean(subscription?.is_active && plan);
-    const isBasicPlan = Boolean(plan?.emertimi && plan.emertimi.toLowerCase().includes('basic'));
-    const isPremiumPlan = isSubscribed && !isBasicPlan;
-    const activePlanId = plan?.id;
     const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-GB') : '—';
     const createdAt = auth.user?.created_at ? formatDate(auth.user.created_at) : 'Unknown';
     const expiresAt = subscription?.ends_at ? formatDate(subscription.ends_at) : '—';
+
+    // Consider a subscription expired if ends_at is before now
+    const isExpired = subscription?.ends_at ? new Date(subscription.ends_at) < new Date() : false;
+
+    // Active subscription only when marked active, has a plan, and is not expired
+    const isSubscribed = Boolean(subscription?.is_active && plan && !isExpired);
+
+    // Determine what to display as the plan name: if expired, fall back to Basic plan
+    const displayPlanName = isSubscribed ? planName : (subscription && isExpired ? 'Basic plan' : 'Free plan');
+
+    // Decide if the currently-displayed plan is Basic
+    const isBasicPlanDisplay = displayPlanName?.toLowerCase().includes('basic');
+    const isPremiumPlan = isSubscribed && !isBasicPlanDisplay;
+    const activePlanId = plan?.id;
 
     return (
         <AuthenticatedLayout
@@ -68,14 +78,23 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
 
                                         <div className="w-full rounded-3xl border border-slate-200 bg-white px-6 py-5 shadow-sm sm:w-[280px]">
                                             <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Subscription</p>
-                                            <p className="mt-3 text-2xl font-semibold text-slate-900">{isSubscribed ? planName : 'Free plan'}</p>
+                                            <p className="mt-3 text-2xl font-semibold text-slate-900">{displayPlanName}</p>
                                             <p className="mt-1 text-sm text-slate-500">
                                                 {isSubscribed
-                                                    ? isBasicPlan
-                                                        ? 'Basic plan active'
-                                                        : `Valid until ${expiresAt}`
-                                                    : 'Upgrade for premium features.'}
+                                                    ? (isBasicPlanDisplay ? 'Basic plan active' : `Valid until ${expiresAt}`)
+                                                    : (subscription && isExpired ? `Expired on ${expiresAt}` : 'Upgrade for premium features.')}
                                             </p>
+
+                                            {subscription && isExpired && plan && Number(plan.cmimi_mujor) > 0 && (
+                                                <div className="mt-4">
+                                                    <Link
+                                                        href={route('checkout.index', plan.id)}
+                                                        className="inline-flex items-center rounded-2xl bg-sky-500 px-4 py-2 text-sm font-bold text-white hover:bg-sky-400"
+                                                    >
+                                                        Renew
+                                                    </Link>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
