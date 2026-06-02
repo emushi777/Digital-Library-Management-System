@@ -91,16 +91,32 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-center gap-2 mt-12">
+                    <div className="flex justify-center items-center gap-2 mt-12">
+                        <button
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-300 transition shadow-sm"
+                        >
+                            « Previous
+                        </button>
+
                         {Array.from({ length: totalPages }, (_, i) => (
                             <button 
                                 key={i} 
                                 onClick={() => setCurrentPage(i + 1)}
-                                className={`px-4 py-2 rounded-lg font-bold ${currentPage === i + 1 ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
+                                className={`px-4 py-2 text-sm rounded-lg font-bold transition shadow-sm ${currentPage === i + 1 ? 'bg-indigo-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
                             >
                                 {i + 1}
                             </button>
                         ))}
+
+                        <button
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="px-4 py-2 text-sm rounded-lg font-bold bg-gray-200 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-300 transition shadow-sm"
+                        >
+                            Next »
+                        </button>
                     </div>
                 )}
             </div>
