@@ -88,7 +88,7 @@ export default function Authenticated({ user, header, children }) {
                                                     {user.name}
                                                 </p>
                                                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
-                                                    Reader
+                                                    {user.role === 'admin' ? 'Admin' : 'Reader'}
                                                 </p>
                                             </div>
 
