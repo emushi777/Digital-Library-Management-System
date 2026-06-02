@@ -19,6 +19,16 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
     });
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
+    // When the form was recently successfully submitted, close the editor
+    // so the user can't make further changes until they click Edit again.
+    // A short timeout lets the "Saved." message show briefly.
+    useEffect(() => {
+        if (recentlySuccessful) {
+            const t = setTimeout(() => onCancel(), 800);
+            return () => clearTimeout(t);
+        }
+    }, [recentlySuccessful]);
+
     const submit = (e) => {
         e.preventDefault();
 

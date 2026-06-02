@@ -83,13 +83,15 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                     </div>
 
                                     <div className="flex flex-wrap gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowEditProfile((prev) => !prev)}
-                                            className="inline-flex items-center justify-center rounded-2xl bg-black px-6 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
-                                        >
-                                            {showEditProfile ? 'Hide profile editor' : 'Edit profile'}
-                                        </button>
+                                        {!showEditProfile && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowEditProfile(true)}
+                                                className="inline-flex items-center justify-center rounded-2xl bg-black px-6 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
+                                            >
+                                                Edit profile
+                                            </button>
+                                        )}
                                         <button
                                             type="button"
                                             onClick={() => setShowPasswordForm((prev) => !prev)}
@@ -157,11 +159,11 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                             )}
 
                             {showPasswordForm && (
-                                <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-lg">
-                                    <div className="px-8 py-8">
-                                        <UpdatePasswordForm className="max-w-3xl" />
+                                    <div className="overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-lg">
+                                        <div className="px-8 py-8">
+                                            <UpdatePasswordForm className="max-w-3xl" onSuccess={() => setShowPasswordForm(false)} />
+                                        </div>
                                     </div>
-                                </div>
                             )}
                         </div>
 

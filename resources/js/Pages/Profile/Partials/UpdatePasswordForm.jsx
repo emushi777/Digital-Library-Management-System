@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -6,7 +6,7 @@ import TextInput from '@/Components/TextInput';
 import { useForm } from '@inertiajs/react';
 import { Transition } from '@headlessui/react';
 
-export default function UpdatePasswordForm({ className = '' }) {
+export default function UpdatePasswordForm({ className = '', onSuccess = () => {} }) {
     const passwordInput = useRef();
     const currentPasswordInput = useRef();
 
@@ -35,6 +35,13 @@ export default function UpdatePasswordForm({ className = '' }) {
             },
         });
     };
+
+    useEffect(() => {
+        if (recentlySuccessful) {
+            const t = setTimeout(() => onSuccess(), 800);
+            return () => clearTimeout(t);
+        }
+    }, [recentlySuccessful]);
 
     return (
         <section className={className}>
