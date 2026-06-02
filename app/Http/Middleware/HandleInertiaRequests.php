@@ -30,15 +30,20 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
+        if ($user) {
+            $user->load('subscription.plan');
+        }
+
         return [
             ...parent::share($request),
 
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
 
             'allBooks' => Book::select('id', 'titulli')->get(),
-            
         ];
     }
 }

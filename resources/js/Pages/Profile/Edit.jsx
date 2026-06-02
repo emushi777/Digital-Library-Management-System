@@ -12,11 +12,15 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
     const [showPlansModal, setShowPlansModal] = useState(false);
 
     const subscription = auth.user?.subscription;
-    const planName = subscription?.plan?.emertimi ?? 'Free plan';
-    const isSubscribed = subscription?.is_active;
-    const activePlanId = subscription?.plan?.id;
-    const createdAt = auth.user?.created_at ? new Date(auth.user.created_at).toLocaleDateString() : 'Unknown';
-    const expiresAt = subscription?.ends_at ? new Date(subscription?.ends_at).toLocaleDateString() : '—';
+    const plan = subscription?.plan;
+    const planName = plan?.emertimi ?? 'Free plan';
+    const isSubscribed = Boolean(subscription?.is_active && plan);
+    const isBasicPlan = Boolean(plan?.emertimi && plan.emertimi.toLowerCase().includes('basic'));
+    const isPremiumPlan = isSubscribed && !isBasicPlan;
+    const activePlanId = plan?.id;
+    const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-GB') : '—';
+    const createdAt = auth.user?.created_at ? formatDate(auth.user.created_at) : 'Unknown';
+    const expiresAt = subscription?.ends_at ? formatDate(subscription.ends_at) : '—';
 
     return (
         <AuthenticatedLayout
@@ -41,8 +45,8 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                         </p>
                                     </div>
 
-                                    <div className="flex flex-col gap-4 sm:items-end">
-                                        <div className="flex items-center gap-4 rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-xl">
+                                    <div className="flex flex-col gap-4 sm:items-end sm:w-[280px]">
+                                        <div className="flex w-full items-center gap-4 rounded-3xl bg-slate-950 px-5 py-4 text-white shadow-xl sm:w-[280px]">
                                             <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-white bg-slate-950 shadow-xl">
                                                 {auth.user.profile_photo_path ? (
                                                     <img
@@ -62,10 +66,16 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                             </div>
                                         </div>
 
-                                        <div className="rounded-3xl border border-slate-200 bg-white px-6 py-5 shadow-sm">
+                                        <div className="w-full rounded-3xl border border-slate-200 bg-white px-6 py-5 shadow-sm sm:w-[280px]">
                                             <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Subscription</p>
                                             <p className="mt-3 text-2xl font-semibold text-slate-900">{isSubscribed ? planName : 'Free plan'}</p>
-                                            <p className="mt-1 text-sm text-slate-500">{isSubscribed ? `Valid until ${expiresAt}` : 'Upgrade for premium features.'}</p>
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                {isSubscribed
+                                                    ? isBasicPlan
+                                                        ? 'Basic plan active'
+                                                        : `Valid until ${expiresAt}`
+                                                    : 'Upgrade for premium features.'}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -115,9 +125,9 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                                         <div className="relative h-full flex flex-col justify-between">
                                             <div>
                                                 <p className="text-xs uppercase tracking-[0.35em] text-sky-300">Status</p>
-                                                <p className="mt-4 text-2xl font-extrabold text-white">{isSubscribed ? 'Premium' : 'Standard'}</p>
+                                                <p className="mt-4 text-2xl font-extrabold text-white">{isPremiumPlan ? 'Premium' : 'Standard'}</p>
                                             </div>
-                                            <p className="mt-3 text-sm leading-6 text-slate-300">{isSubscribed ? 'Full access to premium titles' : 'Basic access with room to upgrade'}</p>
+                                            <p className="mt-3 text-sm leading-6 text-slate-300">{isPremiumPlan ? 'Full access to premium titles' : 'Basic access with room to upgrade'}</p>
                                         </div>
                                     </div>
                                     <div className="relative overflow-hidden rounded-[32px] bg-white p-7 shadow-[0_28px_90px_rgba(15,23,42,0.08)] ring-1 ring-slate-200 min-h-[170px]">
