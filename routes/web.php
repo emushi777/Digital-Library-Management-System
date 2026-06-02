@@ -59,6 +59,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/book-requests', [BookRequestController::class, 'store'])->name('book-requests.store');
     Route::get('/book-requests', [BookRequestController::class, 'index'])->name('book-requests.index');
     Route::get('/book-requests/create', [BookRequestController::class, 'create'])->name('book-requests.create');
+    Route::patch('/book-requests/{bookRequest}', [BookRequestController::class, 'update'])->name('book-requests.update');
+    Route::delete('/book-requests/{bookRequest}', [BookRequestController::class, 'destroy'])->name('book-requests.destroy');
     
     // 4. Abonimet
     Route::get('/checkout/{plan_id}', [SubscriptionController::class, 'checkout'])->name('checkout.index');

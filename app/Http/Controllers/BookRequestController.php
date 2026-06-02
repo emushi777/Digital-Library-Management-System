@@ -38,4 +38,15 @@ class BookRequestController extends Controller
     {
         return Inertia::render('BookRequests/Create'); 
     }
+    public function update(BookRequest $bookRequest)
+    {
+        $bookRequest->update(['statusi' => 'complete']);
+        return redirect()->back(); 
+    }
+
+    public function destroy(BookRequest $bookRequest)
+    {
+        $bookRequest->delete();
+        return redirect()->back(); 
+    }
 }
