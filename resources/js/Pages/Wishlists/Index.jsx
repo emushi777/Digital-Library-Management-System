@@ -188,7 +188,7 @@ export default function Index({ auth, wishlists }) {
                             <h4 className="font-bold mb-6 text-lg">Account</h4>
                             <ul className="space-y-4 text-gray-400 text-sm">
                                 <li><Link href={route('profile.edit')} className="hover:text-white transition">Profile</Link></li>
-                                <li><Link href="#" className="hover:text-white transition">Plans</Link></li>
+                                <li><Link href={route('profile.edit') + '#plans'} className="hover:text-white transition">Plans</Link></li>
                                 <li>
                                     <Link
                                         href={route('logout')}
