@@ -1,5 +1,6 @@
 import BookPicker from '@/Components/BookPicker';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function WishlistForm({
     title,
@@ -11,18 +12,24 @@ export default function WishlistForm({
     errors,
     books,
     onSubmit,
+    initialData,
 }) {
-    const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
-            return;
-        }
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialData, data);
 
-        router.visit(route('wishlists.index'));
+    const handleBack = () => {
+        confirmDiscard(() => {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+
+            router.visit(route('wishlists.index'));
+        });
     };
 
     return (
         <div className="min-h-screen bg-[#f8f9fb] pb-20">
+            {unsavedChangesModal}
             <div className="mx-auto max-w-5xl px-8 pt-8">
                 <div className="overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-sm">
                     <div className="grid lg:grid-cols-[0.9fr,1.1fr]">

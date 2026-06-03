@@ -1,14 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Edit({ auth, faq }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const initialFaqData = {
         pyetja: faq.pyetja || '',
         pergjigjja: faq.pergjigjja || '',
         kategoria: faq.kategoria || '',
         statusi: faq.statusi || 'active',
         renditja: faq.renditja ?? '',
-    });
+    };
+    const { data, setData, put, processing, errors } = useForm(initialFaqData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialFaqData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -18,6 +21,7 @@ export default function Edit({ auth, faq }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Edit FAQ" />
+            {unsavedChangesModal}
 
             <div className="py-12">
                 <div className="max-w-3xl mx-auto rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
@@ -82,9 +86,13 @@ export default function Edit({ auth, faq }) {
                         </div>
 
                         <div className="flex items-center justify-end gap-4 border-t border-gray-100 pt-6">
-                            <Link href={route('faqs.index')} className="text-sm font-medium text-gray-600 transition hover:text-gray-900">
+                            <button
+                                type="button"
+                                onClick={() => confirmDiscard(() => router.visit(route('faqs.index')))}
+                                className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+                            >
                                 Cancel
-                            </Link>
+                            </button>
                             <button
                                 type="submit"
                                 disabled={processing}

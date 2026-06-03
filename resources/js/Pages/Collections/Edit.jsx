@@ -1,29 +1,25 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CollectionIcon, { COLLECTION_ICON_OPTIONS } from '@/Components/CollectionIcon';
-import Modal from '@/Components/Modal';
 import { Head, useForm, Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Edit({ auth, collection }) {
-    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-    const { data, setData, patch, reset, processing, errors } = useForm({
+    const { confirm, modal } = useConfirmModal();
+    const initialCollectionData = {
         emertimi: collection.emertimi || '',
         pershkrimi: collection.pershkrimi || '',
         icon: collection.icon || 'library',
-    });
+    };
+    const { data, setData, patch, processing, errors } = useForm(initialCollectionData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialCollectionData, data);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         patch(route('collections.update', collection.id));
     };
 
-    const handleCancel = () => setShowCancelConfirm(true);
-
-    const confirmCancel = () => {
-        reset();
-        setShowCancelConfirm(false);
-        router.visit(route('collections.index'));
-    };
+    const handleCancel = () => confirmDiscard(() => router.visit(route('collections.index')));
 
     return (
         <AuthenticatedLayout
@@ -44,6 +40,8 @@ export default function Edit({ auth, collection }) {
             }
         >
             <Head title={`Edit - ${collection.emertimi}`} />
+            {modal}
+            {unsavedChangesModal}
 
             <div className="py-12">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -140,29 +138,6 @@ export default function Edit({ auth, collection }) {
                     </div>
                 </div>
             </div>
-            <Modal show={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} maxWidth="sm">
-                <div className="p-6">
-                    <h3 className="text-lg font-semibold">Discard changes?</h3>
-                    <p className="mt-2 text-sm text-gray-600">Are you sure you don't want to save these changes?</p>
-
-                    <div className="mt-6 flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={() => setShowCancelConfirm(false)}
-                            className="rounded-2xl border px-4 py-2 text-sm font-semibold"
-                        >
-                            Keep editing
-                        </button>
-                        <button
-                            type="button"
-                            onClick={confirmCancel}
-                            className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white"
-                        >
-                            Discard
-                        </button>
-                    </div>
-                </div>
-            </Modal>
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
@@ -204,9 +179,13 @@ export default function Edit({ auth, collection }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

@@ -1,12 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Show({ category, books, auth }) {
+    const { confirm, modal } = useConfirmModal();
 
     const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this category?')) {
-            router.delete(route('categories.destroy', id));
-        }
+        confirm({
+            title: 'Delete this category?',
+            message: 'This category will be permanently removed.',
+            confirmLabel: 'Delete category',
+            onConfirm: () => router.delete(route('categories.destroy', id)),
+        });
     };
 
     return (
@@ -15,6 +20,7 @@ export default function Show({ category, books, auth }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">{category.emertimi}</h2>}
         >
             <Head title={category.emertimi} />
+            {modal}
 
             <div className="bg-[#F8F9FB] min-h-screen py-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

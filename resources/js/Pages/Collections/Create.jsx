@@ -1,13 +1,19 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CollectionIcon, { COLLECTION_ICON_OPTIONS } from '@/Components/CollectionIcon';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
+
+const initialCollectionData = {
+    emertimi: '',
+    pershkrimi: '',
+    icon: 'library',
+};
 
 export default function Create({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        emertimi: '',
-        pershkrimi: '',
-        icon: 'library',
-    });
+    const { confirm, modal } = useConfirmModal();
+    const { data, setData, post, processing, errors } = useForm(initialCollectionData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialCollectionData, data);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -20,16 +26,19 @@ export default function Create({ auth }) {
             header={
                 <div className="flex justify-between items-center w-full">
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">Create New Collection</h2>
-                    <Link
-                        href={route('collections.index')}
+                    <button
+                        type="button"
+                        onClick={() => confirmDiscard(() => router.visit(route('collections.index')))}
                         className="text-sm font-medium text-gray-600 hover:text-blue-600 transition"
                     >
                         ← Back
-                    </Link>
+                    </button>
                 </div>
             }
         >
             <Head title="Create Collection" />
+            {modal}
+            {unsavedChangesModal}
 
             <div className="py-12">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -106,12 +115,13 @@ export default function Create({ auth }) {
                             </div>
 
                             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
-                                <Link
-                                    href={route('collections.index')}
+                                <button
+                                    type="button"
+                                    onClick={() => confirmDiscard(() => router.visit(route('collections.index')))}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg transition"
                                 >
                                     Cancel
-                                </Link>
+                                </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
@@ -166,9 +176,13 @@ export default function Create({ auth }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

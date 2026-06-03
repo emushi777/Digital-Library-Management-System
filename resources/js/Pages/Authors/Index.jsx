@@ -1,12 +1,17 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, authors, isAdmin }) {
+    const { confirm, modal } = useConfirmModal();
     
     const handleDelete = (id) => {
-        if (confirm("Are you sure you want to delete this author?")) {
-            router.delete(route('authors.destroy', id));
-        }
+        confirm({
+            title: 'Delete this author?',
+            message: 'This author will be permanently removed from the registry.',
+            confirmLabel: 'Delete author',
+            onConfirm: () => router.delete(route('authors.destroy', id)),
+        });
     };
 
     const getImageUrl = (fileName) => {
@@ -19,6 +24,7 @@ export default function Index({ auth, authors, isAdmin }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Authors Registry</h2>}
         >
             <Head title="Authors" />
+            {modal}
 
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
@@ -151,9 +157,13 @@ export default function Index({ auth, authors, isAdmin }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

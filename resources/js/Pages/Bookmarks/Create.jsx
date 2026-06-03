@@ -1,13 +1,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import BookPicker from '@/Components/BookPicker';
 import { Head, router, useForm } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Create({ auth, books, selectedBookId }) {
-    const { data, setData, post, processing, errors } = useForm({
+    const initialBookmarkData = {
         book_id: selectedBookId || '',
         faqja: '',
         shenime: '',
-    });
+    };
+    const { data, setData, post, processing, errors } = useForm(initialBookmarkData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialBookmarkData, data);
 
     const selectedBook = books.find((book) => String(book.id) === String(data.book_id));
 
@@ -17,17 +20,20 @@ export default function Create({ auth, books, selectedBookId }) {
     };
 
     const handleBack = () => {
-        if (globalThis.history.length > 1) {
-            globalThis.history.back();
-            return;
-        }
+        confirmDiscard(() => {
+            if (globalThis.history.length > 1) {
+                globalThis.history.back();
+                return;
+            }
 
-        router.visit(route('bookmarks.index'));
+            router.visit(route('bookmarks.index'));
+        });
     };
 
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Create Bookmark" />
+            {unsavedChangesModal}
 
             <div className="py-12 bg-[#f8f9fb] min-h-screen">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -96,5 +102,4 @@ export default function Create({ auth, books, selectedBookId }) {
         </AuthenticatedLayout>
     );
 }
-
 

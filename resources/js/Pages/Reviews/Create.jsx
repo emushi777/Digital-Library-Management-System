@@ -3,11 +3,12 @@ import { Head, useForm } from '@inertiajs/react';
 import ReviewForm from './ReviewForm';
 
 export default function Create({ auth, books, selectedBookId }) {
-    const { data, setData, post, processing, errors } = useForm({
+    const initialReviewData = {
         book_id: selectedBookId || '',
         vleresimi: '5',
         komenti: '',
-    });
+    };
+    const { data, setData, post, processing, errors } = useForm(initialReviewData);
 
     const submit = (e) => {
         e.preventDefault();
@@ -28,6 +29,7 @@ export default function Create({ auth, books, selectedBookId }) {
                 errors={errors}
                 books={books}
                 onSubmit={submit}
+                initialData={initialReviewData}
             />
         </AuthenticatedLayout>
     );

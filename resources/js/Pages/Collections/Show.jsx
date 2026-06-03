@@ -1,6 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 const FALLBACK_BOOK_IMAGE = 'https://via.placeholder.com/240x320?text=No+Cover';
 
@@ -28,6 +29,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
     const isFinishedCollection = collection.emertimi === 'Finished';
     const [bookSearch, setBookSearch] = useState('');
     const [showBookResults, setShowBookResults] = useState(false);
+    const { confirm, modal } = useConfirmModal();
     const { data, setData, post, processing, reset } = useForm({
         collection_id: collection.id,
         book_id: '',
@@ -67,18 +69,24 @@ export default function Show({ auth, collection, books, all_books = [] }) {
     };
 
     const handleRemoveBook = (bookId) => {
-        if (confirm('Are you sure you want to remove this book from the collection?')) {
-            router.post(route('collections.removeBook'), {
+        confirm({
+            title: 'Remove this book?',
+            message: 'This book will be removed from this collection.',
+            confirmLabel: 'Remove book',
+            onConfirm: () => router.post(route('collections.removeBook'), {
                 collection_id: collection.id,
                 book_id: bookId
-            });
-        }
+            }),
+        });
     };
 
     const handleDeleteCollection = () => {
-        if (confirm('Are you sure you want to completely delete this collection?')) {
-            router.delete(route('collections.destroy', collection.id));
-        }
+        confirm({
+            title: 'Delete this collection?',
+            message: 'This collection will be permanently removed.',
+            confirmLabel: 'Delete collection',
+            onConfirm: () => router.delete(route('collections.destroy', collection.id)),
+        });
     };
 
     return (
@@ -109,6 +117,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
             }
         >
             <Head title={collection.emertimi} />
+            {modal}
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -272,9 +281,13 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

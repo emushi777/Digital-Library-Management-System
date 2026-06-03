@@ -1,11 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Edit({ auth, category }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const initialCategoryData = {
         emri: category.emri || '',
         pershkrimi: category.pershkrimi || '',
-    });
+    };
+    const { data, setData, put, processing, errors } = useForm(initialCategoryData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialCategoryData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -15,6 +18,7 @@ export default function Edit({ auth, category }) {
     return (
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Edit Category: {category.emri}</h2>}>
             <Head title="Edit Category" />
+            {unsavedChangesModal}
             <div className="py-12">
                 <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
                     <form onSubmit={submit} className="space-y-6">
@@ -41,12 +45,13 @@ export default function Edit({ auth, category }) {
                         </div>
 
                         <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
-                            <Link 
-                                href={route('categories.index')} 
+                            <button
+                                type="button"
+                                onClick={() => confirmDiscard(() => router.visit(route('categories.index')))}
                                 className="px-6 py-3 text-sm font-medium text-gray-600 hover:text-gray-900 transition flex items-center"
                             >
                                 Cancel
-                            </Link>
+                            </button>
                             <button type="submit" disabled={processing} className="px-10 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-lg transition">
                                 {processing ? 'Updating...' : 'Update Category'}
                             </button>

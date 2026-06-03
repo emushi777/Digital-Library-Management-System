@@ -1,20 +1,24 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
+
+const initialBookData = {
+    titulli: '',
+    isbn: '',
+    autori_id: '',
+    kategoria_id: '',
+    viti_botimit: '',
+    gjuha: '',
+    numri_faqeve: '',
+    formati: '',
+    madhesia_mb: '',
+    pershkrimi: '',
+    foto_kopertines: null,
+};
 
 export default function Create({ auth, authors, categories }) {
-    const { data, setData, post, processing, errors } = useForm({
-        titulli: '',
-        isbn: '',
-        autori_id: '',
-        kategoria_id: '',
-        viti_botimit: '',
-        gjuha: '',
-        numri_faqeve: '',
-        formati: '',
-        madhesia_mb: '',
-        pershkrimi: '',
-        foto_kopertines: null,
-    });
+    const { data, setData, post, processing, errors } = useForm(initialBookData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialBookData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -28,6 +32,7 @@ export default function Create({ auth, authors, categories }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Add New Book" />
+            {unsavedChangesModal}
 
             <div className="py-12 bg-[#f8f9fb] min-h-screen">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
@@ -193,13 +198,13 @@ export default function Create({ auth, authors, categories }) {
                             </div>
 
                             <div className="flex items-center justify-between pt-10">
-                                <Link href={route('books.index')} className="text-xs font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-all">
+                                <button type="button" onClick={() => confirmDiscard(() => router.visit(route('books.index')))} className="text-xs font-bold text-gray-400 hover:text-black uppercase tracking-widest transition-all">
                                     ← Back to Library
-                                </Link>
+                                </button>
                                 <div className="flex gap-4">
-                                    <Link href={route('books.index')} className="px-8 py-3 text-xs font-bold text-gray-500 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all uppercase tracking-widest">
+                                    <button type="button" onClick={() => confirmDiscard(() => router.visit(route('books.index')))} className="px-8 py-3 text-xs font-bold text-gray-500 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all uppercase tracking-widest">
                                         Cancel
-                                    </Link>
+                                    </button>
                                     <button
                                         type="submit"
                                         disabled={processing}

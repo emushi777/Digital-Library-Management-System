@@ -2,9 +2,11 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, faqs, isAdmin }) {
     const [faqToDelete, setFaqToDelete] = useState(null);
+    const { confirm: confirmAction, modal: actionModal } = useConfirmModal();
 
     const handleDelete = (id) => {
         setFaqToDelete(id);
@@ -22,6 +24,7 @@ export default function Index({ auth, faqs, isAdmin }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="FAQ" />
+            {actionModal}
             <ConfirmModal
                 open={Boolean(faqToDelete)}
                 title="Delete this FAQ?"
@@ -155,9 +158,13 @@ export default function Index({ auth, faqs, isAdmin }) {
                                         as="button"
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault();
-                                            }
+                                            e.preventDefault();
+                                            confirmAction({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

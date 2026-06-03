@@ -1,5 +1,6 @@
 import BookPicker from '@/Components/BookPicker';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 const RATING_LABELS = {
     1: 'Needs work',
@@ -41,21 +42,26 @@ export default function ReviewForm({
     errors,
     books,
     onSubmit,
+    initialData,
 }) {
     const selectedRating = Number(data.vleresimi || 0);
     const commentLength = data.komenti?.length || 0;
     const starValues = [1, 2, 3, 4, 5];
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialData, data);
     const handleBack = () => {
-        if (window.history.length > 1) {
-            window.history.back();
-            return;
-        }
+        confirmDiscard(() => {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            }
 
-        router.visit(route('reviews.index'));
+            router.visit(route('reviews.index'));
+        });
     };
 
     return (
         <div className="min-h-screen bg-[#f8f9fb] pb-20">
+            {unsavedChangesModal}
             <div className="mx-auto max-w-5xl px-8 pt-8">
                 <div className="overflow-hidden rounded-[30px] border border-gray-100 bg-white shadow-sm">
                     <div className="grid lg:grid-cols-[0.9fr,1.1fr]">

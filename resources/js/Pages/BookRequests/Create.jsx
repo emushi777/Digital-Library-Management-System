@@ -1,15 +1,19 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react'; // Shto 'Link' këtu
+import { Head, useForm, router } from '@inertiajs/react';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
+
+const initialBookRequestData = {
+    titulli_librit: '',
+    autori: '',
+};
 
 export default function Create({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        titulli_librit: '',
-        autori: '',
-    });
+    const { data, setData, post, processing, errors } = useForm(initialBookRequestData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialBookRequestData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -22,6 +26,7 @@ export default function Create({ auth }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Request a New Book</h2>}
         >
             <Head title="Request a Book" />
+            {unsavedChangesModal}
 
             <div className="py-12">
                 <div className="max-w-2xl mx-auto sm:px-6 lg:px-8">
@@ -54,12 +59,13 @@ export default function Create({ auth }) {
                             </div>
 
                             <div className="flex items-center justify-end">
-                                <Link
-                                    href={route('books.index')}
+                                <button
+                                    type="button"
+                                    onClick={() => confirmDiscard(() => router.visit(route('books.index')))}
                                     className="text-gray-600 hover:text-gray-900 mr-4"
                                 >
                                     Cancel
-                                </Link>
+                                </button>
 
                                 <PrimaryButton className="ml-4" disabled={processing}>
                                     {processing ? 'Sending...' : 'Submit Request'}

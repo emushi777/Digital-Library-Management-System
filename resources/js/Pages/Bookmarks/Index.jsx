@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 const FALLBACK_BOOK_IMAGE = 'https://via.placeholder.com/160x240?text=No+Cover';
 
@@ -15,6 +16,7 @@ function getBookImageUrl(fileName) {
 
 export default function Index({ auth, bookmarks }) {
     const [bookmarkToDelete, setBookmarkToDelete] = useState(null);
+    const { confirm: confirmAction, modal: actionModal } = useConfirmModal();
 
     const totals = useMemo(() => {
         const pagesSaved = bookmarks.length;
@@ -47,6 +49,7 @@ export default function Index({ auth, bookmarks }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Bookmarks" />
+            {actionModal}
 
             <ConfirmModal
                 open={Boolean(bookmarkToDelete)}
@@ -302,9 +305,13 @@ export default function Index({ auth, bookmarks }) {
                                         as="button"
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault();
-                                            }
+                                            e.preventDefault();
+                                            confirmAction({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

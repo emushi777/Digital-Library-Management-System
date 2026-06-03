@@ -14,6 +14,7 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
     const subscription = auth.user?.subscription;
     const plan = subscription?.plan;
     const planName = plan?.emertimi ?? 'Free plan';
+    const isAdmin = auth.user?.role === 'admin';
     const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-GB') : '—';
     const createdAt = auth.user?.created_at ? formatDate(auth.user.created_at) : 'Unknown';
     const expiresAt = subscription?.ends_at ? formatDate(subscription.ends_at) : '—';
@@ -32,11 +33,11 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
     const isSubscribed = Boolean(subscription?.is_active && plan && !isExpired);
 
     // Determine what to display as the plan name: if expired, fall back to Basic plan
-    const displayPlanName = isSubscribed ? planName : (subscription && isExpired ? 'Basic plan' : 'Free plan');
+    const displayPlanName = isAdmin ? 'Staff Member' : (isSubscribed ? planName : (subscription && isExpired ? 'Basic plan' : 'Free plan'));
 
     // Decide if the currently-displayed plan is Basic
     const isBasicPlanDisplay = displayPlanName?.toLowerCase().includes('basic');
-    const isPremiumPlan = isSubscribed && !isBasicPlanDisplay;
+    const isPremiumPlan = isAdmin || (isSubscribed && !isBasicPlanDisplay);
     const activePlanId = plan?.id;
 
     return (
@@ -87,12 +88,14 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
                                             <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Subscription</p>
                                             <p className="mt-3 text-2xl font-semibold text-slate-900">{displayPlanName}</p>
                                             <p className="mt-1 text-sm text-slate-500">
-                                                {isSubscribed
+                                                {isAdmin
+                                                    ? 'Unlimited access for staff/admin users.'
+                                                    : isSubscribed
                                                     ? (isBasicPlanDisplay ? 'Basic plan active' : `Valid until ${expiresAt}`)
                                                     : (subscription && isExpired ? `Expired on ${expiresAt}` : 'Upgrade for premium features.')}
                                             </p>
 
-                                            {subscription && isExpired && plan && Number(plan.cmimi_mujor) > 0 && (
+                                            {!isAdmin && subscription && isExpired && plan && Number(plan.cmimi_mujor) > 0 && (
                                                 <div className="mt-4">
                                                     <Link
                                                         href={route('checkout.index', plan.id)}
@@ -135,13 +138,15 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
                                         >
                                             {showPasswordForm ? 'Hide password form' : 'Change password'}
                                         </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPlansModal(true)}
-                                            className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-violet-500 px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-95"
-                                        >
-                                            Browse plans
-                                        </button>
+                                        {!isAdmin && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPlansModal(true)}
+                                                className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-500 to-violet-500 px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-95"
+                                            >
+                                                Browse plans
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 
@@ -151,9 +156,9 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
                                         <div className="relative h-full flex flex-col justify-between">
                                             <div>
                                                 <p className="text-xs uppercase tracking-[0.35em] text-sky-300">Status</p>
-                                                <p className="mt-4 text-2xl font-extrabold text-white">{isPremiumPlan ? 'Premium' : 'Standard'}</p>
+                                                <p className="mt-4 text-2xl font-extrabold text-white">{isAdmin ? 'Staff' : (isPremiumPlan ? 'Premium' : 'Standard')}</p>
                                             </div>
-                                            <p className="mt-3 text-sm leading-6 text-slate-300">{isPremiumPlan ? 'Full access to premium titles' : 'Basic access with room to upgrade'}</p>
+                                            <p className="mt-3 text-sm leading-6 text-slate-300">{isAdmin ? 'Unlimited access across the library and admin tools' : (isPremiumPlan ? 'Full access to premium titles' : 'Basic access with room to upgrade')}</p>
                                         </div>
                                     </div>
                                     <div className="relative overflow-hidden rounded-[32px] bg-white p-7 shadow-[0_28px_90px_rgba(15,23,42,0.08)] ring-1 ring-slate-200 min-h-[170px]">
@@ -278,15 +283,17 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
                             <div className="rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 to-slate-900 p-8 text-white shadow-lg xl:col-start-2">
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
-                                        <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Premium benefits</p>
-                                        <h2 className="mt-4 text-3xl font-black tracking-tight">Upgrade your experience</h2>
+                                        <p className="text-xs uppercase tracking-[0.35em] text-slate-400">{isAdmin ? 'Staff access' : 'Premium benefits'}</p>
+                                        <h2 className="mt-4 text-3xl font-black tracking-tight">{isAdmin ? 'Unlimited access enabled' : 'Upgrade your experience'}</h2>
                                     </div>
                                     <div className="rounded-3xl bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-slate-200">
-                                        {isSubscribed ? 'Active' : 'Recommended'}
+                                        {isAdmin ? 'Staff' : (isSubscribed ? 'Active' : 'Recommended')}
                                     </div>
                                 </div>
                                 <p className="mt-4 text-sm text-slate-300 leading-relaxed">
-                                    Unlock unlimited downloads, exclusive titles, and curated reading recommendations with premium access.
+                                    {isAdmin
+                                        ? 'Your admin role includes staff-level access across the digital library.'
+                                        : 'Unlock unlimited downloads, exclusive titles, and curated reading recommendations with premium access.'}
                                 </p>
 
                                 <div className="mt-6 space-y-4 rounded-3xl bg-white/5 p-6">
@@ -313,13 +320,15 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [], curren
                                     </div>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPlansModal(true)}
-                                    className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-slate-100"
-                                >
-                                    Browse plans
-                                </button>
+                                {!isAdmin && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPlansModal(true)}
+                                        className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-slate-100"
+                                    >
+                                        Browse plans
+                                    </button>
+                                )}
                             </div>
                         </aside>
                     </div>

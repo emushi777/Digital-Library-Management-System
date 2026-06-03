@@ -3,9 +3,10 @@ import { Head, useForm } from '@inertiajs/react';
 import WishlistForm from './WishlistForm';
 
 export default function Create({ auth, books, selectedBookId }) {
-    const { data, setData, post, processing, errors } = useForm({
+    const initialWishlistData = {
         book_id: selectedBookId || '',
-    });
+    };
+    const { data, setData, post, processing, errors } = useForm(initialWishlistData);
 
     const submit = (e) => {
         e.preventDefault();
@@ -26,6 +27,7 @@ export default function Create({ auth, books, selectedBookId }) {
                 errors={errors}
                 books={books}
                 onSubmit={submit}
+                initialData={initialWishlistData}
             />
         </AuthenticatedLayout>
     );

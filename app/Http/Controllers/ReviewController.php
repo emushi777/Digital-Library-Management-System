@@ -109,7 +109,9 @@ class ReviewController extends Controller
 
     private function authorizeReview(Review $review): void
     {
-        if ($review->user_id !== auth()->id()) {
+        $user = auth()->user();
+
+        if (!$user || ($review->user_id !== $user->id && $user->role !== 'admin')) {
             abort(403);
         }
     }

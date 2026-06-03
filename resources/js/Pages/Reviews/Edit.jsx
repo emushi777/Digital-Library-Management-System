@@ -3,12 +3,13 @@ import { Head, useForm } from '@inertiajs/react';
 import ReviewForm from './ReviewForm';
 
 export default function Edit({ auth, review, books, returnToBook = false }) {
-    const { data, setData, put, processing, errors } = useForm({
+    const initialReviewData = {
         book_id: review.book_id || '',
         vleresimi: review.vleresimi || '5',
         komenti: review.komenti || '',
         return_to_book: returnToBook ? 1 : 0,
-    });
+    };
+    const { data, setData, put, processing, errors } = useForm(initialReviewData);
 
     const submit = (e) => {
         e.preventDefault();
@@ -29,6 +30,7 @@ export default function Edit({ auth, review, books, returnToBook = false }) {
                 errors={errors}
                 books={books}
                 onSubmit={submit}
+                initialData={initialReviewData}
             />
         </AuthenticatedLayout>
     );
