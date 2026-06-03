@@ -10,6 +10,54 @@ use Inertia\Inertia;
 
 class CollectionController extends Controller
 {
+    private const ICONS = [
+        'bookmark',
+        'key',
+        'books',
+        'gift',
+        'document',
+        'card',
+        'utensils',
+        'pills',
+        'stethoscope',
+        'home',
+        'building',
+        'bank',
+        'monitor',
+        'headphones',
+        'leaf',
+        'person',
+        'paw',
+        'cart',
+        'briefcase',
+        'package',
+        'train',
+        'snowflake',
+        'flame',
+        'toolbox',
+        'scissors',
+        'code',
+        'bulb',
+        'chat',
+        'asterisk',
+        'square',
+        'circle',
+        'triangle',
+        'diamond',
+        'star',
+        'group',
+        'music',
+        'palette',
+        'sunrise',
+        'globe',
+        'pencil',
+        'bike',
+        'heart',
+        'library',
+        'sparkles',
+        'target',
+    ];
+
     public function index()
     {
         Collection::firstOrCreate(
@@ -19,6 +67,7 @@ class CollectionController extends Controller
             ],
             [
                 'pershkrimi' => 'Books you have marked as finished.',
+                'icon' => 'bookmark',
                 'a_eshte_publike' => false,
             ]
         );
@@ -43,11 +92,13 @@ class CollectionController extends Controller
         $request->validate([
             'emertimi' => 'required|string|max:255',
             'pershkrimi' => 'nullable|string',
+            'icon' => 'required|string|in:' . implode(',', self::ICONS),
         ]);
 
         Collection::create([
             'emertimi' => $request->emertimi,
             'pershkrimi' => $request->pershkrimi,
+            'icon' => $request->icon,
             'user_id' => auth()->id(),
         ]);
 
@@ -92,6 +143,7 @@ class CollectionController extends Controller
         $request->validate([
             'emertimi' => 'required|string|max:255',
             'pershkrimi' => 'nullable|string',
+            'icon' => 'required|string|in:' . implode(',', self::ICONS),
         ]);
 
         $collection = Collection::findOrFail($id);
@@ -105,6 +157,7 @@ class CollectionController extends Controller
         $collection->update([
             'emertimi' => $request->emertimi,
             'pershkrimi' => $request->pershkrimi,
+            'icon' => $request->icon,
         ]);
 
         return redirect()->route('collections.index')->with('success', 'Collection updated successfully!');

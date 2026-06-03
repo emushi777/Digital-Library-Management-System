@@ -172,6 +172,7 @@ class BookController extends Controller
             ],
             [
                 'pershkrimi' => 'Books you have marked as finished.',
+                'icon' => 'bookmark',
                 'a_eshte_publike' => false,
             ]
         );

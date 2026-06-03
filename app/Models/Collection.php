@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Collection extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'emertimi', 'pershkrimi', 'a_eshte_publike'];
+    protected $fillable = ['user_id', 'emertimi', 'pershkrimi', 'icon', 'a_eshte_publike'];
 
     public function books() {
     return $this->belongsToMany(Book::class, 'collection_books');

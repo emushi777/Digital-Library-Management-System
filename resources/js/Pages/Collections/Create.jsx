@@ -1,10 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import CollectionIcon, { COLLECTION_ICON_OPTIONS } from '@/Components/CollectionIcon';
 import { Head, useForm, Link } from '@inertiajs/react';
 
 export default function Create({ auth }) {
     const { data, setData, post, processing, errors } = useForm({
         emertimi: '',
         pershkrimi: '',
+        icon: 'library',
     });
 
     const handleSubmit = (e) => {
@@ -69,6 +71,37 @@ export default function Create({ auth }) {
                                 />
                                 {errors.pershkrimi && (
                                     <p className="text-red-500 text-xs mt-1 font-medium">{errors.pershkrimi}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    Collection Icon
+                                </label>
+                                <div className="grid grid-cols-6 sm:grid-cols-9 gap-4">
+                                    {COLLECTION_ICON_OPTIONS.map((option) => {
+                                        const isSelected = data.icon === option.value;
+
+                                        return (
+                                            <button
+                                                key={option.value}
+                                                type="button"
+                                                title={option.label}
+                                                aria-label={option.label}
+                                                onClick={() => setData('icon', option.value)}
+                                                className={`relative flex h-12 w-12 items-center justify-center rounded-full transition ${
+                                                    isSelected
+                                                        ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                                                        : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+                                                }`}
+                                            >
+                                                <CollectionIcon icon={option.value} className="h-6 w-6" />
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                {errors.icon && (
+                                    <p className="text-red-500 text-xs mt-1 font-medium">{errors.icon}</p>
                                 )}
                             </div>
 
