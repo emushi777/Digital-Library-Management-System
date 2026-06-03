@@ -2,6 +2,28 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 
+const FALLBACK_BOOK_IMAGE = 'https://via.placeholder.com/240x320?text=No+Cover';
+
+function getBookImageUrl(fileName) {
+    if (!fileName || fileName === 'n/a') {
+        return FALLBACK_BOOK_IMAGE;
+    }
+
+    if (fileName.startsWith('http') || fileName.startsWith('/')) {
+        return fileName;
+    }
+
+    return `/uploads/books/${fileName}`;
+}
+
+function getAuthorName(book) {
+    if (book.author) {
+        return `${book.author.emri} ${book.author.mbiemri}`;
+    }
+
+    return book.autori || 'Unknown Author';
+}
+
 export default function Show({ auth, collection, books, all_books = [] }) {
     const isFinishedCollection = collection.emertimi === 'Finished';
     const [bookSearch, setBookSearch] = useState('');
@@ -181,14 +203,22 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                             ✕
                                         </button>
 
-                                        <div className="w-full h-36 bg-blue-50 rounded-lg mb-3 flex items-center justify-center text-2xl">
-                                            📖
+                                        <div className="mb-3 aspect-[3/4] w-full overflow-hidden rounded-lg bg-blue-50">
+                                            <img
+                                                src={getBookImageUrl(book.foto_kopertines)}
+                                                alt={book.titulli || book.title}
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null;
+                                                    e.currentTarget.src = FALLBACK_BOOK_IMAGE;
+                                                }}
+                                                className="h-full w-full object-cover"
+                                            />
                                         </div>
                                         <h4 className="font-bold text-sm text-gray-800 truncate" title={book.titulli || book.title}>
                                             {book.titulli || book.title}
                                         </h4>
                                         <p className="text-xs text-gray-500 truncate mt-0.5">
-                                            {book.autori || 'Unknown Author'}
+                                            {getAuthorName(book)}
                                         </p>
                                     </div>
                                 ))}

@@ -58,11 +58,12 @@ class CollectionController extends Controller
     {
         $collection = Collection::findOrFail($id);
         $books = $collection->books()
+            ->with('author')
             ->when($collection->emertimi === 'Finished', function ($query) {
                 $query->orderByDesc('collection_books.data_shtimit');
             })
             ->get();
-        $all_books = Book::all();
+        $all_books = Book::with('author')->get();
 
         return Inertia::render('Collections/Show', [
             'collection' => $collection,
