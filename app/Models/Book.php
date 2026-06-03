@@ -54,4 +54,9 @@ class Book extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    public function readingHistories()
+    {
+        return $this->hasMany(ReadingHistory::class);
+    }
 }

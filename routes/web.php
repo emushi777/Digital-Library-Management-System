@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 3. Rrugë specifike (Custom Routes)
     Route::post('/books/{book}/finish', [BookController::class, 'finish'])->name('books.finish');
+    Route::post('/books/{book}/reading-progress', [BookController::class, 'saveReadingProgress'])->name('books.reading-progress');
     Route::post('/books/import', [BookImportController::class, 'import'])->name('books.import');
     
     Route::post('/collections/add-book', [CollectionController::class, 'addBook'])->name('collections.addBook');

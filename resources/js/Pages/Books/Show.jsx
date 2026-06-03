@@ -13,6 +13,11 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     const [isFinishing, setIsFinishing] = useState(false);
     const [hasFinished, setHasFinished] = useState(Boolean(readingInfo?.hasFinishedThisBookThisMonth));
     const [reviewToDelete, setReviewToDelete] = useState(null);
+    const initialSavedPage = Number(readingInfo?.readingHistory?.faqja_aktuale) || 1;
+    const [readingPage, setReadingPage] = useState(initialSavedPage);
+    const [savedPage, setSavedPage] = useState(initialSavedPage);
+    const [isSavingProgress, setIsSavingProgress] = useState(false);
+    const [isCurrentReading, setIsCurrentReading] = useState(Boolean(readingInfo?.isCurrentlyReading));
 
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
@@ -64,6 +69,55 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
         }
     };
 
+    const normalizePage = (value) => {
+        const parsedPage = parseInt(value, 10);
+        const totalPages = Number(book.numri_faqeve);
+
+        if (!Number.isFinite(parsedPage) || parsedPage < 1) {
+            return 1;
+        }
+
+        if (Number.isFinite(totalPages) && totalPages > 0) {
+            return Math.min(parsedPage, totalPages);
+        }
+
+        return parsedPage;
+    };
+
+    const pdfUrlForPage = (page) => {
+        if (!pdfUrl || pdfUrl === '#') {
+            return '#';
+        }
+
+        const [baseUrl] = pdfUrl.split('#');
+
+        return `${baseUrl}#page=${normalizePage(page)}`;
+    };
+
+    const saveReadingProgress = (status = 'reading') => {
+        const page = status === 'finished'
+            ? normalizePage(book.numri_faqeve || readingPage)
+            : normalizePage(readingPage);
+
+        setReadingPage(page);
+        setSavedPage(page);
+        setIsCurrentReading(status !== 'finished');
+        setIsSavingProgress(true);
+
+        router.post(
+            route('books.reading-progress', book.id),
+            {
+                faqja_aktuale: page,
+                statusi: status,
+            },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onFinish: () => setIsSavingProgress(false),
+            }
+        );
+    };
+
     const confirmDeleteReview = () => {
         if (!reviewToDelete) {
             return;
@@ -81,7 +135,10 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
             return;
         }
 
-        window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+        const page = normalizePage(readingPage || savedPage);
+        setSavedPage(page);
+        window.open(pdfUrlForPage(page), '_blank', 'noopener,noreferrer');
+        saveReadingProgress('reading');
     };
 
     const finishBook = () => {
@@ -99,6 +156,9 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                 preserveScroll: true,
                 onSuccess: (page) => {
                     setHasFinished(true);
+                    setReadingPage(book.numri_faqeve || savedPage);
+                    setSavedPage(book.numri_faqeve || savedPage);
+                    setIsCurrentReading(false);
 
                     if (isFinishingNewBook && page.props.readingInfo?.hasReachedMonthlyLimit) {
                         setShowLimitPopup(true);
@@ -164,6 +224,41 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                             >
                                 {hasFinished ? 'Finished' : (isFinishing ? 'Saving...' : 'Finish Book')}
                             </button>
+
+                            {isCurrentReading && !hasFinished && (
+                                <form
+                                    onSubmit={(event) => {
+                                        event.preventDefault();
+                                        saveReadingProgress('reading');
+                                    }}
+                                    className="rounded-sm border border-gray-200 bg-white p-3 text-sm shadow-sm"
+                                >
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="font-semibold text-gray-700">Saved page</span>
+                                        <span className="text-xs font-bold uppercase tracking-wider text-[#377458]">
+                                            {savedPage}
+                                        </span>
+                                    </div>
+                                    <div className="mt-3 flex gap-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max={book.numri_faqeve || undefined}
+                                            value={readingPage}
+                                            aria-label="Current page"
+                                            onChange={(event) => setReadingPage(event.target.value)}
+                                            className="min-w-0 flex-1 rounded-sm border border-gray-300 px-3 py-2 text-sm focus:border-[#377458] focus:ring-[#377458]"
+                                        />
+                                        <button
+                                            type="submit"
+                                            disabled={isSavingProgress}
+                                            className="rounded-sm bg-[#377458] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2d5d44] disabled:cursor-not-allowed disabled:bg-gray-300"
+                                        >
+                                            {isSavingProgress ? 'Saving' : 'Save'}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
 
                         {showLimitPopup && (
                             <div className="fixed inset-0 z-[999] flex items-center justify-center pointer-events-auto">
