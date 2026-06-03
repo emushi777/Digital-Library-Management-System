@@ -219,7 +219,11 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
 
                             <div className="flex flex-wrap justify-center gap-14">
                                 {authors?.map((author) => (
-                                    <Link key={author.id} href={route('authors.index')} className="text-center group">
+                                    <Link 
+                                        key={author.id} 
+                                        href={route('authors.show', author.id)} 
+                                        className="text-center group"
+                                    >
                                         <div className="w-28 h-28 rounded-full overflow-hidden mb-4 border-4 border-white shadow-lg group-hover:scale-110 group-hover:border-black transition duration-300">
                                             <img
                                                 src={getImageUrl(author.foto_profili || author.foto, 'autoret')}
@@ -277,10 +281,14 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                             <h2 className="text-2xl font-bold text-gray-900 mb-8">Explore Genres</h2>
                             <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                                 {categories?.slice(0, 6).map((cat) => (
-                                    <Link key={cat.id} href={route('books.index', { category: cat.id })} className="bg-black text-white rounded-2xl p-6 h-32 flex flex-col justify-end hover:bg-gray-800 transition">
+                                    <div 
+                                        key={cat.id} 
+                                        onClick={() => router.visit(route('categories.show', cat.id))}  
+                                        className="bg-black text-white rounded-2xl p-6 h-32 flex flex-col justify-end hover:bg-gray-800 transition cursor-pointer"
+                                    >
                                         <h3 className="font-bold">{cat.emertimi}</h3>
                                         <p className="text-[10px] text-gray-400">View Collection</p>
-                                    </Link>
+                                    </div>
                                 ))}
                             </div>
                         </div>
