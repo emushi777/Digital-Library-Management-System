@@ -202,10 +202,25 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                                 {books.map((book) => (
-                                    <div key={book.id} className="p-4 bg-gray-50 border border-gray-200 rounded-xl relative group hover:border-red-200 transition">
+                                    <div
+                                        key={book.id}
+                                        role="button"
+                                        tabIndex="0"
+                                        onClick={() => router.visit(route('books.show', book.id))}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                router.visit(route('books.show', book.id));
+                                            }
+                                        }}
+                                        className="p-4 bg-gray-50 border border-gray-200 rounded-xl relative group hover:border-blue-200 hover:shadow-sm transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    >
                                         
                                         <button
-                                            onClick={() => handleRemoveBook(book.id)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveBook(book.id);
+                                            }}
                                             className={`${isFinishedCollection ? 'hidden' : ''} absolute top-2 right-2 bg-white text-red-500 hover:bg-red-50 p-1 rounded-full shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition duration-150 text-xs font-bold`}
                                             title="Remove from collection"
                                         >
