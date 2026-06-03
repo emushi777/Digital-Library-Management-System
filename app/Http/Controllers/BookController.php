@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Collection;
 use App\Models\FinishedBook;
 use App\Models\Plan;
+use App\Models\ReadingHistory;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -104,6 +105,15 @@ class BookController extends Controller
         $hasFinishedThisBookThisMonth = $this->finishedThisMonthQuery($user->id)
             ->where('book_id', $book->id)
             ->exists();
+        $readingHistory = ReadingHistory::where('user_id', $user->id)
+            ->where('book_id', $book->id)
+            ->first();
+        $currentReadingBookId = ReadingHistory::where('user_id', $user->id)
+            ->where('statusi', '!=', 'finished')
+            ->where('perqindja_leximit', '<', 100)
+            ->orderByDesc('data_fundit')
+            ->latest()
+            ->value('book_id');
         $hasReachedMonthlyLimit = !$isAdmin
             && $monthlyLimit !== null
             && $finishedThisMonthCount >= $monthlyLimit;
@@ -132,13 +142,61 @@ class BookController extends Controller
                     || $finishedThisMonthCount < $monthlyLimit,
                 'isPremiumLimitApplicable' => $plan && !$this->isBasicPlan($plan) && $monthlyLimit !== null,
                 'premiumPlanId' => $premiumPlan?->id,
+                'isCurrentlyReading' => (int) $currentReadingBookId === (int) $book->id,
+                'readingHistory' => $readingHistory ? [
+                    'faqja_aktuale' => $readingHistory->faqja_aktuale,
+                    'perqindja_leximit' => $readingHistory->perqindja_leximit,
+                    'statusi' => $readingHistory->statusi,
+                    'data_fillimit' => $readingHistory->data_fillimit,
+                    'data_fundit' => $readingHistory->data_fundit,
+                ] : null,
             ],
         ]);
+    }
+
+    public function saveReadingProgress(Request $request, Book $book)
+    {
+        $validated = $request->validate([
+            'faqja_aktuale' => 'required|integer|min:1',
+            'perqindja_leximit' => 'nullable|numeric|min:0|max:100',
+            'statusi' => 'nullable|string|in:not_started,reading,finished',
+        ]);
+
+        $page = (int) $validated['faqja_aktuale'];
+        $totalPages = (int) ($book->numri_faqeve ?: 0);
+
+        if ($totalPages > 0) {
+            $page = min($page, $totalPages);
+        }
+
+        $percentage = $validated['perqindja_leximit']
+            ?? ($totalPages > 0 ? round(min(100, ($page / $totalPages) * 100), 2) : 0);
+        $status = $validated['statusi'] ?? ((float) $percentage >= 100 ? 'finished' : 'reading');
+
+        $history = ReadingHistory::firstOrNew([
+            'user_id' => auth()->id(),
+            'book_id' => $book->id,
+        ]);
+
+        if (!$history->exists || !$history->data_fillimit) {
+            $history->data_fillimit = now();
+        }
+
+        $history->fill([
+            'data_fundit' => now(),
+            'faqja_aktuale' => $page,
+            'perqindja_leximit' => $percentage,
+            'statusi' => $status,
+        ]);
+        $history->save();
+
+        return redirect()->back()->with('success', 'Reading progress saved successfully!');
     }
 
     public function finish(Request $request, $bookId)
     {
         $user = Auth::user();
+        $book = Book::findOrFail($bookId);
 
         $subscription = Subscription::with('plan')
             ->where('user_id', $user->id)
@@ -164,6 +222,8 @@ class BookController extends Controller
             ['user_id' => $user->id, 'book_id' => $bookId],
             ['finished_at' => now()]
         );
+
+        $this->markReadingHistoryFinished($user->id, $book);
 
         $finishedCollection = Collection::firstOrCreate(
             [
@@ -195,6 +255,26 @@ class BookController extends Controller
         return FinishedBook::where('user_id', $userId)
             ->whereMonth('finished_at', now()->month)
             ->whereYear('finished_at', now()->year);
+    }
+
+    private function markReadingHistoryFinished(int $userId, Book $book): void
+    {
+        $history = ReadingHistory::firstOrNew([
+            'user_id' => $userId,
+            'book_id' => $book->id,
+        ]);
+
+        if (!$history->exists || !$history->data_fillimit) {
+            $history->data_fillimit = now();
+        }
+
+        $history->fill([
+            'data_fundit' => now(),
+            'faqja_aktuale' => max(1, (int) ($book->numri_faqeve ?: 1)),
+            'perqindja_leximit' => 100,
+            'statusi' => 'finished',
+        ]);
+        $history->save();
     }
     
     public function edit(string $id)

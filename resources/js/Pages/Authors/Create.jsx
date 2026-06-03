@@ -2,7 +2,6 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 
 export default function Create({ auth }) {
-    // NDRYSHIMI: 'shteti' u bë 'vendi' që të përputhet me Database dhe Controller
     const { data, setData, post, errors, processing } = useForm({
         emri: '',
         mbiemri: '',
@@ -66,8 +65,8 @@ export default function Create({ auth }) {
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Country</label>
                                     <input 
                                         type="text" 
-                                        value={data.vendi} // NDRYSHIMI: data.vendi
-                                        onChange={e => setData('vendi', e.target.value)} // NDRYSHIMI: 'vendi'
+                                        value={data.vendi} 
+                                        onChange={e => setData('vendi', e.target.value)}  
                                         className="w-full rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"
                                         placeholder="Origin country..."
                                     />

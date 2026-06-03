@@ -10,14 +10,13 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        // Këtu i marrim kategoritë bashkë me librat e tyre
         $categories = Category::with('books')->get();
         
         $isAdmin = auth()->user() && auth()->user()->role === 'admin';
 
         return Inertia::render('Categories/Index', [
         'categories' => Category::with('books')->get(),
-        'allBooks' => \App\Models\Book::all(), // Shto këtë për butonin "All"
+        'allBooks' => \App\Models\Book::all(), 
         'isAdmin' => auth()->user() && auth()->user()->role === 'admin'
     ]);
     
@@ -86,7 +85,17 @@ class CategoryController extends Controller
 
         $category = Category::findOrFail($id);
         $category->delete();
+        $this->authorize('delete', $category); 
 
         return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
+    }
+    public function show($id)
+    {
+        $category = Category::findOrFail($id);
+        $books = $category->books; 
+        return inertia('Categories/Show', [
+            'category' => $category,
+            'books' => $books
+        ]);
     }
 }

@@ -6,7 +6,7 @@ import UpdateProfileInformationForm from './Partials/UpdateProfileInformationFor
 import { Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
+export default function Edit({ auth, mustVerifyEmail, status, plans = [], currentlyReading = null }) {
     const [showEditProfile, setShowEditProfile] = useState(false);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [showPlansModal, setShowPlansModal] = useState(false);
@@ -17,6 +17,13 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
     const formatDate = (value) => value ? new Date(value).toLocaleDateString('en-GB') : '—';
     const createdAt = auth.user?.created_at ? formatDate(auth.user.created_at) : 'Unknown';
     const expiresAt = subscription?.ends_at ? formatDate(subscription.ends_at) : '—';
+    const readingBook = currentlyReading?.book;
+    const readingPage = Number(currentlyReading?.faqja_aktuale) || 1;
+    const totalPages = Number(readingBook?.numri_faqeve) || null;
+    const readingPercent = Math.min(100, Math.max(0, Number(currentlyReading?.perqindja_leximit) || 0));
+    const readingStartedAt = formatDate(currentlyReading?.data_fillimit);
+    const readingUpdatedAt = formatDate(currentlyReading?.data_fundit);
+    const coverUrl = (fileName) => fileName ? `/uploads/books/${fileName}` : 'https://via.placeholder.com/300x450?text=No+Cover';
 
     // Consider a subscription expired if ends_at is before now
     const isExpired = subscription?.ends_at ? new Date(subscription.ends_at) < new Date() : false;
@@ -102,8 +109,8 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                         </div>
                     </div>
 
-                    <div className="grid gap-6 xl:grid-cols-[0.85fr_0.45fr]">
-                        <div className="space-y-6">
+                    <div className="grid gap-6 xl:grid-cols-[0.45fr_0.85fr]">
+                        <div className="space-y-6 xl:col-start-2 xl:row-start-1">
                             <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
                                 <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                                     <div>
@@ -196,8 +203,79 @@ export default function Edit({ auth, mustVerifyEmail, status, plans = [] }) {
                             )}
                         </div>
 
-                        <aside className="space-y-6">
-                            <div className="rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 to-slate-900 p-8 text-white shadow-lg">
+                        <aside className="contents">
+                            <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-lg xl:col-start-1 xl:row-start-1">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div>
+                                        <p className="text-xs uppercase tracking-[0.35em] text-slate-500">Currently reading</p>
+                                        <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950">
+                                            {readingBook ? 'Continue your book' : 'No active book'}
+                                        </h2>
+                                    </div>
+                                    {readingBook && (
+                                        <div className="rounded-2xl bg-sky-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.2em] text-sky-600">
+                                            {Math.round(readingPercent)}%
+                                        </div>
+                                    )}
+                                </div>
+
+                                {readingBook ? (
+                                    <div className="mt-6">
+                                        <div className="flex gap-5">
+                                            <Link href={route('books.show', readingBook.id)} className="block h-36 w-24 flex-shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm">
+                                                <img
+                                                    src={coverUrl(readingBook.foto_kopertines)}
+                                                    alt={readingBook.titulli}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            </Link>
+                                            <div className="min-w-0 flex-1">
+                                                <Link href={route('books.show', readingBook.id)} className="text-lg font-bold leading-tight text-slate-950 hover:text-sky-600">
+                                                    {readingBook.titulli}
+                                                </Link>
+                                                <p className="mt-2 text-sm text-slate-500">
+                                                    {readingBook.author ? `${readingBook.author.emri} ${readingBook.author.mbiemri}` : 'Unknown author'}
+                                                </p>
+                                                <p className="mt-4 text-sm font-semibold text-slate-700">
+                                                    Page {readingPage}{totalPages ? ` of ${totalPages}` : ''}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-6">
+                                            <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                                                <div
+                                                    className="h-full rounded-full bg-sky-500 transition-all"
+                                                    style={{ width: `${readingPercent}%` }}
+                                                />
+                                            </div>
+                                            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                                                <div className="rounded-2xl bg-slate-50 p-4">
+                                                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Started</p>
+                                                    <p className="mt-2 font-bold text-slate-900">{readingStartedAt}</p>
+                                                </div>
+                                                <div className="rounded-2xl bg-slate-50 p-4">
+                                                    <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Last read</p>
+                                                    <p className="mt-2 font-bold text-slate-900">{readingUpdatedAt}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <Link
+                                            href={route('books.show', readingBook.id)}
+                                            className="mt-6 inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
+                                        >
+                                            Continue reading
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <div className="mt-6 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-6 text-sm leading-6 text-slate-500">
+                                        Start reading a book and save your page to see your current progress here.
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 to-slate-900 p-8 text-white shadow-lg xl:col-start-2">
                                 <div className="flex items-center justify-between gap-4">
                                     <div>
                                         <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Premium benefits</p>

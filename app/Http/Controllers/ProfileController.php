@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Plan;
+use App\Models\ReadingHistory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,10 +20,19 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $currentlyReading = ReadingHistory::with(['book.author', 'book.category'])
+            ->where('user_id', $request->user()->id)
+            ->where('statusi', '!=', 'finished')
+            ->where('perqindja_leximit', '<', 100)
+            ->orderByDesc('data_fundit')
+            ->latest()
+            ->first();
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
             'plans' => Plan::all(),
+            'currentlyReading' => $currentlyReading,
         ]);
     }
 

@@ -13,6 +13,7 @@ use App\Models\Faq;
 use App\Models\Feedback;
 use App\Models\FinishedBook;
 use App\Models\Plan;
+use App\Models\ReadingHistory;
 use App\Models\Review;
 use App\Models\Subscription;
 use App\Models\Wishlist;
@@ -33,6 +34,7 @@ class ResourceController extends Controller
         'book-requests',
         'feedback',
         'finished-books',
+        'reading-history',
         'plans',
         'subscriptions',
     ];
@@ -99,6 +101,11 @@ class ResourceController extends Controller
         ],
         'finished-books' => [
             'model' => FinishedBook::class,
+            'owned' => true,
+            'relations' => ['book.author'],
+        ],
+        'reading-history' => [
+            'model' => ReadingHistory::class,
             'owned' => true,
             'relations' => ['book.author'],
         ],
@@ -310,6 +317,14 @@ class ResourceController extends Controller
                 'book_id' => $sometimes . 'required|exists:books,id',
                 'finished_at' => 'nullable|date',
             ],
+            'reading-history' => [
+                'book_id' => $sometimes . 'required|exists:books,id',
+                'data_fillimit' => 'nullable|date',
+                'data_fundit' => 'nullable|date',
+                'faqja_aktuale' => $sometimes . 'required|integer|min:1',
+                'perqindja_leximit' => 'nullable|numeric|min:0|max:100',
+                'statusi' => 'nullable|string|in:not_started,reading,finished',
+            ],
             'plans' => [
                 'emertimi' => $sometimes . 'required|string|max:255',
                 'pershkrimi' => 'nullable|string',
@@ -335,6 +350,13 @@ class ResourceController extends Controller
 
         if ($resource === 'finished-books') {
             $data['finished_at'] = $data['finished_at'] ?? now();
+        }
+
+        if ($resource === 'reading-history') {
+            $data['data_fillimit'] = $data['data_fillimit'] ?? now();
+            $data['data_fundit'] = $data['data_fundit'] ?? now();
+            $data['perqindja_leximit'] = $data['perqindja_leximit'] ?? 0;
+            $data['statusi'] = $data['statusi'] ?? 'reading';
         }
 
         return $data;

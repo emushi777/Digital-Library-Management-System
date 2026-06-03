@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Collection;
 use App\Models\Book;
 use App\Models\FinishedBook;
+use App\Models\ReadingHistory;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -197,6 +198,24 @@ class CollectionController extends Controller
                 ['user_id' => auth()->id(), 'book_id' => $request->book_id],
                 ['finished_at' => now()]
             );
+
+            $book = Book::findOrFail($request->book_id);
+            $history = ReadingHistory::firstOrNew([
+                'user_id' => auth()->id(),
+                'book_id' => $book->id,
+            ]);
+
+            if (!$history->exists || !$history->data_fillimit) {
+                $history->data_fillimit = now();
+            }
+
+            $history->fill([
+                'data_fundit' => now(),
+                'faqja_aktuale' => max(1, (int) ($book->numri_faqeve ?: 1)),
+                'perqindja_leximit' => 100,
+                'statusi' => 'finished',
+            ]);
+            $history->save();
         }
 
         return redirect()->back()->with('success', 'Book added to collection successfully!');
