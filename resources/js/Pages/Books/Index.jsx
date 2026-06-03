@@ -66,7 +66,6 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
                     
-                    {/* Slider Section */}
                     <div className="mb-12">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold text-gray-800">New Releases</h3>
@@ -174,15 +173,17 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         </button>
                                     ))}
                                 </div>
-                                <div className="mt-8 pt-6 border-t border-gray-100">
-                                    <h4 className="text-sm font-bold text-gray-800 mb-3">Can't find a book?</h4>
-                                    <Link 
-                                        href={route('book-requests.create')} 
-                                        className="block w-full py-3 bg-blue-600 text-white text-center rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all"
-                                    >
-                                        Request a Book
-                                    </Link>
-                                </div>
+                                {!isAdmin && (
+                                    <div className="mt-8 pt-6 border-t border-gray-100">
+                                        <h4 className="text-sm font-bold text-gray-800 mb-3">Can't find a book?</h4>
+                                        <Link 
+                                            href={route('book-requests.create')} 
+                                            className="block w-full py-3 bg-blue-600 text-white text-center rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-blue-700 transition-all"
+                                        >
+                                            Request a Book
+                                        </Link>
+                                    </div>
+                                )}
                                 {isAdmin && (
                                     <div className="mt-10 pt-6 border-t border-gray-50">
                                         <form onSubmit={handleImport} className="mb-4">
