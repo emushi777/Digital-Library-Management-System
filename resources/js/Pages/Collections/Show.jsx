@@ -1,18 +1,46 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
+import { useMemo, useState } from 'react';
 
 export default function Show({ auth, collection, books, all_books = [] }) {
     const isFinishedCollection = collection.emertimi === 'Finished';
+    const [bookSearch, setBookSearch] = useState('');
+    const [showBookResults, setShowBookResults] = useState(false);
     const { data, setData, post, processing, reset } = useForm({
         collection_id: collection.id,
         book_id: '',
     });
 
+    const selectedBook = useMemo(
+        () => all_books.find((book) => String(book.id) === String(data.book_id)),
+        [all_books, data.book_id],
+    );
+
+    const filteredBooks = useMemo(() => {
+        const query = bookSearch.trim().toLowerCase();
+        const currentBookIds = new Set(books.map((book) => String(book.id)));
+
+        return all_books
+            .filter((book) => !currentBookIds.has(String(book.id)))
+            .filter((book) => {
+                if (!query) {
+                    return true;
+                }
+
+                return (book.titulli || book.title || '').toLowerCase().includes(query);
+            })
+            .slice(0, 8);
+    }, [all_books, bookSearch, books]);
+
     const handleAddBook = (e) => {
         e.preventDefault();
         if (!data.book_id) return;
         post(route('collections.addBook'), {
-            onSuccess: () => reset('book_id'),
+            onSuccess: () => {
+                reset('book_id');
+                setBookSearch('');
+                setShowBookResults(false);
+            },
         });
     };
 
@@ -69,22 +97,62 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                             <p className="text-gray-500 text-xs mt-0.5">Select a book from the library catalog to add it here.</p>
                         </div>
                         <form onSubmit={handleAddBook} className="flex items-center space-x-3 w-full md:w-auto">
-                            <select
-                                value={data.book_id}
-                                onChange={(e) => setData('book_id', e.target.value)}
-                                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm w-full md:w-64"
-                                required
-                            >
-                                <option value="">-- Select Book --</option>
-                                {all_books.map((book) => (
-                                    <option key={book.id} value={book.id}>
-                                        {book.titulli || book.title}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="relative w-full md:w-80">
+                                <input
+                                    type="text"
+                                    value={selectedBook ? (selectedBook.titulli || selectedBook.title) : bookSearch}
+                                    onChange={(e) => {
+                                        setData('book_id', '');
+                                        setBookSearch(e.target.value);
+                                        setShowBookResults(true);
+                                    }}
+                                    onFocus={() => setShowBookResults(true)}
+                                    onBlur={() => setTimeout(() => setShowBookResults(false), 120)}
+                                    placeholder="Search books..."
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                                    required
+                                />
+
+                                {selectedBook && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setData('book_id', '');
+                                            setBookSearch('');
+                                            setShowBookResults(true);
+                                        }}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-gray-400 hover:text-gray-700"
+                                    >
+                                        Clear
+                                    </button>
+                                )}
+
+                                {showBookResults && !selectedBook && (
+                                    <div className="absolute left-0 right-0 top-full z-20 mt-2 max-h-64 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                                        {filteredBooks.length > 0 ? (
+                                            filteredBooks.map((book) => (
+                                                <button
+                                                    key={book.id}
+                                                    type="button"
+                                                    onMouseDown={() => {
+                                                        setData('book_id', String(book.id));
+                                                        setBookSearch(book.titulli || book.title);
+                                                        setShowBookResults(false);
+                                                    }}
+                                                    className="block w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-blue-50"
+                                                >
+                                                    {book.titulli || book.title}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            <p className="px-4 py-3 text-sm text-gray-400">No books found.</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                             <button
                                 type="submit"
-                                disabled={processing}
+                                disabled={processing || !data.book_id}
                                 className="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 rounded-lg transition shadow-sm whitespace-nowrap"
                             >
                                 {processing ? 'Adding...' : 'Add Book'}
