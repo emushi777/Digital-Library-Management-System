@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, books, categories, authors, isAdmin, selectedCategory, selectedAuthor }) {
     const [file, setFile] = useState(null);
     const scrollContainer = useRef(null);
+    const { confirm, modal } = useConfirmModal();
 
     const scroll = (direction) => {
         if (scrollContainer.current) {
@@ -48,14 +50,18 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
     };
 
     const handleDelete = (id) => {
-        if (confirm('Are you sure you want to delete this book?')) {
-            router.delete(route('books.destroy', id));
-        }
+        confirm({
+            title: 'Delete this book?',
+            message: 'This book will be permanently removed from the library.',
+            confirmLabel: 'Delete book',
+            onConfirm: () => router.delete(route('books.destroy', id)),
+        });
     };
 
     return (
         <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Library</h2>}>
             <Head title="Books" />
+            {modal}
 
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
@@ -233,9 +239,13 @@ export default function Index({ auth, books, categories, authors, isAdmin, selec
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

@@ -1,13 +1,19 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CollectionIcon from '@/Components/CollectionIcon';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, koleksionet }) {
+    const { confirm, modal } = useConfirmModal();
+
     const handleDeleteCollection = (id, e) => {
         e.preventDefault();
-        if (confirm('Are you sure you want to delete this collection?')) {
-            router.delete(route('collections.destroy', id));
-        }
+        confirm({
+            title: 'Delete this collection?',
+            message: 'This collection will be permanently removed.',
+            confirmLabel: 'Delete collection',
+            onConfirm: () => router.delete(route('collections.destroy', id)),
+        });
     };
 
     return (
@@ -16,6 +22,7 @@ export default function Index({ auth, koleksionet }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">My Collections</h2>}
         >
             <Head title="Collections" />
+            {modal}
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -131,9 +138,13 @@ export default function Index({ auth, koleksionet }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

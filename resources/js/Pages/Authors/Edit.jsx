@@ -1,15 +1,18 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Edit({ auth, author }) {
-    const { data, setData, post, errors, processing } = useForm({
+    const initialAuthorData = {
         emri: author.emri || '',
         mbiemri: author.mbiemri || '',
         vendi: author.vendi || '', 
         biografia: author.biografia || '',
         photo: null,
         _method: 'PUT', 
-    });
+    };
+    const { data, setData, post, errors, processing } = useForm(initialAuthorData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialAuthorData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -25,6 +28,7 @@ export default function Edit({ auth, author }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight text-center">Edit Author Profile</h2>}
         >
             <Head title={`Edit ${data.emri}`} />
+            {unsavedChangesModal}
 
             <div className="py-12 bg-gray-50 min-h-screen">
                 <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
@@ -98,12 +102,13 @@ export default function Edit({ auth, author }) {
                             </div>
 
                             <div className="flex justify-end items-center gap-4 pt-4">
-                                <Link 
-                                    href={route('authors.index')} 
+                                <button
+                                    type="button"
+                                    onClick={() => confirmDiscard(() => router.visit(route('authors.index')))}
                                     className="text-sm font-bold text-gray-400 hover:text-gray-600 transition"
                                 >
                                     Cancel
-                                </Link>
+                                </button>
                                 <button 
                                     type="submit" 
                                     disabled={processing}

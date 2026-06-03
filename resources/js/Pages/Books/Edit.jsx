@@ -1,8 +1,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, router, Link } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
 
 export default function Edit({ auth, book, authors, categories }) {
-    const { data, setData, errors, processing } = useForm({
+    const initialBookData = {
         titulli: book.titulli || '',
         pershkrimi: book.pershkrimi || '', 
         isbn: book.isbn || '',
@@ -15,7 +16,9 @@ export default function Edit({ auth, book, authors, categories }) {
         madhesia_mb: book.madhesia_mb || '',
         foto_kopertines: null,
         _method: 'PUT',
-    });
+    };
+    const { data, setData, errors, processing } = useForm(initialBookData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialBookData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -28,6 +31,7 @@ export default function Edit({ auth, book, authors, categories }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Edit Book: {book.titulli}</h2>}
         >
             <Head title={`Edit ${book.titulli}`} />
+            {unsavedChangesModal}
             
             <div className="py-12 bg-gray-50 min-h-screen">
                 <div className="max-w-4xl mx-auto sm:px-6 lg:px-8">
@@ -119,20 +123,22 @@ export default function Edit({ auth, book, authors, categories }) {
                             {/* Butonat */}
                             <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
                                 {/* Butoni 1: Kthimi te lista e librave */}
-                                <Link 
-                                    href={route('books.index')} 
+                                <button 
+                                    type="button"
+                                    onClick={() => confirmDiscard(() => router.visit(route('books.index')))}
                                     className="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition"
                                 >
                                     Back to List
-                                </Link>
+                                </button>
 
                                 {/* Butoni 2: Kthimi te faqja e librit (Cancel) */}
-                                <Link 
-                                    href={route('books.show', book.id)} 
+                                <button
+                                    type="button"
+                                    onClick={() => confirmDiscard(() => router.visit(route('books.show', book.id)))}
                                     className="px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-800 transition border-l border-gray-200"
                                 >
                                     Cancel
-                                </Link>
+                                </button>
 
                                 {/* Butoni Update */}
                                 <button 

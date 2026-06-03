@@ -1,11 +1,15 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
+import useUnsavedChangesModal from '@/Hooks/useUnsavedChangesModal';
+
+const initialCategoryData = {
+    emri: '',
+    pershkrimi: '',
+};
 
 export default function Create({ auth }) {
-    const { data, setData, post, processing, errors } = useForm({
-        emri: '',
-        pershkrimi: '',
-    });
+    const { data, setData, post, processing, errors } = useForm(initialCategoryData);
+    const { confirmDiscard, modal: unsavedChangesModal } = useUnsavedChangesModal(initialCategoryData, data);
 
     const submit = (e) => {
         e.preventDefault();
@@ -18,6 +22,7 @@ export default function Create({ auth }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Create Category</h2>}
         >
             <Head title="Add New Category" />
+            {unsavedChangesModal}
 
             <div className="py-12">
                 <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
@@ -50,12 +55,13 @@ export default function Create({ auth }) {
 
                         {/* Butonat */}
                         <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
-                            <Link 
-                                href={route('categories.index')} 
+                            <button
+                                type="button"
+                                onClick={() => confirmDiscard(() => router.visit(route('categories.index')))}
                                 className="text-gray-600 hover:text-gray-900 font-medium text-sm transition"
                             >
                                 Cancel
-                            </Link>
+                            </button>
                             
                             <button 
                                 type="submit" 

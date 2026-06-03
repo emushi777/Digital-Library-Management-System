@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Show({ auth, book, similarBooks = [], readingInfo = {} }) {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -18,6 +19,7 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     const [savedPage, setSavedPage] = useState(initialSavedPage);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isCurrentReading, setIsCurrentReading] = useState(Boolean(readingInfo?.isCurrentlyReading));
+    const { confirm: confirmAction, modal: actionModal } = useConfirmModal();
 
     const averageRating = totalReviews
         ? reviews.reduce((sum, review) => sum + Number(review.vleresimi || 0), 0) / totalReviews
@@ -64,9 +66,12 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     };
 
     const deleteBook = () => {
-        if (confirm('Are you sure you want to delete this book?')) {
-            router.delete(route('books.destroy', book.id));
-        }
+        confirmAction({
+            title: 'Delete this book?',
+            message: 'This book will be permanently removed from the library.',
+            confirmLabel: 'Delete book',
+            onConfirm: () => router.delete(route('books.destroy', book.id)),
+        });
     };
 
     const normalizePage = (value) => {
@@ -191,6 +196,7 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title={book.titulli} />
+            {actionModal}
             <ConfirmModal
                 open={Boolean(reviewToDelete)}
                 title="Delete this review?"
@@ -563,9 +569,13 @@ export default function Show({ auth, book, similarBooks = [], readingInfo = {} }
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirmAction({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Dashboard({ auth, plans, categories, latestBooks, authors, hasActivePlan, filters, recommendations }) {
     const [isSubscribing, setIsSubscribing] = useState(false);
+    const { confirm, modal } = useConfirmModal();
 
     const renderStars = (rating) => {
         const roundedRating = Math.round(Number(rating) || 0);
@@ -54,6 +56,7 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
         >
             
             <Head title="Home" />
+            {modal}
             <div className="bg-[#F8F9FB] min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     {!isSearching && (
@@ -337,9 +340,13 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
                                         as="button"
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault();
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout
@@ -356,4 +363,3 @@ export default function Dashboard({ auth, plans, categories, latestBooks, author
         </AuthenticatedLayout>
     );
 } 
-

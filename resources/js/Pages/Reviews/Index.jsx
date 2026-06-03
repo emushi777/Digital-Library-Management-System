@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ConfirmModal from '@/Components/ConfirmModal';
 import { Head, Link, router } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 const ratingOrder = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1];
 
@@ -50,6 +51,7 @@ function getBookImageUrl(fileName) {
 
 export default function Index({ auth, reviews }) {
     const [reviewToDelete, setReviewToDelete] = useState(null);
+    const { confirm: confirmAction, modal: actionModal } = useConfirmModal();
     const [selectedBookId, setSelectedBookId] = useState('');
     const [bookSearch, setBookSearch] = useState('');
     const [isBookSearchOpen, setIsBookSearchOpen] = useState(false);
@@ -127,6 +129,7 @@ export default function Index({ auth, reviews }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Reviews" />
+            {actionModal}
             <ConfirmModal
                 open={Boolean(reviewToDelete)}
                 title="Delete this review?"
@@ -412,9 +415,13 @@ export default function Index({ auth, reviews }) {
                                         as="button"
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault();
-                                            }
+                                            e.preventDefault();
+                                            confirmAction({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

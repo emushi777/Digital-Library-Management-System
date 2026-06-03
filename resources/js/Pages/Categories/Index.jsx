@@ -1,8 +1,10 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState, useMemo } from 'react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, categories, allBooks, isAdmin }) {
+    const { confirm, modal } = useConfirmModal();
     const [selectedCategory, setSelectedCategory] = useState({ 
         id: 'all', 
         emertimi: 'All Categories', 
@@ -18,15 +20,21 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
     };
 
     const handleDelete = (id) => {
-        if (confirm('Are you sure ypu want to delete this category?')) {
-            router.delete(route('categories.destroy', id));
-        }
+        confirm({
+            title: 'Delete this category?',
+            message: 'This category will be permanently removed.',
+            confirmLabel: 'Delete category',
+            onConfirm: () => router.delete(route('categories.destroy', id)),
+        });
     };
 
     const handleBookDelete = (id) => {
-        if (confirm('Are you sure you want to delete this book?')) {
-            router.delete(route('books.destroy', id));
-        }
+        confirm({
+            title: 'Delete this book?',
+            message: 'This book will be permanently removed from the library.',
+            confirmLabel: 'Delete book',
+            onConfirm: () => router.delete(route('books.destroy', id)),
+        });
     };
 
     const paginatedBooks = useMemo(() => {
@@ -39,6 +47,7 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Categories" />
+            {modal}
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
                 <div className="flex justify-between items-center mb-10">
                     <h1 className="text-3xl font-bold text-gray-900">Explore by Category</h1>
@@ -223,9 +232,13 @@ export default function Index({ auth, categories, allBooks, isAdmin }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout

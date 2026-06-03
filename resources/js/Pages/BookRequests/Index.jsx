@@ -1,14 +1,18 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function Index({ auth, requests }) {
+    const { confirm, modal } = useConfirmModal();
+
     return (
         <AuthenticatedLayout
             user={auth.user}
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Book Requests</h2>}
         >
             <Head title="Book Requests" />
+            {modal}
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -56,9 +60,12 @@ export default function Index({ auth, requests }) {
 
                                                         <button 
                                                             onClick={() => {
-                                                                if (confirm('Are you sure you want to delete this book?')) {
-                                                                    router.delete(route('book-requests.destroy', request.id));
-                                                                }
+                                                                confirm({
+                                                                    title: 'Delete this request?',
+                                                                    message: 'This book request will be permanently removed.',
+                                                                    confirmLabel: 'Delete request',
+                                                                    onConfirm: () => router.delete(route('book-requests.destroy', request.id)),
+                                                                });
                                                             }}
                                                             className="text-red-600 hover:text-red-800 transition p-1"
                                                             title="Delete request"

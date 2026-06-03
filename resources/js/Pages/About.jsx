@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
+import useConfirmModal from '@/Hooks/useConfirmModal';
 
 export default function About({ auth }) {
     const feedbackRef = useRef(null);
     const contactRef = useRef(null);
     const { flash } = usePage().props;
+    const { confirm, modal } = useConfirmModal();
 
     const { data, setData, post, processing, reset, recentlySuccessful } = useForm({
         message: '',
@@ -33,6 +35,7 @@ export default function About({ auth }) {
             header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">About Us</h2>}
         >
             <Head title="About Bookly" />
+            {modal}
 
             <div className="bg-gray-50 min-h-screen py-16 px-6">
                 <div className="max-w-3xl mx-auto space-y-16">
@@ -148,9 +151,13 @@ export default function About({ auth }) {
                                         as="button" 
                                         className="hover:text-white transition"
                                         onClick={(e) => {
-                                            if (!confirm('Are you sure you want to log out?')) {
-                                                e.preventDefault(); 
-                                            }
+                                            e.preventDefault();
+                                            confirm({
+                                                title: 'Log out?',
+                                                message: 'You will need to sign in again to continue using your account.',
+                                                confirmLabel: 'Log out',
+                                                onConfirm: () => router.post(route('logout')),
+                                            });
                                         }}
                                     >
                                         Logout
