@@ -2,6 +2,23 @@
 
 use Illuminate\Support\Str;
 
+$mysqlHost = env('DB_HOST', '127.0.0.1');
+$mysqlPort = env('DB_PORT', '3306');
+
+if ($mysqlPort === 'auto') {
+    $mysqlPort = '3306';
+
+    foreach (['3306', '3307'] as $port) {
+        $connection = @fsockopen($mysqlHost, (int) $port, $errno, $errstr, 0.15);
+
+        if ($connection) {
+            fclose($connection);
+            $mysqlPort = $port;
+            break;
+        }
+    }
+}
+
 return [
 
     /*
@@ -46,8 +63,8 @@ return [
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
+            'host' => $mysqlHost,
+            'port' => $mysqlPort,
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),

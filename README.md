@@ -42,7 +42,7 @@ php artisan key:generate
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=auto
 DB_DATABASE=biblioteka_digjitale
 DB_USERNAME=root
 DB_PASSWORD=
