@@ -343,14 +343,16 @@ export default function Index({ auth, reviews }) {
                                                             {review.user_id === auth.user.id ? 'Your review' : 'Community review'}
                                                         </span>
 
-                                                        {review.user_id === auth.user.id ? (
+                                                        {review.user_id === auth.user.id || auth.user?.role === 'admin' ? (
                                                             <div className="flex flex-wrap gap-3">
-                                                                <Link
-                                                                    href={route('reviews.edit', review.id)}
-                                                                    className="inline-flex items-center rounded-lg bg-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-600 transition-all hover:bg-gray-200"
-                                                                >
-                                                                    Edit
-                                                                </Link>
+                                                                {review.user_id === auth.user.id ? (
+                                                                    <Link
+                                                                        href={route('reviews.edit', review.id)}
+                                                                        className="inline-flex items-center rounded-lg bg-gray-100 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-600 transition-all hover:bg-gray-200"
+                                                                    >
+                                                                        Edit
+                                                                    </Link>
+                                                                ) : null}
                                                                 <button
                                                                     onClick={() => handleDelete(review.id)}
                                                                     className="inline-flex items-center rounded-lg bg-red-50 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-red-600 transition-all hover:bg-red-600 hover:text-white"
