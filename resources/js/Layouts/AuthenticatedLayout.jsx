@@ -122,6 +122,12 @@ export default function Authenticated({ user, header, children }) {
                                             </>
                                         )}
 
+                                        {user.email !== 'admin@gmail.com' && (
+                                            <Dropdown.Link href={route('faqs.index')}>
+                                                FAQ
+                                            </Dropdown.Link>
+                                        )}
+
                                         <Dropdown.Link href={route('profile.edit')}>
                                             Profile Settings
                                         </Dropdown.Link>
