@@ -1,9 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import CollectionIcon, { COLLECTION_ICON_OPTIONS } from '@/Components/CollectionIcon';
-import { Head, useForm, Link } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import { Head, useForm, Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Edit({ auth, collection }) {
-    const { data, setData, patch, processing, errors } = useForm({
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const { data, setData, patch, reset, processing, errors } = useForm({
         emertimi: collection.emertimi || '',
         pershkrimi: collection.pershkrimi || '',
         icon: collection.icon || 'library',
@@ -14,6 +17,14 @@ export default function Edit({ auth, collection }) {
         patch(route('collections.update', collection.id));
     };
 
+    const handleCancel = () => setShowCancelConfirm(true);
+
+    const confirmCancel = () => {
+        reset();
+        setShowCancelConfirm(false);
+        router.visit(route('collections.index'));
+    };
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -22,12 +33,13 @@ export default function Edit({ auth, collection }) {
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Edit Collection: <span className="text-blue-600">{collection.emertimi}</span>
                     </h2>
-                    <Link
-                        href={route('collections.index')}
+                    <button
+                        type="button"
+                        onClick={handleCancel}
                         className="text-sm font-medium text-gray-600 hover:text-blue-600 transition"
                     >
                         ← Cancel
-                    </Link>
+                    </button>
                 </div>
             }
         >
@@ -108,12 +120,13 @@ export default function Edit({ auth, collection }) {
                             </div>
 
                             <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
-                                <Link
-                                    href={route('collections.index')}
+                                <button
+                                    type="button"
+                                    onClick={handleCancel}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300 rounded-lg transition"
                                 >
                                     Cancel
-                                </Link>
+                                </button>
                                 <button
                                     type="submit"
                                     disabled={processing}
@@ -127,6 +140,29 @@ export default function Edit({ auth, collection }) {
                     </div>
                 </div>
             </div>
+            <Modal show={showCancelConfirm} onClose={() => setShowCancelConfirm(false)} maxWidth="sm">
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold">Discard changes?</h3>
+                    <p className="mt-2 text-sm text-gray-600">Are you sure you don't want to save these changes?</p>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowCancelConfirm(false)}
+                            className="rounded-2xl border px-4 py-2 text-sm font-semibold"
+                        >
+                            Keep editing
+                        </button>
+                        <button
+                            type="button"
+                            onClick={confirmCancel}
+                            className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+                        >
+                            Discard
+                        </button>
+                    </div>
+                </div>
+            </Modal>
             <footer className="bg-black text-white pt-20 pb-10 rounded-t-[50px] mt-20">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center md:text-left">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
