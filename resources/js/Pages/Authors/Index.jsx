@@ -23,7 +23,6 @@ export default function Index({ auth, authors, isAdmin }) {
             <div className="bg-[#f8f9fb] min-h-screen pb-20">
                 <div className="max-w-[1400px] mx-auto pt-8 px-8">
                     
-                    {/* Header Section */}
                     <div className="flex justify-between items-end mb-10">
                         <div>
                             <h1 className="text-3xl font-black text-gray-900 tracking-tight">Our Authors</h1>

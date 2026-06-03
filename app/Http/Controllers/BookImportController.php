@@ -25,21 +25,17 @@ class BookImportController extends Controller
             if ($header) { $header = false; continue; }
             if (empty(array_filter($row))) continue;
 
-            // 1. Ndajmë emrin dhe mbiemrin nga kolona e autorit
             $fullAuthorName = trim($row[1]);
             $parts = explode(' ', $fullAuthorName, 2);
             $emri = $parts[0];
-            $mbiemri = $parts[1] ?? 'N/A'; // Nëse s'ka mbiemër, vendos 'N/A'
+            $mbiemri = $parts[1] ?? 'N/A'; 
 
-            // 2. Krijojmë autorin duke i dhënë vlerat për të gjitha fushat NOT NULL
             $author = Author::firstOrCreate(
                 ['emri' => $emri, 'mbiemri' => $mbiemri]
             );
 
-            // 3. Krijojmë kategorinë (sigurohu që edhe kjo tabelë nuk ka fusha të tjera të detyrueshme)
             $category = Category::firstOrCreate(['emertimi' => trim($row[2])]);
 
-            // 4. Shton ose përditëson librin
             Book::updateOrCreate(
                 ['isbn' => trim($row[3])],
                 [

@@ -79,7 +79,14 @@ class BookController extends Controller
         }
 
         Book::create($validated);
-        return redirect()->route('books.index')->with('success', 'Libri u shtua me sukses!');
+
+        \App\Models\BookRequest::where('titulli_librit', $validated['titulli'])
+        ->where('statusi', 'pending')
+        ->update(['statusi' => 'completed']);
+
+    
+
+        return redirect()->route('books.index')->with('success', 'Succsesfully created!');
     }
 
     public function show(Book $book)

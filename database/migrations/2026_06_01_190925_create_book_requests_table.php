@@ -16,10 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('titulli_librit');
             $table->string('emri_autorit');
-            $table->string('statusi')->default('pending'); // pending, approved, rejected
+            $table->string('statusi')->default('pending'); 
             $table->timestamps();
         });
     }
+    
 
     /**
      * Reverse the migrations.
