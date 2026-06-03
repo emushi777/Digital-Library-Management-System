@@ -51,19 +51,23 @@ export default function Index({ auth, koleksionet }) {
                                         </div>
                                         
                                         <div className="flex items-center space-x-1 z-10">
-                                            <Link
-                                                href={route('collections.edit', koleksion.id)}
-                                                className="p-1 text-amber-600 hover:bg-amber-50 rounded transition text-xs font-medium"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                Edit
-                                            </Link>
-                                            <button
-                                                onClick={(e) => handleDeleteCollection(koleksion.id, e)}
-                                                className="p-1 text-red-600 hover:bg-red-50 rounded transition text-xs font-medium"
-                                            >
-                                                Delete
-                                            </button>
+                                            {koleksion.emertimi !== 'Finished' && (
+                                                <>
+                                                    <Link
+                                                        href={route('collections.edit', koleksion.id)}
+                                                        className="p-1 text-amber-600 hover:bg-amber-50 rounded transition text-xs font-medium"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        Edit
+                                                    </Link>
+                                                <button
+                                                    onClick={(e) => handleDeleteCollection(koleksion.id, e)}
+                                                    className="p-1 text-red-600 hover:bg-red-50 rounded transition text-xs font-medium"
+                                                >
+                                                    Delete
+                                                </button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
 

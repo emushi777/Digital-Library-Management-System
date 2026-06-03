@@ -2,6 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link, router } from '@inertiajs/react';
 
 export default function Show({ auth, collection, books, all_books = [] }) {
+    const isFinishedCollection = collection.emertimi === 'Finished';
     const { data, setData, post, processing, reset } = useForm({
         collection_id: collection.id,
         book_id: '',
@@ -38,20 +39,22 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                     <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                         Collection: <span className="text-blue-600">{collection.emertimi}</span>
                     </h2>
-                    <div className="flex items-center space-x-2">
-                        <Link
-                            href={route('collections.edit', collection.id)}
-                            className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
-                        >
-                            Rename / Edit
-                        </Link>
-                        <button
-                            onClick={handleDeleteCollection}
-                            className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
-                        >
-                            Delete Collection
-                        </button>
-                    </div>
+                    {!isFinishedCollection && (
+                        <div className="flex items-center space-x-2">
+                            <Link
+                                href={route('collections.edit', collection.id)}
+                                className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
+                            >
+                                Rename / Edit
+                            </Link>
+                            <button
+                                onClick={handleDeleteCollection}
+                                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition"
+                            >
+                                Delete Collection
+                            </button>
+                        </div>
+                    )}
                 </div>
             }
         >
@@ -104,7 +107,7 @@ export default function Show({ auth, collection, books, all_books = [] }) {
                                         
                                         <button
                                             onClick={() => handleRemoveBook(book.id)}
-                                            className="absolute top-2 right-2 bg-white text-red-500 hover:bg-red-50 p-1 rounded-full shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition duration-150 text-xs font-bold"
+                                            className={`${isFinishedCollection ? 'hidden' : ''} absolute top-2 right-2 bg-white text-red-500 hover:bg-red-50 p-1 rounded-full shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition duration-150 text-xs font-bold`}
                                             title="Remove from collection"
                                         >
                                             ✕

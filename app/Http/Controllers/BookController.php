@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Author;
 use App\Models\Book;
 use App\Models\Category;
+use App\Models\Collection;
 use App\Models\FinishedBook;
 use App\Models\Plan;
 use App\Models\Subscription;
@@ -163,6 +164,22 @@ class BookController extends Controller
             ['user_id' => $user->id, 'book_id' => $bookId],
             ['finished_at' => now()]
         );
+
+        $finishedCollection = Collection::firstOrCreate(
+            [
+                'user_id' => $user->id,
+                'emertimi' => 'Finished',
+            ],
+            [
+                'pershkrimi' => 'Books you have marked as finished.',
+                'a_eshte_publike' => false,
+            ]
+        );
+
+        $finishedCollection->books()->syncWithoutDetaching([$bookId]);
+        $finishedCollection->books()->updateExistingPivot($bookId, [
+            'data_shtimit' => now(),
+        ]);
 
         return redirect()->back()->with('success', 'Book saved successfully!');
     }
