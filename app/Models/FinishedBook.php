@@ -14,4 +14,9 @@ class FinishedBook extends Model
         'book_id',
         'finished_at',
     ];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
 }

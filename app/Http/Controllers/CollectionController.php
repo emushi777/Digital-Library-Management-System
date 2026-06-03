@@ -107,7 +107,7 @@ class CollectionController extends Controller
 
     public function show($id)
     {
-        $collection = Collection::findOrFail($id);
+        $collection = $this->findUserCollection($id);
         $books = $collection->books()
             ->with('author')
             ->when($collection->emertimi === 'Finished', function ($query) {
@@ -125,7 +125,7 @@ class CollectionController extends Controller
 
     public function edit($id)
     {
-        $collection = Collection::findOrFail($id);
+        $collection = $this->findUserCollection($id);
 
         if ($collection->emertimi === 'Finished') {
             return redirect()->route('collections.show', $collection->id)->withErrors([
@@ -146,7 +146,7 @@ class CollectionController extends Controller
             'icon' => 'required|string|in:' . implode(',', self::ICONS),
         ]);
 
-        $collection = Collection::findOrFail($id);
+        $collection = $this->findUserCollection($id);
 
         if ($collection->emertimi === 'Finished') {
             return redirect()->route('collections.show', $collection->id)->withErrors([
@@ -165,7 +165,7 @@ class CollectionController extends Controller
 
     public function destroy($id)
     {
-        $collection = Collection::findOrFail($id);
+        $collection = $this->findUserCollection($id);
 
         if ($collection->emertimi === 'Finished') {
             return redirect()->route('collections.index')->withErrors([
@@ -180,7 +180,12 @@ class CollectionController extends Controller
 
     public function addBook(Request $request)
     {
-        $collection = Collection::findOrFail($request->collection_id);
+        $request->validate([
+            'collection_id' => 'required|integer',
+            'book_id' => 'required|exists:books,id',
+        ]);
+
+        $collection = $this->findUserCollection($request->collection_id);
         $collection->books()->syncWithoutDetaching([$request->book_id]);
 
         if ($collection->emertimi === 'Finished') {
@@ -199,7 +204,12 @@ class CollectionController extends Controller
 
     public function removeBook(Request $request)
     {
-        $collection = Collection::findOrFail($request->collection_id);
+        $request->validate([
+            'collection_id' => 'required|integer',
+            'book_id' => 'required|exists:books,id',
+        ]);
+
+        $collection = $this->findUserCollection($request->collection_id);
 
         if ($collection->emertimi === 'Finished') {
             return redirect()->back()->withErrors([
@@ -210,5 +220,10 @@ class CollectionController extends Controller
         $collection->books()->detach($request->book_id);
 
         return redirect()->back()->with('success', 'Book removed from collection successfully!');
+    }
+
+    private function findUserCollection($id): Collection
+    {
+        return Collection::where('user_id', auth()->id())->findOrFail($id);
     }
 }
